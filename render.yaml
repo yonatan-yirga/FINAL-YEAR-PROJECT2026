@@ -16,7 +16,7 @@ services:
     name: internship-backend
     env: python
     plan: free
-    rootDir: backend
+    rootDir: Backend
     buildCommand: "./build.sh"
     startCommand: "gunicorn config.wsgi:application"
     envVars:
@@ -48,9 +48,10 @@ services:
     name: internship-frontend
     env: node
     plan: free
-    rootDir: frontend
+    rootDir: Frontend
     buildCommand: "npm install && npm run build"
     publishPath: dist
+
     envVars:
       - key: VITE_API_URL
         fromService:
