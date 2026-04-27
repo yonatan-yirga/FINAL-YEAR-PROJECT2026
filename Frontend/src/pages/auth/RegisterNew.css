@@ -1,0 +1,554 @@
+/**
+ * Modern Registration Styles - Upwork-Inspired Design
+ * Clean, professional, multi-step flow
+ */
+
+.register-new-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+  padding: 40px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-new-wrapper {
+  width: 100%;
+  max-width: 800px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════════ */
+
+.register-header-new {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.register-header-new h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.register-header-new p {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORM CARD
+   ═══════════════════════════════════════════════════════════ */
+
+.register-card-new {
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+.register-form-new {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORM SECTIONS
+   ═══════════════════════════════════════════════════════════ */
+
+.form-section-new {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-section-new h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ROLE SELECTION
+   ═══════════════════════════════════════════════════════════ */
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.role-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.role-card:hover {
+  border-color: #0F2D5E;
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.role-card.active {
+  border-color: #0F2D5E;
+  background: #f0f4ff;
+  box-shadow: 0 4px 12px rgba(15, 45, 94, 0.15);
+}
+
+.role-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.role-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.role-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.role-desc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.role-check {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0F2D5E;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORM GRID
+   ═══════════════════════════════════════════════════════════ */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group-new {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group-new.full-width {
+  grid-column: span 2;
+}
+
+.form-group-new label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input-new {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  color: #1a1a1a;
+  background: #fff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
+}
+
+.input-new::placeholder {
+  color: #9ca3af;
+}
+
+.input-new:focus {
+  border-color: #0F2D5E;
+  box-shadow: 0 0 0 3px rgba(15, 45, 94, 0.1);
+}
+
+.input-new.input-error {
+  border-color: #ef4444;
+}
+
+textarea.input-new {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+select.input-new {
+  cursor: pointer;
+}
+
+.error-text {
+  font-size: 13px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DEPARTMENT CHIPS
+   ═══════════════════════════════════════════════════════════ */
+
+.department-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  padding: 10px 16px;
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.chip:hover {
+  border-color: #0F2D5E;
+  background: #fff;
+}
+
+.chip.active {
+  background: #0F2D5E;
+  border-color: #0F2D5E;
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════════ */
+
+.btn-primary-new {
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #0F2D5E;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-new:hover:not(:disabled) {
+  background: #1a4380;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 45, 94, 0.2);
+}
+
+.btn-primary-new:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary-new {
+  height: 52px;
+  padding: 0 32px;
+  background: #fff;
+  color: #374151;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-new:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SPINNER
+   ═══════════════════════════════════════════════════════════ */
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ALERT
+   ═══════════════════════════════════════════════════════════ */
+
+.alert-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.alert-error svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER TEXT
+   ═══════════════════════════════════════════════════════════ */
+
+.form-footer-text {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUCCESS STATE
+   ═══════════════════════════════════════════════════════════ */
+
+.register-success-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 64px 48px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.success-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.register-success-card h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+}
+
+.register-success-card p {
+  font-size: 16px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.success-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LINKS
+   ═══════════════════════════════════════════════════════════ */
+
+.link-primary {
+  color: #0F2D5E;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link-primary:hover {
+  color: #1a4380;
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .register-card-new {
+    padding: 32px 24px;
+  }
+  
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-group-new.full-width {
+    grid-column: span 1;
+  }
+  
+  .register-header-new h1 {
+    font-size: 28px;
+  }
+  
+  .success-actions {
+    flex-direction: column;
+  }
+  
+  .btn-secondary-new {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .register-new-container {
+    padding: 24px 16px;
+  }
+  
+  .register-card-new {
+    padding: 24px 20px;
+  }
+  
+  .role-card {
+    padding: 16px;
+  }
+  
+  .role-icon {
+    font-size: 28px;
+  }
+  
+  .role-label {
+    font-size: 15px;
+  }
+  
+  .role-desc {
+    font-size: 12px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE SUPPORT (Optional)
+   ═══════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+  .register-new-container {
+    background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+  }
+  
+  .register-card-new,
+  .register-success-card {
+    background: #1f2937;
+  }
+  
+  .register-header-new h1,
+  .register-success-card h2,
+  .form-section-new h3,
+  .role-label {
+    color: #f9fafb;
+  }
+  
+  .register-header-new p,
+  .register-success-card p,
+  .role-desc,
+  .form-footer-text {
+    color: #9ca3af;
+  }
+  
+  .form-section-new h3 {
+    border-color: #374151;
+  }
+  
+  .role-card {
+    background: #111827;
+    border-color: #374151;
+  }
+  
+  .role-card:hover,
+  .role-card.active {
+    background: #1f2937;
+  }
+  
+  .input-new {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .chip {
+    background: #111827;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+  
+  .chip:hover {
+    background: #1f2937;
+  }
+  
+  .btn-secondary-new {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .btn-secondary-new:hover {
+    background: #1f2937;
+  }
+  
+  .form-group-new label {
+    color: #e5e7eb;
+  }
+}

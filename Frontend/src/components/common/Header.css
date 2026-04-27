@@ -1,0 +1,315 @@
+/**
+ * Header Styling (Elite Theme)
+ * Uses semantic CSS variables for theme switching
+ */
+
+.app-header {
+  height: 72px;
+  background-color: var(--header-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+}
+
+.header-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ── University Logo ── */
+.university-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 24px;
+  border-right: 2px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.logo-image-wrapper {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  transform: scale(1.05);
+}
+
+/* Fallback logo if image doesn't load */
+.logo-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallback-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%);
+  border: 3px solid #2d3748;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #c62828;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.logo-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #2d3748, #1a202c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-subtitle {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+/* ── Title Section ── */
+.header-title-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-bright);
+}
+
+.header-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Actions & Identity ── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-bright);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px) rotate(15deg);
+  background-color: var(--border-subtle);
+  border-color: var(--accent-navy);
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(0) rotate(0deg);
+}
+
+.header-identity {
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--border-subtle);
+  padding-left: 16px;
+  margin-left: 4px;
+}
+
+.profile-preview-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.profile-preview-btn:hover {
+  background-color: var(--bg-root);
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-subtle);
+}
+
+.header-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--accent-navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.header-user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-username {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.header-role {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.header-logout-btn {
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logout-btn:hover {
+  background-color: var(--status-error);
+  color: #fff;
+}
+
+/* Animation on Logout Hover */
+.header-logout-btn:hover svg {
+  transform: translateX(2px);
+}
+/* ── Responsive Design ── */
+@media (max-width: 1024px) {
+  .header-content {
+    max-width: 100%;
+  }
+  
+  .logo-text {
+    display: none;
+  }
+  
+  .university-logo {
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  
+  .university-logo {
+    border-right: none;
+    padding-right: 0;
+  }
+  
+  .logo-image-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .fallback-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 14px;
+  }
+  
+  .header-title-section {
+    display: none;
+  }
+  
+  .header-actions {
+    gap: 8px;
+  }
+  
+  .theme-toggle-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .header-avatar,
+  .header-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .header-user-meta {
+    display: none;
+  }
+  
+  .header-identity {
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+  }
+}

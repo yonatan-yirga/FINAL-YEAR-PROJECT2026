@@ -1,0 +1,502 @@
+/**
+ * Modern Registration Styles - Upwork-Inspired Design
+ * Clean, minimal, professional with multi-step flow
+ */
+
+/* Import Login Modern styles for consistency */
+@import './LoginModern.css';
+
+/* ============================================
+   PROGRESS INDICATOR
+   ============================================ */
+
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  padding: 0 20px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.progress-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #9ca3af;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .progress-circle {
+  background: #0D2B5E;
+  border-color: #0D2B5E;
+  color: #ffffff;
+}
+
+.progress-step.completed .progress-circle {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.progress-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  transition: color 0.3s ease;
+}
+
+.progress-step.active .progress-label {
+  color: #0D2B5E;
+}
+
+.progress-step.completed .progress-label {
+  color: #10b981;
+}
+
+.progress-line {
+  width: 60px;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 8px;
+  margin-bottom: 28px;
+  transition: background 0.3s ease;
+}
+
+.progress-step.completed + .progress-line {
+  background: #10b981;
+}
+
+/* ============================================
+   ROLE SELECTION
+   ============================================ */
+
+.role-selection-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.role-selection-title {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.role-selection-title h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.role-selection-title p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.role-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.role-card {
+  padding: 24px 20px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.role-card:hover {
+  border-color: #0D2B5E;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 43, 94, 0.12);
+}
+
+.role-card-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.role-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.role-card-description {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ============================================
+   FORM FIELDS GRID
+   ============================================ */
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.fields-grid .full-width {
+  grid-column: span 2;
+}
+
+/* ============================================
+   DEPARTMENT CHIPS
+   ============================================ */
+
+.department-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.department-chip {
+  padding: 10px 16px;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.department-chip:hover {
+  border-color: #0D2B5E;
+  background: #f9fafb;
+}
+
+.department-chip.selected {
+  background: #0D2B5E;
+  border-color: #0D2B5E;
+  color: #ffffff;
+}
+
+/* ============================================
+   SUCCESS SCREEN
+   ============================================ */
+
+.register-success-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+  background: #ffffff;
+}
+
+.success-card {
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.success-icon {
+  margin: 0 auto 28px;
+  animation: scaleIn 0.5s ease-out 0.2s both;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.5px;
+}
+
+.success-message {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #6b7280;
+  margin: 0 0 32px 0;
+}
+
+.success-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.success-actions .btn-primary-modern,
+.success-actions .btn-secondary-modern {
+  flex: 1;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   REGISTER SPECIFIC OVERRIDES
+   ============================================ */
+
+.register-modern-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.register-modern-left {
+  flex: 1;
+  background: linear-gradient(135deg, #0D2B5E 0%, #1A3F7A 50%, #0D2B5E 100%);
+  padding: 60px 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  color: #ffffff;
+}
+
+.register-modern-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: #ffffff;
+}
+
+.register-card-modern {
+  width: 100%;
+  max-width: 600px;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.register-header-modern {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.register-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.register-subtitle {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+.register-form-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .register-modern-left {
+    display: none;
+  }
+
+  .register-card-modern {
+    max-width: 540px;
+  }
+}
+
+@media (max-width: 768px) {
+  .register-modern-right {
+    padding: 24px 16px;
+  }
+
+  .register-card-modern {
+    max-width: 100%;
+  }
+
+  .register-title {
+    font-size: 24px;
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fields-grid .full-width {
+    grid-column: span 1;
+  }
+
+  .role-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-indicator {
+    padding: 0 10px;
+  }
+
+  .progress-line {
+    width: 40px;
+  }
+
+  .progress-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .progress-circle {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .progress-line {
+    width: 30px;
+    margin: 0 4px;
+  }
+
+  .role-card {
+    padding: 20px 16px;
+  }
+
+  .role-card-icon {
+    font-size: 32px;
+  }
+
+  .department-chip {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .success-title {
+    font-size: 26px;
+  }
+
+  .success-message {
+    font-size: 15px;
+  }
+
+  .success-actions {
+    flex-direction: column;
+  }
+}
+
+/* ============================================
+   TEXTAREA SPECIFIC
+   ============================================ */
+
+textarea.input-modern {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* ============================================
+   SELECT SPECIFIC
+   ============================================ */
+
+select.input-modern {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+select.input-modern:focus {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%230D2B5E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.form-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.role-card:focus {
+  outline: 2px solid #0D2B5E;
+  outline-offset: 2px;
+}
+
+.department-chip:focus {
+  outline: 2px solid #0D2B5E;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .register-modern-left,
+  .progress-indicator,
+  .btn-secondary-modern,
+  .bottom-notice-modern {
+    display: none;
+  }
+
+  .register-modern-right {
+    padding: 0;
+  }
+}

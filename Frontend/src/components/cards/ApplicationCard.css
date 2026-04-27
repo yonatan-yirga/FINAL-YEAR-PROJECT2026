@@ -1,0 +1,170 @@
+/**
+ * ApplicationCard Styles
+ */
+.application-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.application-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.application-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.application-info {
+  flex: 1;
+}
+
+.application-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 4px 0;
+}
+
+.application-subtitle {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+}
+
+.application-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.application-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.application-detail svg {
+  flex-shrink: 0;
+  color: #667eea;
+}
+
+.skills-preview {
+  color: #667eea;
+  font-weight: 500;
+}
+
+.rejection-reason {
+  background-color: #fed7d7;
+  border-left: 4px solid #f56565;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #742a2a;
+}
+
+.rejection-reason strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.acceptance-message {
+  background-color: #c6f6d5;
+  border-left: 4px solid #48bb78;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #22543d;
+}
+
+.application-card-footer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-secondary {
+  padding: 8px 16px;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #cbd5e0;
+}
+
+.btn-success {
+  padding: 8px 16px;
+  background-color: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-success:hover {
+  background-color: #38a169;
+}
+
+.btn-danger {
+  padding: 8px 16px;
+  background-color: #f56565;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: #e53e3e;
+}
+
+.btn-danger-outline {
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #f56565;
+  border: 1px solid #f56565;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger-outline:hover {
+  background-color: #fff5f5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .application-card-footer {
+    flex-direction: column;
+  }
+
+  .application-card-footer button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,323 @@
+/**
+ * Login Page - Upwork-Inspired Design
+ */
+
+/* CSS Variables */
+:root {
+  --upwork-green: #14a800;
+  --upwork-green-hover: #108a00;
+  --upwork-green-light: #e8f5e9;
+  --upwork-border: #e4e5e7;
+  --upwork-border-dark: #d5e0d5;
+  --upwork-text-dark: #1f2d3d;
+  --upwork-text-muted: #6b7177;
+  --upwork-bg: #f7f8f9;
+  --upwork-white: #ffffff;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.1);
+  
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  --transition-fast: 0.15s ease;
+}
+
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--upwork-bg);
+}
+
+/* Left Panel - Welcome */
+.login-welcome {
+  flex: 1;
+  background: var(--upwork-green);
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--upwork-white);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-welcome::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 50%;
+  height: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+.login-welcome-content {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+}
+
+.login-logo {
+  margin-bottom: 24px;
+}
+
+.login-logo-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-title {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--upwork-white);
+}
+
+.login-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.login-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.login-feature-icon {
+  width: 6px;
+  height: 6px;
+  background: var(--upwork-white);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Right Panel - Form */
+.login-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-form-container {
+  width: 100%;
+  max-width: 420px;
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+}
+
+.login-form-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-form-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin-bottom: 8px;
+}
+
+.login-form-subtitle {
+  font-size: 14px;
+  color: var(--upwork-text-muted);
+}
+
+/* Form Elements */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+}
+
+.login-input {
+  padding: 12px 14px;
+  font-size: 14px;
+  border-radius: var(--border-radius-md);
+  outline: none;
+  background: var(--upwork-white);
+  border: 1px solid var(--upwork-border);
+  color: var(--upwork-text-dark);
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+.login-input:focus {
+  border-color: var(--upwork-green);
+  box-shadow: 0 0 0 3px var(--upwork-green-light);
+}
+
+.login-input.error {
+  border-color: #dc2626;
+}
+
+.login-error {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--upwork-text-dark);
+  font-weight: 500;
+}
+
+.login-remember input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--upwork-green);
+  cursor: pointer;
+}
+
+.login-forgot {
+  color: var(--upwork-green);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.login-forgot:hover {
+  color: var(--upwork-green-hover);
+}
+
+.login-alert {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.login-button {
+  padding: 14px;
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+.login-button:hover:not(:disabled) {
+  background: var(--upwork-green-hover);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 24px;
+}
+
+.login-footer-text {
+  color: var(--upwork-text-muted);
+  margin: 0 0 12px 0;
+}
+
+.login-link {
+  color: var(--upwork-green);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.login-link:hover {
+  color: var(--upwork-green-hover);
+}
+
+.login-verify-link {
+  font-size: 13px;
+  color: var(--upwork-text-muted);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid var(--upwork-border);
+  transition: var(--transition-fast);
+}
+
+.login-verify-link:hover {
+  color: var(--upwork-text-dark);
+  border-bottom-color: var(--upwork-text-dark);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .login-welcome {
+    display: none;
+  }
+  
+  .login-form-panel {
+    flex: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-form-panel {
+    padding: 24px 16px;
+  }
+  
+  .login-form-container {
+    padding: 32px 24px;
+  }
+  
+  .login-form-title {
+    font-size: 24px;
+  }
+}

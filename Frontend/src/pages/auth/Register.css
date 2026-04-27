@@ -1,0 +1,421 @@
+/**
+ * Register Page - Upwork-Inspired Design
+ */
+
+/* CSS Variables */
+:root {
+  --upwork-green: #14a800;
+  --upwork-green-hover: #108a00;
+  --upwork-green-light: #e8f5e9;
+  --upwork-border: #e4e5e7;
+  --upwork-border-dark: #d5e0d5;
+  --upwork-text-dark: #1f2d3d;
+  --upwork-text-muted: #6b7177;
+  --upwork-bg: #f7f8f9;
+  --upwork-white: #ffffff;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.1);
+  
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  --transition-fast: 0.15s ease;
+}
+
+.register-page {
+  min-height: 100vh;
+  background: var(--upwork-bg);
+  padding: 60px 24px;
+}
+
+.register-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Header */
+.register-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.register-logo {
+  margin-bottom: 24px;
+}
+
+.register-logo-img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+}
+
+.register-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--upwork-text-dark);
+  margin-bottom: 12px;
+}
+
+.register-subtitle {
+  font-size: 15px;
+  color: var(--upwork-text-muted);
+  line-height: 1.6;
+}
+
+.register-subtitle-highlight {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+  color: var(--upwork-green);
+}
+
+/* Form Card */
+.register-card {
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+}
+
+/* Role Switcher */
+.register-role-section {
+  margin-bottom: 32px;
+}
+
+.register-role-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin-bottom: 12px;
+}
+
+.register-role-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--upwork-bg);
+  padding: 4px;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--upwork-border);
+}
+
+.register-role-tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background: transparent;
+  color: var(--upwork-text-muted);
+}
+
+.register-role-tab.active {
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+}
+
+/* Form Fields */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.register-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 20px;
+}
+
+.register-grid-full {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.register-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.register-field-full {
+  grid-column: span 2;
+}
+
+.register-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+}
+
+.register-input,
+.register-select,
+.register-textarea {
+  padding: 12px 14px;
+  font-size: 14px;
+  border-radius: var(--border-radius-md);
+  outline: none;
+  background: var(--upwork-white);
+  border: 1px solid var(--upwork-border);
+  color: var(--upwork-text-dark);
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+.register-input:focus,
+.register-select:focus,
+.register-textarea:focus {
+  border-color: var(--upwork-green);
+  box-shadow: 0 0 0 3px var(--upwork-green-light);
+}
+
+.register-input.error,
+.register-select.error,
+.register-textarea.error {
+  border-color: #dc2626;
+}
+
+.register-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.register-error {
+  font-size: 12px;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+/* Department Tags */
+.register-dept-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.register-dept-tag {
+  padding: 8px 12px;
+  border-radius: var(--border-radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background: var(--upwork-bg);
+  color: var(--upwork-text-muted);
+  border: 1px solid var(--upwork-border);
+}
+
+.register-dept-tag.selected {
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+  border-color: var(--upwork-green);
+}
+
+/* Divider */
+.register-divider {
+  height: 1px;
+  background: var(--upwork-border);
+  margin: 24px 0;
+}
+
+/* Alert */
+.register-alert {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Button */
+.register-button {
+  width: 100%;
+  padding: 14px;
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-family: inherit;
+  margin-top: 16px;
+}
+
+.register-button:hover:not(:disabled) {
+  background: var(--upwork-green-hover);
+}
+
+.register-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+}
+
+.register-footer-text {
+  color: var(--upwork-text-muted);
+}
+
+.register-link {
+  color: var(--upwork-green);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.register-link:hover {
+  color: var(--upwork-green-hover);
+}
+
+/* Success Page */
+.register-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--upwork-bg);
+  padding: 40px 24px;
+}
+
+.register-success-card {
+  max-width: 520px;
+  width: 100%;
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+}
+
+.register-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.register-success-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--upwork-text-dark);
+  margin-bottom: 12px;
+}
+
+.register-success-text {
+  font-size: 15px;
+  color: var(--upwork-text-muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.register-success-highlight {
+  display: block;
+  margin-top: 12px;
+  font-weight: 600;
+  color: var(--upwork-green);
+}
+
+.register-success-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.register-success-button {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-family: inherit;
+}
+
+.register-success-button-secondary {
+  background: var(--upwork-white);
+  color: var(--upwork-text-dark);
+  border: 1px solid var(--upwork-border);
+}
+
+.register-success-button-secondary:hover {
+  border-color: var(--upwork-border-dark);
+}
+
+.register-success-button-primary {
+  flex: 1.5;
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+  border: none;
+}
+
+.register-success-button-primary:hover {
+  background: var(--upwork-green-hover);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-page {
+    padding: 40px 16px;
+  }
+  
+  .register-card {
+    padding: 32px 24px;
+  }
+  
+  .register-title {
+    font-size: 28px;
+  }
+  
+  .register-grid,
+  .register-grid-full {
+    grid-template-columns: 1fr;
+  }
+  
+  .register-field-full {
+    grid-column: span 1;
+  }
+  
+  .register-role-tabs {
+    flex-direction: column;
+  }
+  
+  .register-success-card {
+    padding: 40px 28px;
+  }
+  
+  .register-success-actions {
+    flex-direction: column;
+  }
+  
+  .register-success-button-primary {
+    flex: 1;
+  }
+}

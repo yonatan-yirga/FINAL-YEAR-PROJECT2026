@@ -1,0 +1,39 @@
+{
+  "name": "Grading System Enhancement",
+  "description": "Upgrade from 5-grade scale (A/B/C/D/F) to detailed 12-grade scale with +/- modifiers for more granular performance assessment",
+  "status": "requirements",
+  "created": "2026-04-23",
+  "updated": "2026-04-23",
+  "type": "feature",
+  "priority": "high",
+  "tags": ["grading", "evaluation", "backend", "frontend", "database"],
+  "phases": {
+    "requirements": {
+      "status": "complete",
+      "completedAt": "2026-04-23"
+    },
+    "design": {
+      "status": "pending"
+    },
+    "implementation": {
+      "status": "pending"
+    }
+  },
+  "stakeholders": [
+    "Department Heads",
+    "Advisors",
+    "Students",
+    "Companies"
+  ],
+  "affectedComponents": [
+    "Backend/apps/reports/models.py",
+    "Backend/apps/reports/serializers.py",
+    "Backend/apps/reports/views.py",
+    "Backend/apps/reports/pdf_generator.py",
+    "Backend/apps/certificates/certificate_generator.py",
+    "Backend/apps/notifications/email_service.py",
+    "Frontend/src/pages/advisor/AdvisorEvaluationForm.jsx",
+    "Frontend/src/pages/student/StudentDashboard.jsx",
+    "Frontend/src/pages/departmentHead/DepartmentHeadDashboard.jsx"
+  ]
+}

@@ -1,0 +1,23 @@
+export const USER_ROLES = {
+  ADMIN: 'ADMIN',
+  UIL: 'UIL',
+  DEPARTMENT: 'DEPARTMENT_HEAD',
+  ADVISOR: 'ADVISOR',
+  STUDENT: 'STUDENT',
+  COMPANY: 'COMPANY',
+};
+
+export const APPLICATION_STATUS = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+};
+
+export const INTERNSHIP_STATUS = {
+  ACTIVE: 'ACTIVE',
+  CLOSED: 'CLOSED',
+  COMPLETED: 'COMPLETED',
+};
+
+export const API_URL = import.meta.env.VITE_API_URL;
+export const MEDIA_URL = import.meta.env.VITE_MEDIA_URL;

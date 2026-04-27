@@ -1,0 +1,39 @@
+:root {
+  /* Colors - Platinum, French Gray & Gunmetal Palette */
+  --primary-color: #2D3142;     /* Gunmetal */
+  --secondary-color: #ADACB5;   /* French Gray */
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #2D3142;        /* Gunmetal */
+  
+  /* Background */
+  --bg-primary: #D8D5DB;        /* Platinum */
+  --bg-secondary: #ffffff;
+  --bg-dark: #2D3142;           /* Gunmetal */
+  
+  /* Text */
+  --text-primary: #2D3142;      /* Gunmetal */
+  --text-secondary: #ADACB5;    /* French Gray */
+  --text-light: #ADACB5;        /* French Gray */
+  
+  /* Border */
+  --border-color: #ADACB5;      /* French Gray */
+  --border-radius: 8px;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Font */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+}

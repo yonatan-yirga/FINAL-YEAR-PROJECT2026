@@ -1,0 +1,355 @@
+/**
+ * StudentReports.css
+ * Upwork-Inspired Clean Professional UI
+ */
+
+.sr-root {
+  --primary: #14a800;
+  --primary-light: #e8f5e9;
+  --success: #14a800;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --text-main: #1f2d3d;
+  --text-muted: #6b7177;
+  --border: #e4e5e7;
+  --bg-page: #f7f8f9;
+  --bg-card: #ffffff;
+  
+  min-height: 100vh;
+  background: var(--bg-page);
+  color: var(--text-main);
+  padding: 20px;
+}
+
+.sr-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Progress Section - Compact */
+.sr-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sr-glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  transition: box-shadow 0.2s ease;
+}
+
+.sr-glass-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sr-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sr-progress-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sr-progress-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.sr-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.sr-progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.8s ease;
+}
+
+.sr-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-on-track { 
+  background: var(--primary-light); 
+  color: var(--success); 
+}
+
+.status-behind { 
+  background: #fee; 
+  color: var(--error); 
+}
+
+.status-in-progress { 
+  background: #fef3e2; 
+  color: var(--warning); 
+}
+
+/* Main Content Grid */
+.sr-main-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 20px;
+}
+
+/* Form Styles - Compact */
+.sr-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sr-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sr-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.sr-input, .sr-textarea {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.sr-input:focus, .sr-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(20, 168, 0, 0.1);
+}
+
+.sr-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.sr-submit-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sr-submit-btn:hover:not(:disabled) {
+  background: #0d7a00;
+}
+
+.sr-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* History Table - Compact */
+.sr-table-container {
+  overflow-x: auto;
+}
+
+.sr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sr-table thead th {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.sr-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease;
+}
+
+.sr-table tbody tr:hover {
+  background: var(--bg-page);
+}
+
+.sr-table tbody td {
+  padding: 14px 12px;
+  font-size: 14px;
+}
+
+.sr-action-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sr-action-btn:hover {
+  background: var(--bg-page);
+  border-color: var(--primary);
+}
+
+/* Month Selector Grid - Compact */
+.sr-month-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.sr-month-option {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sr-month-option:hover:not(.submitted) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.sr-month-option.selected {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.sr-month-option.submitted {
+  background: #f0f0f0;
+  border-color: #d0d0d0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.sr-month-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.sr-month-option.selected .sr-month-num {
+  color: var(--primary);
+}
+
+.sr-month-option.submitted .sr-month-num {
+  color: var(--text-muted);
+}
+
+.sr-month-status {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.sr-month-option.selected .sr-month-status {
+  color: var(--primary);
+}
+
+.sr-month-option.submitted .sr-month-status {
+  color: var(--text-muted);
+}
+
+/* File Upload - Compact */
+.sr-file-upload {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sr-file-upload:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* History Card */
+.sr-history-card {
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .sr-main-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sr-history-card {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .sr-root {
+    padding: 12px;
+  }
+  
+  .sr-progress-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sr-month-selector-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  
+  .sr-glass-card {
+    padding: 16px;
+  }
+}
+
+/* Loading Spinner */
+.si-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

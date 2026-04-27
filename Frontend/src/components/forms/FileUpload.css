@@ -1,0 +1,152 @@
+/* FileUpload Component Styles */
+
+.file-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-upload-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.required {
+  color: #f56565;
+  margin-left: 4px;
+}
+
+.file-upload-area {
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #f7fafc;
+}
+
+.file-upload-area:hover {
+  border-color: #667eea;
+  background-color: #edf2f7;
+}
+
+.file-upload-area.drag-active {
+  border-color: #667eea;
+  background-color: #e6f7ff;
+}
+
+.file-upload-area.error {
+  border-color: #f56565;
+  background-color: #fff5f5;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-upload-icon {
+  color: #a0aec0;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.file-upload-text {
+  color: #4a5568;
+}
+
+.file-upload-primary {
+  font-size: 14px;
+  margin: 0 0 4px 0;
+}
+
+.file-upload-link {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.file-upload-secondary {
+  font-size: 12px;
+  color: #718096;
+  margin: 0;
+}
+
+/* File Preview */
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f7fafc;
+}
+
+.file-icon {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: 12px;
+  color: #718096;
+  margin: 0;
+}
+
+.file-remove-btn {
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #718096;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.file-remove-btn:hover {
+  color: #f56565;
+  background-color: #fff5f5;
+}
+
+.file-upload-error {
+  font-size: 13px;
+  color: #f56565;
+  margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .file-upload-area {
+    padding: 24px 16px;
+  }
+
+  .file-preview {
+    padding: 12px;
+  }
+
+  .file-name {
+    font-size: 13px;
+  }
+
+  .file-size {
+    font-size: 11px;
+  }
+}

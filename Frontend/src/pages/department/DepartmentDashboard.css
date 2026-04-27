@@ -1,0 +1,1099 @@
+/**
+ * Department Dashboard - Upwork-Inspired Design
+ * Clean, professional, minimalist styling
+ */
+
+/* Local CSS Variables */
+:root {
+  --upwork-green: #14a800;
+  --upwork-green-hover: #108a00;
+  --upwork-green-light: #e8f5e9;
+}
+
+:root[data-theme='dark'] {
+  --upwork-green-light: rgba(20, 168, 0, 0.15);
+}
+
+/* Page Layout */
+.dd-page {
+  min-height: 100vh;
+  background-color: var(--bg-root);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background-color 0.3s ease;
+}
+
+.dd-content {
+  padding: 0 32px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Welcome Banner */
+.dd-welcome-banner {
+  background: var(--upwork-green);
+  border-radius: var(--radius-lg);
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.dd-welcome-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  z-index: 2;
+}
+
+.dd-welcome-text {
+  flex: 1;
+}
+
+.dd-welcome-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.dd-welcome-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.dd-welcome-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dd-welcome-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.dd-welcome-stat {
+  text-align: center;
+}
+
+.dd-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.dd-stat-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dd-welcome-decoration {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Alert System */
+.dd-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border: 1px solid;
+}
+
+.dd-alert-error {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+:root[data-theme='dark'] .dd-alert-error {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+}
+
+.dd-retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-left: auto;
+}
+
+.dd-retry-btn:hover {
+  background: #b91c1c;
+}
+
+/* Critical Alerts */
+.dd-critical-alerts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dd-critical-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid #f59e0b;
+}
+
+.dd-alert-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: #fef3c7;
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dd-alert-icon.dd-alert-warning {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+.dd-alert-icon.dd-alert-error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.dd-alert-content {
+  flex: 1;
+}
+
+.dd-alert-content h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin: 0 0 4px 0;
+}
+
+.dd-alert-content p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.dd-alert-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--upwork-green);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.dd-alert-action:hover {
+  background: var(--upwork-green-hover);
+}
+
+/* Main Grid Layout */
+.dd-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+.dd-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dd-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 24px;
+}
+
+/* Metrics Grid */
+.dd-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.dd-metric-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.dd-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--upwork-green);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.dd-metric-card:hover::before {
+  opacity: 1;
+}
+
+.dd-metric-clickable {
+  cursor: pointer;
+}
+
+.dd-metric-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.dd-metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dd-icon-blue {
+  background: #dbeafe;
+  color: #0284c7;
+}
+
+:root[data-theme='dark'] .dd-icon-blue {
+  background: rgba(2, 132, 199, 0.15);
+}
+
+.dd-icon-green {
+  background: var(--upwork-green-light);
+  color: var(--upwork-green);
+}
+
+.dd-icon-purple {
+  background: #e9d5ff;
+  color: #9333ea;
+}
+
+:root[data-theme='dark'] .dd-icon-purple {
+  background: rgba(147, 51, 234, 0.15);
+}
+
+.dd-icon-gold {
+  background: #fef3c7;
+  color: #f59e0b;
+}
+
+:root[data-theme='dark'] .dd-icon-gold {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.dd-metric-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.dd-metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dd-metric-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-bright);
+  line-height: 1;
+}
+
+.dd-metric-trend {
+  color: var(--upwork-green);
+  opacity: 0.6;
+}
+
+.dd-metric-pulse {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: var(--upwork-green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.dd-skeleton {
+  background: linear-gradient(90deg, var(--bg-root) 25%, var(--border-subtle) 50%, var(--bg-root) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Card Component */
+.dd-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.dd-card-warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.dd-card-success {
+  border-left: 3px solid var(--upwork-green);
+}
+
+.dd-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dd-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin: 0;
+}
+
+.dd-card-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--text-bright);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dd-card-action:hover {
+  background: var(--bg-root);
+  border-color: var(--upwork-green);
+  color: var(--upwork-green);
+}
+
+/* Chart Container */
+.dd-chart-container {
+  padding: 20px;
+}
+
+.dd-trend-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  height: 180px;
+  padding: 16px 0;
+}
+
+.dd-trend-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+}
+
+.dd-trend-fill {
+  width: 100%;
+  background: var(--upwork-green);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 6px;
+  transition: var(--transition);
+  position: relative;
+  min-height: 30px;
+}
+
+.dd-trend-fill:hover {
+  opacity: 0.8;
+}
+
+.dd-trend-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.dd-trend-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+.dd-chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.dd-chart-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* Advisor Table */
+.dd-advisor-table {
+  padding: 20px;
+}
+
+.dd-table-container {
+  overflow-x: auto;
+}
+
+.dd-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dd-table thead {
+  background: var(--bg-root);
+}
+
+.dd-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dd-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dd-table tbody tr:hover {
+  background: var(--bg-root);
+}
+
+.dd-advisor-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dd-advisor-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--upwork-green);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.dd-advisor-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 2px;
+}
+
+.dd-advisor-email {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.dd-workload-bar {
+  position: relative;
+  width: 100px;
+  height: 20px;
+  background: var(--bg-root);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dd-workload-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: var(--transition);
+}
+
+.dd-workload-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.dd-success-rate {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--upwork-green);
+}
+
+.dd-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dd-status-success {
+  background: var(--upwork-green-light);
+  color: var(--upwork-green);
+}
+
+.dd-status-error {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+.dd-table-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.dd-table-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* Actions Grid */
+.dd-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 20px;
+}
+
+.dd-action-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-root);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.dd-action-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--upwork-green);
+}
+
+.dd-action-primary {
+  background: #dbeafe;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+:root[data-theme='dark'] .dd-action-primary {
+  background: rgba(2, 132, 199, 0.15);
+}
+
+.dd-action-warning {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+:root[data-theme='dark'] .dd-action-warning {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.dd-action-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dd-action-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.dd-action-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Risk Assessment */
+.dd-risk-metrics {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dd-risk-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg-root);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.dd-risk-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.dd-risk-value {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.dd-risk-success {
+  color: var(--upwork-green);
+}
+
+.dd-risk-warning {
+  color: #f59e0b;
+}
+
+.dd-risk-error {
+  color: #dc2626;
+}
+
+.dd-risk-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--upwork-green);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 8px;
+}
+
+.dd-risk-action:hover {
+  background: var(--upwork-green-hover);
+}
+
+/* Notifications */
+.dd-notifications {
+  padding: 12px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dd-notifications-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 20px;
+  color: var(--text-muted);
+}
+
+.dd-notifications-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.dd-notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  background: var(--bg-root);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+
+.dd-notification-item:hover {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.dd-notification-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dd-notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.dd-notification-title {
+  font-size: 12px;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.dd-notification-title.dd-unread {
+  font-weight: 700;
+}
+
+.dd-notification-time {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.dd-notification-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--upwork-green);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+/* At-Risk Students */
+.dd-risk-students {
+  padding: 12px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dd-risk-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 20px;
+  color: var(--text-muted);
+}
+
+.dd-risk-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.dd-risk-student {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  background: #fef3c7;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+:root[data-theme='dark'] .dd-risk-student {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.dd-risk-student-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dd-risk-student-info {
+  flex: 1;
+}
+
+.dd-risk-student-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.dd-risk-student-reason {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Quick Links */
+.dd-quick-links {
+  padding: 12px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dd-quick-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-bright);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.dd-quick-link:hover {
+  background: var(--bg-root);
+  border-color: var(--upwork-green);
+  color: var(--upwork-green);
+}
+
+.dd-quick-link span {
+  flex: 1;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(20, 168, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(20, 168, 0, 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .dd-main-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dd-right-column {
+    position: static;
+  }
+  
+  .dd-welcome-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .dd-welcome-stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1024px) {
+  .dd-content {
+    padding: 0 24px 48px;
+  }
+  
+  .dd-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .dd-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dd-content {
+    padding: 0 16px 40px;
+  }
+  
+  .dd-welcome-banner {
+    padding: 20px 24px;
+  }
+  
+  .dd-welcome-title {
+    font-size: 20px;
+  }
+  
+  .dd-welcome-stats {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .dd-critical-alerts {
+    grid-template-columns: 1fr;
+  }
+  
+  .dd-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dd-trend-chart {
+    height: 140px;
+  }
+  
+  .dd-table-container {
+    overflow-x: scroll;
+  }
+  
+  .dd-table {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dd-welcome-banner {
+    padding: 16px 20px;
+  }
+  
+  .dd-welcome-title {
+    font-size: 18px;
+  }
+  
+  .dd-stat-value {
+    font-size: 24px;
+  }
+  
+  .dd-metric-card {
+    padding: 14px;
+  }
+  
+  .dd-metric-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .dd-metric-value {
+    font-size: 20px;
+  }
+  
+  .dd-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .dd-card-action {
+    width: 100%;
+    justify-content: center;
+  }
+}

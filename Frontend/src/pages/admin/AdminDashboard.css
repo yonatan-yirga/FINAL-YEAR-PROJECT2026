@@ -1,0 +1,630 @@
+/**
+ * Admin Dashboard - Upwork-Inspired Design
+ */
+
+/* CSS Variables */
+:root {
+  --upwork-green: #14a800;
+  --upwork-green-hover: #108a00;
+  --upwork-green-light: #e8f5e9;
+  --upwork-border: #e4e5e7;
+  --upwork-border-dark: #d5e0d5;
+  --upwork-text-dark: #1f2d3d;
+  --upwork-text-muted: #6b7177;
+  --upwork-bg: #f7f8f9;
+  --upwork-white: #ffffff;
+  --upwork-gold: #f59e0b;
+  --upwork-gold-light: #fef3c7;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.1);
+  
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  --transition-fast: 0.15s ease;
+}
+
+.admin-dashboard {
+  min-height: 100vh;
+  background: var(--upwork-bg);
+}
+
+.admin-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px 60px;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Welcome Banner */
+.admin-welcome {
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+}
+
+.admin-welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.admin-welcome-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin: 0 0 4px 0;
+}
+
+.admin-welcome-role {
+  font-size: 13px;
+  color: var(--upwork-text-muted);
+  font-weight: 500;
+}
+
+.admin-welcome-badge {
+  padding: 5px 10px;
+  background: var(--upwork-gold-light);
+  color: var(--upwork-gold);
+  border-radius: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-welcome-text {
+  font-size: 13px;
+  color: var(--upwork-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Section Title */
+.admin-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin: 0 0 12px 0;
+}
+
+/* Admin Panel Card */
+.admin-panel-card {
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+  border-left: 3px solid var(--upwork-gold);
+  border-top: 1px solid var(--upwork-border);
+  border-right: 1px solid var(--upwork-border);
+  border-bottom: 1px solid var(--upwork-border);
+}
+
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.admin-panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin: 0 0 6px 0;
+}
+
+.admin-panel-description {
+  font-size: 13px;
+  color: var(--upwork-text-muted);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 500px;
+}
+
+.admin-panel-badge {
+  padding: 5px 10px;
+  background: var(--upwork-gold-light);
+  color: var(--upwork-gold);
+  border-radius: var(--border-radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-panel-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--upwork-green);
+  color: var(--upwork-white);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-top: 12px;
+}
+
+.admin-panel-button:hover {
+  background: var(--upwork-green-hover);
+}
+
+/* Nav Cards Grid */
+.admin-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.admin-nav-card {
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  border: 1px solid var(--upwork-border);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-nav-card:hover {
+  border-color: var(--upwork-green);
+  box-shadow: var(--shadow-md);
+}
+
+.admin-nav-card.primary {
+  border-left: 3px solid var(--upwork-green);
+}
+
+.admin-nav-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--upwork-bg);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.admin-nav-card.primary .admin-nav-icon {
+  background: var(--upwork-green-light);
+}
+
+.admin-nav-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin: 0 0 6px 0;
+}
+
+.admin-nav-sub {
+  font-size: 12px;
+  color: var(--upwork-text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  position: sticky;
+  top: 24px;
+}
+
+.admin-sidebar-section {
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+}
+
+.admin-sidebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--upwork-text-dark);
+  margin: 0 0 12px 0;
+}
+
+.admin-quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-quick-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--upwork-bg);
+  border: 1px solid var(--upwork-border);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.admin-quick-link:hover {
+  border-color: var(--upwork-green);
+  background: var(--upwork-white);
+}
+
+.admin-quick-link-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-quick-link-icon {
+  font-size: 16px;
+}
+
+.admin-quick-link-label {
+  font-size: 12px;
+  color: var(--upwork-text-dark);
+  font-weight: 500;
+}
+
+.admin-quick-link-arrow {
+  font-size: 12px;
+  color: var(--upwork-text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-sidebar {
+    position: static;
+  }
+  
+  .admin-nav-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 0 16px 40px;
+  }
+  
+  .admin-nav-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-welcome {
+    padding: 20px;
+  }
+  
+  .admin-panel-card {
+    padding: 20px;
+  }
+  
+  .admin-welcome-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .admin-panel-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* Student Table Styles */
+.admin-table-container {
+  background: var(--upwork-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--upwork-border);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.admin-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--upwork-border);
+  background: var(--upwork-green);
+}
+
+.admin-table-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 400px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.admin-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: white;
+  background: transparent;
+  font-weight: 500;
+}
+
+.admin-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.admin-refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: white;
+  color: var(--upwork-green);
+  border: 1px solid white;
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.admin-refresh-btn:hover:not(:disabled) {
+  background: var(--upwork-bg);
+}
+
+.admin-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #ffebee;
+  color: #dc2626;
+  border-bottom: 1px solid #ef9a9a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.admin-retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.admin-table-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+  color: var(--upwork-text-muted);
+}
+
+.admin-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--upwork-border);
+  border-top-color: var(--upwork-green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.admin-table-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+  color: var(--upwork-text-muted);
+}
+
+.admin-table-empty p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead {
+  background: var(--upwork-bg);
+  border-bottom: 2px solid var(--upwork-border);
+}
+
+.admin-table th {
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--upwork-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid var(--upwork-border);
+  transition: var(--transition-fast);
+}
+
+.admin-table tbody tr:hover {
+  background: var(--upwork-bg);
+}
+
+.admin-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.admin-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  color: var(--upwork-text-dark);
+}
+
+.admin-table-name {
+  font-weight: 600;
+}
+
+.admin-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-status-badge.active {
+  background: var(--upwork-green-light);
+  color: var(--upwork-green);
+}
+
+.admin-status-badge.inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.admin-table-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--upwork-border);
+  background: var(--upwork-bg);
+}
+
+.admin-table-count {
+  font-size: 12px;
+  color: var(--upwork-text-muted);
+  font-weight: 500;
+}
+
+/* Table Actions */
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid;
+  border-radius: var(--border-radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.admin-action-view {
+  background: var(--upwork-green);
+  color: white;
+  border-color: var(--upwork-green);
+}
+
+.admin-action-view:hover {
+  background: var(--upwork-green-hover);
+  border-color: var(--upwork-green-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(20, 168, 0, 0.3);
+}
+
+.admin-action-settings {
+  background: transparent;
+  color: var(--upwork-text-muted);
+  border-color: var(--upwork-border);
+  padding: 6px 10px;
+}
+
+.admin-action-settings:hover {
+  background: var(--upwork-bg);
+  color: var(--upwork-text-dark);
+  border-color: var(--upwork-text-muted);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .admin-table-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .admin-table-search {
+    max-width: 100%;
+  }
+  
+  .admin-refresh-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .admin-table-wrapper {
+    overflow-x: scroll;
+  }
+  
+  .admin-table {
+    min-width: 900px;
+  }
+  
+  .admin-table-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .admin-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

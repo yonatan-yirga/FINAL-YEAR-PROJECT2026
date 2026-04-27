@@ -1,0 +1,137 @@
+/**
+ * SkillsInput Component Styles
+ */
+
+.skills-input-wrapper {
+  width: 100%;
+}
+
+.skills-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 12px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: text;
+  transition: all 0.2s;
+}
+
+.skills-input-container:hover {
+  border-color: #cbd5e0;
+}
+
+.skills-input-container:focus-within {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.skills-input-container.error {
+  border-color: #f56565;
+}
+
+.skills-input-container.error:focus-within {
+  border-color: #f56565;
+  box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+}
+
+/* Skill Tags */
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background-color: #667eea;
+  color: white;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.skill-tag:hover {
+  background-color: #5568d3;
+}
+
+.skill-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.skill-remove:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Input */
+.skills-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 4px 0;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #2d3748;
+}
+
+.skills-input::placeholder {
+  color: #a0aec0;
+}
+
+.skills-input:disabled {
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+/* Helper Text */
+.skills-input-helper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #718096;
+}
+
+.skills-count {
+  font-weight: 500;
+}
+
+.skills-hint {
+  font-style: italic;
+}
+
+/* Error Message */
+.skills-input-error {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #f56565;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .skills-input {
+    min-width: 100px;
+  }
+  
+  .skills-input-helper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
