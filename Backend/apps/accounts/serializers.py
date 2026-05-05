@@ -92,6 +92,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
             'user', 'user_email', 'full_name', 'phone_number',
             'date_of_birth', 'gender', 'university_id', 'skills',
             'headline', 'about', 'location', 'experience', 'education',
+            'projects', 'certificates', 'batch', 'year_of_study',
             'avatar', 'banner', 'document', 'created_at', 'updated_at'
         ]
         read_only_fields = ['user', 'user_email', 'university_id', 'created_at', 'updated_at']
@@ -101,15 +102,41 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     """Serializer for Company Profile with nested user data"""
     user = UserSerializer(read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    company_logo_url = serializers.SerializerMethodField()
+    company_seal_url = serializers.SerializerMethodField()
+    certificate_signature_url = serializers.SerializerMethodField()
     
     class Meta:
         model = CompanyProfile
         fields = [
             'user', 'user_email', 'company_name', 'phone_number',
             'address', 'city', 'contact_person_name', 'contact_person_title',
-            'description', 'document', 'created_at', 'updated_at'
+            'description', 'document', 'created_at', 'updated_at',
+            'company_logo', 'company_seal', 'certificate_signature',
+            'company_logo_url', 'company_seal_url', 'certificate_signature_url',
         ]
         read_only_fields = ['user', 'user_email', 'created_at', 'updated_at']
+    
+    def get_company_logo_url(self, obj):
+        if obj.company_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.company_logo.url)
+        return None
+    
+    def get_company_seal_url(self, obj):
+        if obj.company_seal:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.company_seal.url)
+        return None
+    
+    def get_certificate_signature_url(self, obj):
+        if obj.certificate_signature:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.certificate_signature.url)
+        return None
 
 
 class AdvisorProfileSerializer(serializers.ModelSerializer):

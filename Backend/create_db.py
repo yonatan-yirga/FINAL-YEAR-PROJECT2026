@@ -5,7 +5,7 @@ def create_db():
     try:
         # Connect to the default postgres database to create a new one
         conn = psycopg2.connect(
-            dbname='postgres',
+            dbname='internship',
             user='postgres',
             password='205089',
             host='localhost',

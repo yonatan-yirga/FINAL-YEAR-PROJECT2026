@@ -3,9 +3,11 @@ Certificate PDF Generator Professional A4-landscape certificate with:
   - Real DMU logo from backend/static/images/dmu_logo.png
   - Real dept head name  (Certificate.dept_head_name from Department.head_name)
   - Real company rep     (Certificate.company_rep_name / company_rep_title)
+  - Company logo, seal, and signature for authenticity
 """
 import os
 from django.conf import settings
+from django.core.files.base import ContentFile
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -13,6 +15,8 @@ from reportlab.pdfgen import canvas
 from reportlab.graphics.shapes import Drawing
 from reportlab.graphics.barcode.qr import QrCodeWidget
 from reportlab.graphics import renderPDF
+from PIL import Image
+import io
 
 # ── Palette ───────────────────────────────────────────────────────────────────
 NAVY  = colors.HexColor('#0D2B5E')
@@ -94,8 +98,25 @@ def _pill(c, cx, y, w, h, text):
     c.drawCentredString(cx + 4, y + h / 2 - 4.5, text)
 
 
-def _draw_signature(c, sx, sig_y, sig_lw, name, role, title=None):
-    """Draw one signature block: line + gold dot + name + role."""
+def _draw_signature(c, sx, sig_y, sig_lw, name, role, title=None, signature_image=None):
+    """Draw one signature block: line + gold dot + name + role + optional signature image."""
+    # Draw signature image if provided
+    if signature_image and os.path.isfile(signature_image):
+        try:
+            sig_img_height = 35
+            sig_img_width = 100
+            c.drawImage(
+                signature_image,
+                sx - sig_img_width / 2,
+                sig_y + 5,
+                width=sig_img_width,
+                height=sig_img_height,
+                mask='auto',
+                preserveAspectRatio=True,
+            )
+        except Exception:
+            pass  # If signature image fails, continue with text only
+    
     c.setStrokeColor(colors.HexColor('#A8B8C8'))
     c.setLineWidth(1)
     c.line(sx - sig_lw / 2, sig_y, sx + sig_lw / 2, sig_y)
@@ -203,6 +224,40 @@ class CertificateGenerator:
             c.setFont('Helvetica-Bold', 10)
             c.setFillColor(GOLD)
             c.drawCentredString(ex, ey - 4, 'DMU')
+        
+        # ── Company Logo (right side of header) ───────────────────────────────
+        company_logo_path = None
+        if cert.company_logo:
+            try:
+                company_logo_path = os.path.join(settings.MEDIA_ROOT, str(cert.company_logo))
+                if os.path.isfile(company_logo_path):
+                    comp_logo_size = 52
+                    comp_logo_x = W - 20 - comp_logo_size
+                    comp_logo_y = H - 11 - HH + (HH - comp_logo_size) / 2
+                    
+                    # Draw company logo with white background
+                    comp_logo_cx = comp_logo_x + comp_logo_size / 2
+                    comp_logo_cy = comp_logo_y + comp_logo_size / 2
+                    c.setFillColor(WHITE)
+                    c.circle(comp_logo_cx, comp_logo_cy, comp_logo_size / 2, stroke=0, fill=1)
+                    c.setStrokeColor(GOLD)
+                    c.setLineWidth(1.5)
+                    c.circle(comp_logo_cx, comp_logo_cy, comp_logo_size / 2, stroke=1, fill=0)
+                    
+                    c.saveState()
+                    p = c.beginPath()
+                    p.circle(comp_logo_cx, comp_logo_cy, comp_logo_size / 2 - 1)
+                    c.clipPath(p, stroke=0, fill=0)
+                    c.drawImage(
+                        company_logo_path,
+                        comp_logo_x, comp_logo_y,
+                        width=comp_logo_size, height=comp_logo_size,
+                        mask='auto',
+                        preserveAspectRatio=True,
+                    )
+                    c.restoreState()
+            except Exception:
+                pass  # If company logo fails, continue without it
 
         # University name text (centred, shifted right to avoid logo)
         c.setFont('Helvetica-Bold', 19)
@@ -325,12 +380,42 @@ class CertificateGenerator:
             name=cert.dept_head_name,
             role='Department Head',
         )
+        
+        # Get company signature image path if available
+        company_sig_path = None
+        if cert.company_signature:
+            try:
+                company_sig_path = os.path.join(settings.MEDIA_ROOT, str(cert.company_signature))
+                if not os.path.isfile(company_sig_path):
+                    company_sig_path = None
+            except Exception:
+                company_sig_path = None
+        
         _draw_signature(
             c, W / 2 + 160, sig_y, sig_lw,
             name=cert.company_rep_name,
             role='Company Representative',
             title=cert.company_rep_title,
+            signature_image=company_sig_path,
         )
+        
+        # ── Company Seal (if available) ───────────────────────────────────────
+        if cert.company_seal:
+            try:
+                seal_path = os.path.join(settings.MEDIA_ROOT, str(cert.company_seal))
+                if os.path.isfile(seal_path):
+                    seal_size = 70
+                    seal_x = W / 2 + 160 - seal_size / 2
+                    seal_y = sig_y - 80
+                    c.drawImage(
+                        seal_path,
+                        seal_x, seal_y,
+                        width=seal_size, height=seal_size,
+                        mask='auto',
+                        preserveAspectRatio=True,
+                    )
+            except Exception:
+                pass  # If seal fails, continue without it
 
         # ── Footer ────────────────────────────────────────────────────────────
         FH = 26

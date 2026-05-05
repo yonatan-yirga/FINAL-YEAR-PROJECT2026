@@ -34,17 +34,30 @@ export const AuthProvider = ({ children }) => {
         const storedUser = authService.getUser();
         
         if (token && storedUser) {
-          // Verify token is still valid by fetching profile
-          const response = await authService.getProfile();
+          // Token and user exist, restore them immediately
+          setUser(storedUser);
+          setIsAuthenticated(true);
           
-          if (response.success) {
-            setUser(response.data.user);
-            setIsAuthenticated(true);
-          } else {
-            // Token invalid, clear auth data
-            authService.clearAuthData();
-            setUser(null);
-            setIsAuthenticated(false);
+          // Verify token is still valid by fetching profile in background
+          // This doesn't block the UI from loading
+          try {
+            const response = await authService.getProfile();
+            
+            if (response.success) {
+              // Update user with latest data from server
+              setUser(response.data.user);
+            } else {
+              // Token invalid, clear auth data
+              console.warn('Token validation failed, clearing auth data');
+              authService.clearAuthData();
+              setUser(null);
+              setIsAuthenticated(false);
+            }
+          } catch (error) {
+            // Network error or server error during profile fetch
+            // Keep user logged in with stored data (they might be offline)
+            console.warn('Profile fetch failed, keeping user logged in with cached data:', error.message);
+            // Don't clear auth data on network errors
           }
         } else {
           setUser(null);

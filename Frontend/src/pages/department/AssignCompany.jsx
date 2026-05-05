@@ -81,30 +81,76 @@ const AssignCompany = () => {
   const fetchCompanyInternships = async (companyId) => {
     try {
       setInternships([]);
+      setError(''); // Clear previous errors
       
-      // Fetch internships for the selected company
+      console.log('🔍 Fetching internships for company ID:', companyId);
+      console.log('🔍 Company object:', selectedCompany);
+      
+      if (!companyId) {
+        console.error('❌ No company ID provided!');
+        setError('Invalid company selected');
+        return;
+      }
+      
+      // Fetch ALL internships for the selected company
       const response = await internshipService.getAll({ 
-        company_id: companyId,
-        status: 'OPEN' // Only show open internships
+        company_id: companyId
       });
       
-      if (response.success && Array.isArray(response.data)) {
-        // Filter to only show internships with available slots
-        const availableInternships = response.data.filter(
-          internship => internship.available_slots > 0
-        );
-        setInternships(availableInternships);
-      } else {
-        console.error('Failed to fetch internships:', response.error);
-        setInternships([]);
-        if (response.error) {
-          setError(`Failed to load internships: ${response.error}`);
+      console.log('📦 Full API response:', response);
+      console.log('📦 Response.data:', response.data);
+      console.log('📦 Response.success:', response.success);
+      console.log('📦 Response.error:', response.error);
+      
+      if (response.success) {
+        // Handle different response formats
+        let internshipData = [];
+        
+        // Check if response.data is an array
+        if (Array.isArray(response.data)) {
+          internshipData = response.data;
+          console.log('✅ Data is array, length:', internshipData.length);
+        } 
+        // Check if response.data has results (paginated)
+        else if (response.data && Array.isArray(response.data.results)) {
+          internshipData = response.data.results;
+          console.log('✅ Data has results array, length:', internshipData.length);
+        } 
+        // Check if response.data.data exists
+        else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          internshipData = response.data.data;
+          console.log('✅ Data has data.data array, length:', internshipData.length);
         }
+        // Check if response itself is the array
+        else if (response && Array.isArray(response)) {
+          internshipData = response;
+          console.log('✅ Response itself is array, length:', internshipData.length);
+        }
+        else {
+          console.warn('⚠️ Unexpected response format:', typeof response.data, response.data);
+        }
+        
+        console.log('📋 Final internship data:', internshipData);
+        console.log('📋 First internship (if any):', internshipData[0]);
+        
+        setInternships(internshipData);
+        
+        if (internshipData.length === 0) {
+          setError('This company has no internship postings yet');
+        }
+      } else {
+        console.error('❌ API returned success=false');
+        console.error('❌ Error message:', response.error);
+        setInternships([]);
+        setError(response.error || 'Failed to load internships');
       }
     } catch (err) {
-      console.error('Error fetching internships:', err);
+      console.error('❌ Exception while fetching internships:', err);
+      console.error('❌ Exception name:', err.name);
+      console.error('❌ Exception message:', err.message);
+      console.error('❌ Exception stack:', err.stack);
       setInternships([]);
-      setError('An error occurred while loading internships');
+      setError('An error occurred while loading internships: ' + (err.message || 'Unknown error'));
     }
   };
 
@@ -383,31 +429,106 @@ const AssignCompany = () => {
             ) : internships.length === 0 ? (
               <div className="ac-empty">
                 <Briefcase size={32} />
-                <p>No open internships available for this company</p>
+                <p>No internship postings found</p>
+                <small>This company hasn't posted any internships yet</small>
               </div>
             ) : (
-              <div className="ac-list">
+              <div className="ac-internship-list">
                 {internships.map(internship => (
                   <div
                     key={internship.id}
-                    className={`ac-list-item ${selectedInternship?.id === internship.id ? 'selected' : ''}`}
+                    className={`ac-internship-card ${selectedInternship?.id === internship.id ? 'selected' : ''} ${internship.available_slots === 0 ? 'no-slots' : ''}`}
                     onClick={() => setSelectedInternship(internship)}
                   >
-                    <div className="ac-item-icon">
-                      <Briefcase size={18} />
+                    <div className="ac-internship-header">
+                      <div className="ac-internship-icon">
+                        <Briefcase size={20} />
+                      </div>
+                      <div className="ac-internship-title-section">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <h4 style={{ margin: 0 }}>{internship.title}</h4>
+                          {internship.status && (
+                            <span className={`ac-status-badge ${internship.status.toLowerCase()}`}>
+                              {internship.status}
+                            </span>
+                          )}
+                        </div>
+                        <div className="ac-internship-meta">
+                          <span className="ac-meta-item">
+                            <Calendar size={12} />
+                            {internship.duration_months} months
+                          </span>
+                          <span className="ac-meta-item">
+                            📍 {internship.location || 'Location not specified'}
+                          </span>
+                          <span className={`ac-slots-badge ${
+                            internship.available_slots > 5 ? 'high' : 
+                            internship.available_slots > 0 ? 'low' : 'none'
+                          }`}>
+                            {internship.available_slots || 0} slots available
+                          </span>
+                        </div>
+                      </div>
+                      {selectedInternship?.id === internship.id && (
+                        <CheckCircle size={20} className="ac-check-icon-large" />
+                      )}
                     </div>
-                    <div className="ac-item-info">
-                      <h4>{internship.title}</h4>
-                      <p>
-                        <Calendar size={12} />
-                        {internship.duration_months} months • Starts {internship.start_date}
-                      </p>
-                      <p className="ac-slots">
-                        {internship.available_slots || 0} slots available
-                      </p>
+
+                    <div className="ac-internship-body">
+                      <div className="ac-internship-section">
+                        <h5>Description</h5>
+                        <p>{internship.description || 'No description provided'}</p>
+                      </div>
+
+                      {internship.required_skills && (
+                        <div className="ac-internship-section">
+                          <h5>Required Skills</h5>
+                          <div className="ac-skills-tags">
+                            {internship.required_skills.split(',').map((skill, idx) => (
+                              <span key={idx} className="ac-skill-tag">
+                                {skill.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="ac-internship-section">
+                        <h5>Duration & Timeline</h5>
+                        <div className="ac-timeline-info">
+                          <div className="ac-timeline-item">
+                            <strong>Start Date:</strong> {new Date(internship.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </div>
+                          {internship.end_date && (
+                            <div className="ac-timeline-item">
+                              <strong>End Date:</strong> {new Date(internship.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </div>
+                          )}
+                          <div className="ac-timeline-item">
+                            <strong>Duration:</strong> {internship.duration_months} months
+                          </div>
+                        </div>
+                      </div>
+
+                      {internship.stipend && (
+                        <div className="ac-internship-section">
+                          <h5>Stipend</h5>
+                          <p className="ac-stipend">{internship.stipend}</p>
+                        </div>
+                      )}
+
+                      {internship.available_slots === 0 && (
+                        <div className="ac-warning-box">
+                          <AlertTriangle size={16} />
+                          <span>No slots available - Assignment may require approval</span>
+                        </div>
+                      )}
                     </div>
+
                     {selectedInternship?.id === internship.id && (
-                      <CheckCircle size={18} className="ac-check-icon" />
+                      <div className="ac-selected-indicator">
+                        ✓ Selected for Assignment
+                      </div>
                     )}
                   </div>
                 ))}

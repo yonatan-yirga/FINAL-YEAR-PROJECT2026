@@ -24,24 +24,43 @@ class EmailService:
         Returns (success, error_message)
         """
         try:
+            # Validate recipient email
+            if not recipient or '@' not in recipient:
+                error_msg = f'Invalid recipient email: {recipient}'
+                logger.error(error_msg)
+                return False, error_msg
+            
+            # Validate email configuration (only strictly required if using SMTP)
+            is_smtp = getattr(settings, 'EMAIL_BACKEND', '').endswith('smtp.EmailBackend')
+            if is_smtp and not getattr(settings, 'EMAIL_HOST_USER', None):
+                error_msg = 'EMAIL_HOST_USER not configured for SMTP'
+                logger.error(error_msg)
+                return False, error_msg
+
+            
             # Create plain text version
             text_content = strip_tags(html_content)
+            
+            logger.info(f'Attempting to send email to {recipient}: {subject}')
+            
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or 'noreply@ims.edu'
             
             send_mail(
                 subject=subject,
                 message=text_content,
-                from_email=settings.DEFAULT_FROM_EMAIL,
+                from_email=from_email,
                 recipient_list=[recipient],
                 html_message=html_content,
                 fail_silently=False,
             )
             
-            logger.info(f'Email sent successfully to {recipient}: {subject}')
+            logger.info(f'✅ Email sent successfully to {recipient}: {subject}')
             return True, None
             
         except Exception as e:
-            error_msg = f'Failed to send email to {recipient}: {str(e)}'
+            error_msg = f'❌ Failed to send email to {recipient}: {str(e)}'
             logger.error(error_msg)
+            logger.exception('Full email error traceback:')
             return False, error_msg
     
     @staticmethod
@@ -502,6 +521,70 @@ class EmailService:
             html_content=html,
         )
 
+    @classmethod
+    def send_placement_assigned_to_student_email(cls, student, internship):
+        """
+        Send email to student when they are assigned a placement by department head
+        """
+        try:
+            dashboard_url = f"{settings.CORS_ALLOWED_ORIGINS[0]}/student/applications"
+        except (AttributeError, IndexError):
+            dashboard_url = "http://localhost:5173/student/applications"
+        
+        content = f"""
+            <p>You have been directly assigned to an internship placement by your Department Head.</p>
+            <div style="background-color: #ebf8ff; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #4299e1;">
+                <p style="margin: 5px 0;"><strong>Company:</strong> {internship.get_company_name()}</p>
+                <p style="margin: 5px 0;"><strong>Position:</strong> {internship.title}</p>
+            </div>
+            <p>Please check your dashboard for further details and next steps.</p>
+        """
+        
+        html = cls._create_html_email(
+            title='Internship Placement Assigned',
+            content=content,
+            button_text='View Placement Details',
+            button_url=dashboard_url
+        )
+        
+        return cls._send_html_email(
+            recipient=student.email,
+            subject='Internship Placement Assigned',
+            html_content=html
+        )
+
+    @classmethod
+    def send_student_assigned_to_company_email(cls, company, student, internship):
+        """
+        Send email to company when a student is assigned to them by department head
+        """
+        try:
+            dashboard_url = f"{settings.CORS_ALLOWED_ORIGINS[0]}/company/applications"
+        except (AttributeError, IndexError):
+            dashboard_url = "http://localhost:5173/company/applications"
+        
+        content = f"""
+            <p>A new student has been directly assigned to your internship position by the university's Department Head.</p>
+            <div style="background-color: #ebf8ff; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #4299e1;">
+                <p style="margin: 5px 0;"><strong>Student Name:</strong> {student.get_full_name()}</p>
+                <p style="margin: 5px 0;"><strong>Position:</strong> {internship.title}</p>
+            </div>
+            <p>Please review the student's profile in your dashboard and proceed with the necessary onboarding steps.</p>
+        """
+        
+        html = cls._create_html_email(
+            title='New Student Assigned',
+            content=content,
+            button_text='View Student Details',
+            button_url=dashboard_url
+        )
+        
+        return cls._send_html_email(
+            recipient=company.email,
+            subject='New Student Assigned to Internship',
+            html_content=html
+        )
+
     # ── Phase 9: Final Report Email Notifications ──────────────────────────────
 
     @classmethod
@@ -611,4 +694,39 @@ class EmailService:
             recipient=dept_user.email,
             subject=f'Final Report Ready for Approval — {student_name}',
             html_content=html,
+        )
+
+    @classmethod
+    def send_department_created_email(cls, dept_name, head_name, head_email, temp_password):
+        """
+        Notify a department head that their department has been registered
+        and provide their initial login credentials.
+        """
+        try:
+            login_url = f"{settings.CORS_ALLOWED_ORIGINS[0]}/login" if settings.CORS_ALLOWED_ORIGINS else "http://localhost:5173/login"
+        except (IndexError, AttributeError):
+            login_url = "http://localhost:5173/login"
+
+        content = f"""
+            <p>Dear {head_name},</p>
+            <p>Your department, <strong>{dept_name}</strong>, has been officially registered in the University Internship Management System.</p>
+            <p>An administrative account has been created for you with the following credentials:</p>
+            <div style="background-color: #f7fafc; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #667eea;">
+                <p style="margin: 5px 0;"><strong>Email:</strong> {head_email}</p>
+                <p style="margin: 5px 0;"><strong>Temporary Password:</strong> <code style="background-color: #edf2f7; padding: 2px 6px; border-radius: 3px;">{temp_password}</code></p>
+            </div>
+            <p><strong>Important:</strong> Please log in and change your password immediately. As Department Head, you can now manage placements, advisors, and reports for your students.</p>
+        """
+        
+        html = cls._create_html_email(
+            title='Department Account Created',
+            content=content,
+            button_text='Login to Your Dashboard',
+            button_url=login_url
+        )
+        
+        return cls._send_html_email(
+            recipient=head_email,
+            subject=f'Account Created: Department Head of {dept_name}',
+            html_content=html
         )

@@ -9,6 +9,14 @@ from apps.reports.models import FinalReport
 from apps.departments.models import Department, Escalation, DepartmentCycle
 
 
+class DepartmentSerializer(serializers.ModelSerializer):
+    """Full serializer for department management"""
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'head_name', 'email', 'phone_number', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class DepartmentStatisticsSerializer(serializers.Serializer):
     """Serializer for department statistics"""
     total_students = serializers.IntegerField()
@@ -36,6 +44,7 @@ class DepartmentStudentSerializer(serializers.ModelSerializer):
     start_date = serializers.SerializerMethodField()
     is_eligible = serializers.BooleanField(source='student_profile.is_eligible', read_only=True)
     year_of_study = serializers.IntegerField(source='student_profile.year_of_study', read_only=True)
+    batch = serializers.CharField(source='student_profile.batch', read_only=True, allow_null=True)
     
     class Meta:
         model = User
@@ -52,6 +61,7 @@ class DepartmentStudentSerializer(serializers.ModelSerializer):
             'start_date',
             'is_eligible',
             'year_of_study',
+            'batch',
             'is_active',
             'created_at',
         ]

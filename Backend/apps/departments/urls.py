@@ -2,16 +2,21 @@
 Department management endpoints
 """
 from django.urls import path
-from .views import DepartmentViewSet
+from .views import DepartmentViewSet, UILDepartmentViewSet
 
 # Department endpoints (no router needed, using ViewSet as view)
 urlpatterns = [
+    # Department Management (UIL/Admin)
+    path('', UILDepartmentViewSet.as_view({'get': 'list', 'post': 'create'}), name='department-list-create'),
+    path('<int:pk>/manage/', UILDepartmentViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='department-detail-manage'),
+
     # Statistics
     path('statistics/', DepartmentViewSet.as_view({'get': 'statistics'}), name='department-statistics'),
     
     # Lists
     path('students/', DepartmentViewSet.as_view({'get': 'students'}), name='department-students'),
     path('advisors/', DepartmentViewSet.as_view({'get': 'advisors'}), name='department-advisors'),
+    path('advisors/<int:pk>/students/', DepartmentViewSet.as_view({'get': 'advisor_students'}), name='department-advisor-students'),
     path('companies/', DepartmentViewSet.as_view({'get': 'companies'}), name='department-companies'),
     
     # Advisor Assignment

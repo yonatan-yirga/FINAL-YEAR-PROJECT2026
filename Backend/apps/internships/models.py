@@ -52,6 +52,12 @@ class Internship(models.Model):
         max_length=200,
         help_text='City or address where internship takes place'
     )
+    company_logo = models.ImageField(
+        upload_to='internship_logos/',
+        null=True,
+        blank=True,
+        help_text='Optional company logo for this internship posting'
+    )
     
     # Duration
     duration_months = models.IntegerField(
@@ -234,6 +240,10 @@ class Internship(models.Model):
         Called when an application is accepted
         Updates status to FILLED if all slots are taken
         """
+        # Refresh from database to get latest application count
+        self.refresh_from_db()
+        
+        # Check if all slots are now filled
         if self.available_slots == 0:
             self.status = 'FILLED'
             self.save()

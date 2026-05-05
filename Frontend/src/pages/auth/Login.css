@@ -321,3 +321,92 @@
     font-size: 24px;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   OAUTH BUTTONS
+   ═══════════════════════════════════════════════════════════ */
+
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.oauth-button {
+  width: 100%;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.oauth-button svg {
+  flex-shrink: 0;
+}
+
+.oauth-button.google {
+  background: #ffffff;
+  border: 1px solid #dadce0;
+  color: #3c4043;
+}
+
+.oauth-button.google:hover {
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+.oauth-button.github {
+  background: #24292e;
+  border: none;
+  color: #ffffff;
+}
+
+.oauth-button.github:hover {
+  background: #2f363d;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+  position: relative;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.login-divider span {
+  padding: 0 16px;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .oauth-buttons {
+    gap: 10px;
+  }
+
+  .oauth-button {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}

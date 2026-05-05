@@ -49,9 +49,12 @@ class RegisterView(APIView):
             
             # Send notifications (Applicant confirmation + UIL office alert)
             try:
-                NotificationService.notify_registration_submitted(registration)
+                result = NotificationService.notify_registration_submitted(registration)
+                print(f'✅ Registration notification sent for {registration.email}')
             except Exception as e:
-                print(f'Notification error: {e}')
+                print(f'❌ Notification error for {registration.email}: {e}')
+                import traceback
+                traceback.print_exc()
             
             return Response(
                 {

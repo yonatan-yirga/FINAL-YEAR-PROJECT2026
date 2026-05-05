@@ -5,9 +5,6 @@ Handles WebRTC signaling for video/audio calls
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 
 class CallConsumer(AsyncWebsocketConsumer):
@@ -17,15 +14,23 @@ class CallConsumer(AsyncWebsocketConsumer):
     
     async def connect(self):
         """Accept WebSocket connection"""
+        print("=" * 60)
+        print("🔌 CallConsumer.connect() called!")
+        print(f"   Scope: {self.scope}")
+        print("=" * 60)
+        
         self.user = self.scope['user']
         
         if not self.user.is_authenticated:
+            print(f"❌ WebSocket connection rejected: User not authenticated")
             await self.close()
             return
         
         # Create a unique room for this user
         self.room_name = f"user_{self.user.id}"
         self.room_group_name = f"call_{self.room_name}"
+        
+        print(f"✅ WebSocket connected: User {self.user.id} ({self.user.email}) joined {self.room_group_name}")
         
         # Join room group
         await self.channel_layer.group_add(
@@ -81,13 +86,27 @@ class CallConsumer(AsyncWebsocketConsumer):
         target_user_id = data.get('target_user_id')
         call_type = data.get('call_type', 'video')  # video or audio
         
+        # Get caller name from profile
+        caller_name = self.user.email  # Default to email
+        try:
+            if self.user.role == 'STUDENT' and hasattr(self.user, 'student_profile'):
+                caller_name = self.user.student_profile.full_name
+            elif self.user.role == 'ADVISOR' and hasattr(self.user, 'advisor_profile'):
+                caller_name = self.user.advisor_profile.full_name
+            elif self.user.role == 'COMPANY' and hasattr(self.user, 'company_profile'):
+                caller_name = self.user.company_profile.company_name
+        except Exception:
+            pass
+        
+        print(f"📞 Call invite from {self.user.id} ({caller_name}) to {target_user_id}")
+        
         # Send invitation to target user
         await self.channel_layer.group_send(
             f"call_user_{target_user_id}",
             {
                 'type': 'call_invitation',
                 'caller_id': self.user.id,
-                'caller_name': self.user.get_full_name() or self.user.username,
+                'caller_name': caller_name,
                 'call_type': call_type,
                 'timestamp': data.get('timestamp')
             }
@@ -97,13 +116,27 @@ class CallConsumer(AsyncWebsocketConsumer):
         """Handle call acceptance"""
         caller_id = data.get('caller_id')
         
+        # Get accepter name from profile
+        accepter_name = self.user.email  # Default to email
+        try:
+            if self.user.role == 'STUDENT' and hasattr(self.user, 'student_profile'):
+                accepter_name = self.user.student_profile.full_name
+            elif self.user.role == 'ADVISOR' and hasattr(self.user, 'advisor_profile'):
+                accepter_name = self.user.advisor_profile.full_name
+            elif self.user.role == 'COMPANY' and hasattr(self.user, 'company_profile'):
+                accepter_name = self.user.company_profile.company_name
+        except Exception:
+            pass
+        
+        print(f"✅ Call accepted by {self.user.id} ({accepter_name}) from {caller_id}")
+        
         # Notify caller that call was accepted
         await self.channel_layer.group_send(
             f"call_user_{caller_id}",
             {
                 'type': 'call_accepted',
                 'accepter_id': self.user.id,
-                'accepter_name': self.user.get_full_name() or self.user.username
+                'accepter_name': accepter_name
             }
         )
     
@@ -138,6 +171,8 @@ class CallConsumer(AsyncWebsocketConsumer):
         target_user_id = data.get('target_user_id')
         offer = data.get('offer')
         
+        print(f"📡 WebRTC offer from {self.user.id} to {target_user_id}")
+        
         # Forward offer to target user
         await self.channel_layer.group_send(
             f"call_user_{target_user_id}",
@@ -153,6 +188,8 @@ class CallConsumer(AsyncWebsocketConsumer):
         target_user_id = data.get('target_user_id')
         answer = data.get('answer')
         
+        print(f"📡 WebRTC answer from {self.user.id} to {target_user_id}")
+        
         # Forward answer to target user
         await self.channel_layer.group_send(
             f"call_user_{target_user_id}",
@@ -167,6 +204,8 @@ class CallConsumer(AsyncWebsocketConsumer):
         """Handle ICE candidate"""
         target_user_id = data.get('target_user_id')
         candidate = data.get('candidate')
+        
+        print(f"🧊 ICE candidate from {self.user.id} to {target_user_id}")
         
         # Forward ICE candidate to target user
         await self.channel_layer.group_send(

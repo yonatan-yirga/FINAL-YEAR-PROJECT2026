@@ -84,6 +84,8 @@ class RegistrationRequest(models.Model):
     student_gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
     student_university_id = models.CharField(max_length=50, null=True, blank=True)
     student_skills = models.TextField(null=True, blank=True)
+    student_batch = models.CharField(max_length=50, null=True, blank=True, help_text='Student batch/cohort')
+    student_year_of_study = models.IntegerField(null=True, blank=True, help_text='Year of study (1-5)')
     
     # Company-specific fields
     company_name = models.CharField(max_length=255, null=True, blank=True)
@@ -170,6 +172,8 @@ class RegistrationRequest(models.Model):
                 gender=self.student_gender,
                 university_id=self.student_university_id,
                 skills=self.student_skills,
+                batch=self.student_batch,
+                year_of_study=self.student_year_of_study or 4,
                 document=self.document
             )
         

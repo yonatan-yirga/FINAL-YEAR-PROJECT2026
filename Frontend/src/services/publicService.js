@@ -7,6 +7,44 @@ import apiService from './api';
 
 const publicService = {
   /**
+   * Get public list of internships
+   * No authentication required
+   * @returns {Promise} List of internships
+   */
+  getPublicInternships: async () => {
+    try {
+      console.log('Fetching public internships...');
+      
+      const response = await apiService.get('/internships/public/', { 
+        params: { 
+          ordering: '-created_at'
+        } 
+      });
+      
+      console.log('Public internships response:', response);
+      
+      if (!response || !Array.isArray(response)) {
+        console.error('Invalid response format:', response);
+        return {
+          success: false,
+          error: 'Invalid response from server',
+        };
+      }
+      
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      console.error('Error fetching public internships:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Failed to fetch internships',
+      };
+    }
+  },
+
+  /**
    * Get public list of companies with active internships
    * No authentication required
    * @returns {Promise} List of companies

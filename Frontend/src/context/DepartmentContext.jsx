@@ -50,19 +50,31 @@ export const DepartmentProvider = ({ children }) => {
   const fetchDepartmentList = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/departments/', {
+      const token = localStorage.getItem('authToken'); // Fixed: was 'token', should be 'authToken'
+      
+      if (!token) {
+        console.warn('No auth token found, skipping department fetch');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/departments/', {
         headers: {
-          'Authorization': `Token ${localStorage.getItem('token')}`,
+          'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
       if (response.ok) {
         const data = await response.json();
-        setDepartmentList(data);
+        setDepartmentList(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch departments:', response.status, response.statusText);
+        setDepartmentList([]);
       }
     } catch (error) {
       console.error('Error fetching departments:', error);
+      setDepartmentList([]);
     } finally {
       setLoading(false);
     }

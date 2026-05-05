@@ -139,12 +139,13 @@ const uilService = {
    * Get all approved users — filterable by role
    * GET /api/auth/users/?role=STUDENT&search=...
    */
-  getUsers: async (role = null, search = '', page = 1) => {
+  getUsers: async (role = null, search = '', page = 1, ordering = '') => {
     try {
       const params = new URLSearchParams();
-      if (role)   params.append('role',   role);
-      if (search) params.append('search', search);
-      if (page > 1) params.append('page', page);
+      if (role)     params.append('role',     role);
+      if (search)   params.append('search',   search);
+      if (page > 1) params.append('page',     page);
+      if (ordering) params.append('ordering', ordering);
       const url = `/auth/users/${params.toString() ? '?' + params.toString() : ''}`;
       const response = await apiService.get(url);
       return { success: true, data: response };
@@ -152,6 +153,51 @@ const uilService = {
       return {
         success: false,
         error: error.response?.data?.error || error.response?.data?.detail || 'Failed to fetch users',
+      };
+    }
+  },
+
+  /**
+   * Get all departments (for management)
+   */
+  getDepartments: async () => {
+    try {
+      const response = await apiService.get('/departments/');
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to fetch departments',
+      };
+    }
+  },
+
+  /**
+   * Create a new department
+   */
+  createDepartment: async (deptData) => {
+    try {
+      const response = await apiService.post('/departments/', deptData);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || error.response?.data?.detail || 'Failed to create department',
+      };
+    }
+  },
+
+  /**
+   * Delete a department
+   */
+  deleteDepartment: async (id) => {
+    try {
+      await apiService.delete(`/departments/${id}/manage/`);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to delete department',
       };
     }
   },

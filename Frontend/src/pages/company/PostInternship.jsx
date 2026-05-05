@@ -40,6 +40,16 @@ const buildSchema = (isEdit) =>
       .min(1, 'At least 1 applicant required')
       .max(50, 'Maximum 50 applicants allowed')
       .required('Max applicants is required'),
+    company_logo: Yup.mixed()
+      .nullable()
+      .test('fileSize', 'File size must be less than 2MB', (value) => {
+        if (!value) return true; // Optional field
+        return value.size <= 2 * 1024 * 1024; // 2MB
+      })
+      .test('fileType', 'Only image files are allowed (JPG, PNG, GIF)', (value) => {
+        if (!value) return true; // Optional field
+        return ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'].includes(value.type);
+      }),
   });
 
 const PostInternship = () => {
@@ -74,6 +84,7 @@ const PostInternship = () => {
           end_date: editInternship.end_date || '',
           application_deadline: editInternship.application_deadline || '',
           max_applicants: editInternship.max_applicants || 5,
+          company_logo: null,
         }
           : {
             title: '',
@@ -85,6 +96,7 @@ const PostInternship = () => {
             end_date: '',
             application_deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             max_applicants: 5,
+            company_logo: null,
           };
 
   // Format to YYYY-MM-DD using LOCAL date parts — NOT toISOString() which shifts
@@ -103,15 +115,27 @@ const PostInternship = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       setSubmitError('');
-      const payload = {
-        ...values,
-        start_date: formatDate(values.start_date) || null,
-        end_date: formatDate(values.end_date) || null,
-        application_deadline: formatDate(values.application_deadline) || null,
-      };
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('title', values.title);
+      formData.append('description', values.description);
+      formData.append('required_skills', values.required_skills);
+      formData.append('location', values.location);
+      formData.append('duration_months', values.duration_months);
+      formData.append('start_date', formatDate(values.start_date) || '');
+      formData.append('end_date', formatDate(values.end_date) || '');
+      formData.append('application_deadline', formatDate(values.application_deadline) || '');
+      formData.append('max_applicants', values.max_applicants);
+      
+      // Add logo if provided
+      if (values.company_logo) {
+        formData.append('company_logo', values.company_logo);
+      }
+      
       const result = isEdit && editInternship
-        ? await internshipService.update(editInternship.id, payload)
-        : await internshipService.create(payload);
+        ? await internshipService.update(editInternship.id, formData)
+        : await internshipService.create(formData);
 
       if (result.success) {
         navigate('/company/my-internships', {
@@ -174,6 +198,38 @@ const PostInternship = () => {
                   />
                   <ErrorMessage name="title" component="div" className="pi-error-msg" />
                   <div className="pi-char-count">{values.title.length} / 200</div>
+                </div>
+
+                <div className="pi-group">
+                  <label htmlFor="company_logo">
+                    Company Logo <span style={{ fontSize: '11px', color: '#6b7177', fontWeight: 400 }}>(Optional)</span>
+                  </label>
+                  <input
+                    type="file"
+                    name="company_logo"
+                    id="company_logo"
+                    accept="image/*"
+                    className={`pi-input ${errors.company_logo && touched.company_logo ? 'pi-error' : ''}`}
+                    onChange={(event) => {
+                      const file = event.currentTarget.files[0];
+                      setFieldValue('company_logo', file || null);
+                    }}
+                    onBlur={() => setFieldTouched('company_logo')}
+                  />
+                  <ErrorMessage name="company_logo" component="div" className="pi-error-msg" />
+                  <div style={{ fontSize: '11px', color: '#6b7177', marginTop: '4px' }}>
+                    Upload your company logo (JPG, PNG, GIF - Max 2MB). This will be displayed with the internship posting.
+                  </div>
+                  {values.company_logo && (
+                    <div style={{ marginTop: '8px', padding: '8px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '6px', fontSize: '12px', color: '#15803d' }}>
+                      ✓ Selected: {values.company_logo.name} ({(values.company_logo.size / 1024).toFixed(1)} KB)
+                    </div>
+                  )}
+                  {isEdit && editInternship?.company_logo && !values.company_logo && (
+                    <div style={{ marginTop: '8px', padding: '8px', background: '#eff6ff', border: '1px solid #93c5fd', borderRadius: '6px', fontSize: '12px', color: '#1e40af' }}>
+                      Current logo will be kept unless you upload a new one
+                    </div>
+                  )}
                 </div>
 
                 <div className="pi-group">

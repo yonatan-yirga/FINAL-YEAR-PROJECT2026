@@ -325,6 +325,32 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         validated_data['student'] = request.user
+        
+        # Auto-populate profile information if not provided
+        try:
+            profile = request.user.student_profile
+            
+            # If about_me not provided, use profile about
+            if not validated_data.get('about_me') and profile.about:
+                validated_data['about_me'] = profile.about
+            
+            # If experience not provided, use profile experience
+            if not validated_data.get('experience') and profile.experience:
+                validated_data['experience'] = profile.experience
+            
+            # If projects not provided, use profile projects
+            if not validated_data.get('projects') and profile.projects:
+                validated_data['projects'] = profile.projects
+            
+            # Note: We don't auto-populate 'certificate' field because:
+            # - Application.certificate is a FileField (for uploading files)
+            # - Profile.certificates is a TextField (for text description)
+            # - These are different types and cannot be auto-populated
+                
+        except Exception as e:
+            # If profile doesn't exist or error occurs, continue without auto-population
+            print(f"Could not auto-populate profile data: {e}")
+        
         return super().create(validated_data)
 
 

@@ -628,3 +628,175 @@
     justify-content: center;
   }
 }
+
+
+/* Batch Grouping Styles */
+.admin-batch-group {
+  margin-bottom: 32px;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.admin-batch-header {
+  background: linear-gradient(135deg, #14a800 0%, #108a00 100%);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.admin-batch-title {
+  flex: 1;
+}
+
+.admin-batch-count {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.admin-batch-group .admin-table {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.admin-batch-group:last-child {
+  margin-bottom: 0;
+}
+
+
+/* Tabs Styles */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--upwork-border);
+  padding-bottom: 0;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--upwork-text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-bottom: -2px;
+}
+
+.admin-tab:hover {
+  color: var(--upwork-text-dark);
+  background: var(--upwork-bg);
+}
+
+.admin-tab.active {
+  color: var(--upwork-green);
+  border-bottom-color: var(--upwork-green);
+  background: transparent;
+}
+
+.admin-tab svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Department Grouping Styles */
+.admin-department-group {
+  margin-bottom: 32px;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.admin-department-header {
+  background: linear-gradient(135deg, #14a800 0%, #108a00 100%);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.admin-department-title {
+  flex: 1;
+}
+
+.admin-department-count {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.admin-department-group .admin-table {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.admin-department-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Additional Badge Styles */
+.admin-batch-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #e8f5e9;
+  color: #14a800;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-count-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Responsive Tabs */
+@media (max-width: 768px) {
+  .admin-tabs {
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+  }
+  
+  .admin-tab {
+    border-bottom: 1px solid var(--upwork-border);
+    border-left: 3px solid transparent;
+    margin-bottom: 0;
+    justify-content: space-between;
+  }
+  
+  .admin-tab.active {
+    border-left-color: var(--upwork-green);
+    border-bottom-color: var(--upwork-border);
+    background: var(--upwork-green-light);
+  }
+}

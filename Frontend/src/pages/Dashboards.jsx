@@ -762,12 +762,19 @@ export const CompanyDashboard = () => {
             <NavCard icon={Briefcase} label="My Internships"   sub="Manage your vacancies and current interns"   onClick={() => navigate('/company/my-internships')} />
           </div>
 
+          <p className="db-section-title">Network</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1,1fr)', gap: 14, marginBottom: 28 }}>
+            <NavCard icon={MessageSquare} label="Messages" sub="Chat with students and their advisors" onClick={() => navigate('/company/messages')} />
+          </div>
+
           <p className="db-section-title">Management</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 28 }}>
-            <NavCard icon={FileText} label="Monthly Progress"    sub="Submit performance reports for your interns" onClick={() => navigate('/company/report-submission')} />
-            <NavCard icon={Award} label="Final Evaluations"   sub="Complete final assessments for interns"        onClick={() => navigate('/company/submit-final-report')} />
-            <NavCard icon={Settings} label="Account Settings"    sub="Update your profile and password"       onClick={() => navigate('/settings/change-password')} />
+            <NavCard icon={FileText} label="Monthly Progress" sub="Submit performance reports for your interns" onClick={() => navigate('/company/report-submission')} />
+            <NavCard icon={Award} label="Final Evaluations" sub="Complete final assessments for interns" onClick={() => navigate('/company/submit-final-report')} />
+            <NavCard icon={Settings} label="Account Settings" sub="Update your profile and password" onClick={() => navigate('/settings/change-password')} />
           </div>
+
+
 
           {/* Recent Postings List */}
           {!loading && internships.length > 0 && (
@@ -835,12 +842,14 @@ export const CompanyDashboard = () => {
             <div className="db-sb-head" style={{ border: 'none', paddingLeft: 0 }}>Quick Links</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {[
+                { icon: MessageSquare, label: 'Messages',  path: '/company/messages' },
                 { icon: ClipboardList, label: 'Candidate Review',  path: '/company/applications' },
                 { icon: FileText, label: 'Progress Reports',  path: '/company/report-submission' },
                 { icon: Award, label: 'Evaluation Center', path: '/company/submit-final-report' },
                 { icon: Video, label: 'Start Google Meet',   path: 'https://meet.google.com/new' },
                 { icon: Lock, label: 'Change Password',   path: '/settings/change-password' },
               ].map(({ icon: IconComponent, label, path }) => (
+
                 <div 
                   key={label} 
                   className="db-row" 
@@ -924,10 +933,9 @@ export const AdvisorDashboard = () => {
           </div>
 
           <p className="db-section-title">Account & System</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14, marginBottom: 28 }}>
             <NavCard icon="🔔" label="All Alerts"        sub="View activity history" onClick={() => navigate('/notifications')} />
             <NavCard icon="🔒" label="Security"          sub="Manage access"       onClick={() => navigate('/settings/change-password')} />
-            <NavCard icon="🎥" label="Live Session"      sub="Start Meet"          onClick={() => window.open('https://meet.google.com/new', '_blank')} />
           </div>
 
           {/* Recent Students List */}
@@ -976,7 +984,6 @@ export const AdvisorDashboard = () => {
                 { icon: '💬', label: 'Messages',         path: '/advisor/messages' },
                 { icon: '📋', label: 'Audit Reports',    path: '/advisor/reports' },
                 { icon: '🏁', label: 'Evaluation Hub',   path: '/advisor/final-reports' },
-                { icon: '🎥', label: 'Start Google Meet',   path: 'https://meet.google.com/new' },
                 { icon: '🔒', label: 'Change Password',  path: '/settings/change-password' },
               ].map(({ icon, label, path }) => (
                 <div 

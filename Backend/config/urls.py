@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -11,6 +11,7 @@ urlpatterns = [
     
     # API endpoints
     path('api/auth/', include('apps.accounts.urls')),
+    path('api/oauth/', include('apps.oauth.urls')),  # OAuth endpoints
     path('api/registrations/', include('apps.registrations.urls')),
     path('api/departments/', include('apps.departments.urls')),
     path('api/internships/', include('apps.internships.urls')),
@@ -39,7 +40,16 @@ urlpatterns = [
     })),
 ]
 
-# Serve media files in development
+# Serve media files in development with custom browser
 if settings.DEBUG:
+    from apps.core.views import media_browser
+    
+    # Custom media browser
+    urlpatterns += [
+        re_path(r'^media-browser/(?P<path>.*)$', media_browser, name='media-browser'),
+        path('media-browser/', media_browser, name='media-browser-root'),
+    ]
+    
+    # Default media serving
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

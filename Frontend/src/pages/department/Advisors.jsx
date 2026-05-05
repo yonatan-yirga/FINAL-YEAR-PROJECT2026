@@ -8,8 +8,8 @@ import Header from '../../components/common/Header';
 import DataTable from '../../components/common/DataTable';
 import departmentService from '../../services/departmentService';
 import {
-  Users, UserCheck, Award, RefreshCw, AlertTriangle, TrendingUp,
-  BarChart3, CheckCircle, UserPlus
+  Users, UserCheck, RefreshCw, AlertTriangle, TrendingUp,
+  BarChart3, CheckCircle, UserPlus, Search
 } from 'lucide-react';
 import './Advisors.css';
 
@@ -18,6 +18,9 @@ const Advisors = () => {
   const [advisors, setAdvisors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('full_name');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     fetchAdvisors();
@@ -27,6 +30,7 @@ const Advisors = () => {
     try {
       setLoading(true);
       const response = await departmentService.getAdvisors();
+
       
       if (response.success) {
         setAdvisors(response.data);
@@ -40,6 +44,33 @@ const Advisors = () => {
       setLoading(false);
     }
   };
+
+  // Filter advisors based on search term
+  const filteredAdvisors = advisors.filter(advisor =>
+    advisor.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.staff_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Sort filtered advisors
+  const sortedAdvisors = [...filteredAdvisors].sort((a, b) => {
+    let aVal = a[sortBy];
+    let bVal = b[sortBy];
+
+    // Handle null/undefined values
+    if (aVal === null || aVal === undefined) return 1;
+    if (bVal === null || bVal === undefined) return -1;
+
+    // String comparison
+    if (typeof aVal === 'string') {
+      const comparison = aVal.localeCompare(bVal);
+      return sortDirection === 'asc' ? comparison : -comparison;
+    }
+
+    // Number comparison
+    const comparison = aVal - bVal;
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
 
   const getWorkloadBar = (active, max) => {
     const limit = max || 15;
@@ -60,53 +91,85 @@ const Advisors = () => {
 
   const getStats = () => {
     return {
-      total: advisors.length,
-      activeStudents: advisors.reduce((sum, a) => sum + a.active_students, 0),
-      completed: advisors.reduce((sum, a) => sum + a.completed_students, 0),
-      avgWorkload: advisors.length > 0
-        ? Math.round(advisors.reduce((sum, a) => sum + a.active_students, 0) / advisors.length)
+      total: filteredAdvisors.length,
+      activeStudents: filteredAdvisors.reduce((sum, a) => sum + (a.active_students || 0), 0),
+      completed: filteredAdvisors.reduce((sum, a) => sum + (a.completed_students || 0), 0),
+      avgWorkload: filteredAdvisors.length > 0
+        ? Math.round(filteredAdvisors.reduce((sum, a) => sum + (a.active_students || 0), 0) / filteredAdvisors.length)
         : 0,
     };
   };
 
   const stats = getStats();
 
+  const handleSortChange = (value) => {
+    // Parse sort value (e.g., "-full_name" means descending)
+    if (value.startsWith('-')) {
+      setSortBy(value.substring(1));
+      setSortDirection('desc');
+    } else {
+      setSortBy(value);
+      setSortDirection('asc');
+    }
+  };
+
   const columns = [
     {
       key: 'full_name',
       label: 'Advisor Name',
-      sortable: true,
+      sortable: false, // Disable internal sorting
+      render: (value, row) => (
+        <button
+          onClick={() => navigate(`/department/advisor/${row.id}/students`)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#14a800',
+            cursor: 'pointer',
+            fontWeight: 600,
+            textDecoration: 'underline',
+            padding: 0,
+            fontSize: 'inherit',
+            textAlign: 'left',
+          }}
+          onMouseEnter={(e) => e.target.style.color = '#108a00'}
+          onMouseLeave={(e) => e.target.style.color = '#14a800'}
+        >
+          {value}
+        </button>
+      ),
     },
     {
       key: 'staff_id',
       label: 'Staff ID',
-      sortable: true,
+      sortable: false, // Disable internal sorting
     },
     {
       key: 'email',
       label: 'Email',
-      sortable: true,
+      sortable: false, // Disable internal sorting
     },
     {
       key: 'phone_number',
       label: 'Phone',
+      sortable: false, // Disable internal sorting
       render: (value) => value || '-',
     },
     {
       key: 'active_students',
       label: 'Workload',
-      sortable: true,
+      sortable: false, // Disable internal sorting
       render: (value, row) => getWorkloadBar(value, row.total_assignments),
     },
     {
       key: 'total_assignments',
       label: 'Total Assigned',
-      sortable: true,
+      sortable: false, // Disable internal sorting
     },
     {
       key: 'completed_students',
       label: 'Completed',
-      sortable: true,
+      sortable: false, // Disable internal sorting
     },
   ];
 
@@ -205,16 +268,47 @@ const Advisors = () => {
               </button>
             </div>
           </div>
+
+          <div className="adv-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <div className="adv-search-wrapper" style={{ position: 'relative', flex: 1 }}>
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+              <input
+                type="text"
+                placeholder="Search advisors by name, staff ID, or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
+                  border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
+                }}
+              />
+            </div>
+            <select
+              value={sortDirection === 'desc' ? `-${sortBy}` : sortBy}
+              onChange={(e) => handleSortChange(e.target.value)}
+              style={{
+                padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
+                outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
+              }}
+            >
+              <option value="full_name">Name (A-Z)</option>
+              <option value="-full_name">Name (Z-A)</option>
+              <option value="active_students">Workload (Low-High)</option>
+              <option value="-active_students">Workload (High-Low)</option>
+              <option value="-completed_students">Most Completed</option>
+            </select>
+          </div>
         </div>
+
 
         {/* Data Table */}
         <div className="adv-table-container">
           <DataTable
             columns={columns}
-            data={advisors}
+            data={sortedAdvisors}
             loading={loading}
             emptyMessage="No advisors found"
-            searchPlaceholder="Search advisors by name or staff ID..."
+            searchable={false}
           />
         </div>
       </div>

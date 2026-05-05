@@ -126,6 +126,7 @@ pip install -r requirements.txt
 # Create .env file
 cp .env.example .env
 # Edit .env with your settings
+rtebdsedrrtin
 
 # Run migrations
 python manage.py migrate

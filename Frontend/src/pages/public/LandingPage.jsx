@@ -1,14 +1,15 @@
 /**
  * Landing Page - DMU Internship Portal
  * Modern, professional landing page inspired by Upwork
- * Features: Hero, Organizations, About sections
+ * Features: Hero, Organizations, About sections with animations
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   Building2, Users, TrendingUp, Award, 
-  CheckCircle, ArrowRight, Briefcase, Target, Globe,
-  BookOpen, Lightbulb, Shield, Star, MapPin, Mail, Phone
+  CheckCircle, ArrowRight, Briefcase, Target, 
+  Lightbulb, Shield, Star, MapPin
 } from 'lucide-react';
 import publicService from '../../services/publicService';
 import dmuLogo from '../../assets/logodmu.jpg';
@@ -58,6 +59,61 @@ const LandingPage = () => {
     document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.8 }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15
+      }
+    }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const slideInLeft = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
+  const slideInRight = {
+    hidden: { opacity: 0, x: 50 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
+
   return (
     <div className="landing-page">
       {/* Navigation */}
@@ -104,35 +160,77 @@ const LandingPage = () => {
       <section id="home" className="landing-hero">
         <div className="landing-hero-container">
           <div className="hero-content-wrapper">
-            <div className="hero-badge">
+            <motion.div 
+              className="hero-badge"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <span className="badge-icon">🎓</span>
               <span className="badge-text">Debre Markos University</span>
-            </div>
+            </motion.div>
             
-            <h1 className="landing-hero-title">
+            <motion.h1 
+              className="landing-hero-title"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
               Your Gateway to<br />
-              <span className="highlight">Professional Success</span>
-            </h1>
+              <motion.span 
+                className="highlight"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                Professional Success
+              </motion.span>
+            </motion.h1>
             
-            <p className="landing-hero-subtitle">
+            <motion.p 
+              className="landing-hero-subtitle"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
               Connect with leading companies, gain real-world experience, and build 
               the career you've always dreamed of through our comprehensive internship platform.
-            </p>
+            </motion.p>
             
-            <div className="landing-hero-actions">
-              <button onClick={() => navigate('/register')} className="btn-primary-large">
+            <motion.div 
+              className="landing-hero-actions"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+            >
+              <motion.button 
+                onClick={() => navigate('/register')} 
+                className="btn-primary-large"
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <span>Get Started</span>
                 <ArrowRight size={20} />
-              </button>
-              <button onClick={() => navigate('/login')} className="btn-secondary-large">
+              </motion.button>
+              <motion.button 
+                onClick={() => navigate('/login')} 
+                className="btn-secondary-large"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <span>Sign In</span>
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
-            <div className="hero-trust-badge">
+            <motion.div 
+              className="hero-trust-badge"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.9 }}
+            >
               <CheckCircle size={18} />
               <span>Trusted by students and companies across Ethiopia</span>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -140,72 +238,116 @@ const LandingPage = () => {
       {/* Features Section */}
       <section className="landing-features">
         <div className="landing-container">
-          <div className="section-header">
+          <motion.div 
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+          >
             <h2 className="section-title">Everything You Need to Succeed</h2>
             <p className="section-subtitle">
               A complete platform designed for your internship journey
             </p>
-          </div>
+          </motion.div>
 
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
+          <motion.div 
+            className="features-grid"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <motion.div className="feature-card" variants={fadeInUp} whileHover={{ y: -8, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="feature-icon-wrapper"
+                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+              >
                 <Briefcase size={28} />
-              </div>
+              </motion.div>
               <h3>Quality Opportunities</h3>
               <p>Access verified internships from leading companies across various industries</p>
-            </div>
+            </motion.div>
 
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
+            <motion.div className="feature-card" variants={fadeInUp} whileHover={{ y: -8, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="feature-icon-wrapper"
+                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+              >
                 <Users size={28} />
-              </div>
+              </motion.div>
               <h3>Expert Support</h3>
               <p>Get guidance from dedicated advisors throughout your entire journey</p>
-            </div>
+            </motion.div>
 
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
+            <motion.div className="feature-card" variants={fadeInUp} whileHover={{ y: -8, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="feature-icon-wrapper"
+                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+              >
                 <Award size={28} />
-              </div>
+              </motion.div>
               <h3>Verified Certificates</h3>
               <p>Earn industry-recognized certificates upon successful completion</p>
-            </div>
+            </motion.div>
 
-            <div className="feature-card">
-              <div className="feature-icon-wrapper">
+            <motion.div className="feature-card" variants={fadeInUp} whileHover={{ y: -8, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="feature-icon-wrapper"
+                whileHover={{ rotate: 360, transition: { duration: 0.6 } }}
+              >
                 <TrendingUp size={28} />
-              </div>
+              </motion.div>
               <h3>Career Growth</h3>
               <p>Build valuable skills and experience that employers actively seek</p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Organizations Section */}
       <section id="organizations" className="landing-organizations">
         <div className="landing-container">
-          <div className="section-header">
+          <motion.div 
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+          >
             <h2 className="section-title">Partner Organizations</h2>
             <p className="section-subtitle">
               Join students working with leading companies
             </p>
-          </div>
+          </motion.div>
 
           {companies.length > 0 ? (
-            <div className="organizations-grid">
-              {companies.map(company => (
-                <div 
+            <motion.div 
+              className="organizations-grid"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={staggerContainer}
+            >
+              {companies.map((company, index) => (
+                <motion.div 
                   key={company.id} 
                   className="organization-card"
+                  variants={scaleIn}
+                  whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.3 } }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => navigate(`/company/${encodeURIComponent(company.name)}`)}
                 >
                   <div className="org-header">
-                    <div className="org-logo">{company.logo}</div>
+                    <motion.div 
+                      className="org-logo"
+                      whileHover={{ rotate: [0, -10, 10, -10, 0], transition: { duration: 0.5 } }}
+                    >
+                      {company.logo}
+                    </motion.div>
                     <div className="org-rating">
                       <Star size={14} fill="#14a800" color="#14a800" />
-                      <span>{company.rating}</span>
+                      <span>{company.rating.toFixed(1)}</span>
                     </div>
                   </div>
                   
@@ -222,14 +364,20 @@ const LandingPage = () => {
                       <span>{company.internships} positions</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <div className="empty-state">
+            <motion.div 
+              className="empty-state"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeIn}
+            >
               <Building2 size={48} />
               <p>Partner organizations will be displayed here</p>
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
@@ -237,52 +385,89 @@ const LandingPage = () => {
       {/* About Section */}
       <section id="about" className="landing-about">
         <div className="landing-container">
-          <div className="section-header">
+          <motion.div 
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+          >
             <h2 className="section-title">About the Platform</h2>
             <p className="section-subtitle">
               Empowering students through meaningful internship experiences
             </p>
-          </div>
+          </motion.div>
           
-          <div className="about-grid">
-            <div className="about-card">
-              <div className="about-icon-wrapper">
+          <motion.div 
+            className="about-grid"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <motion.div className="about-card" variants={slideInLeft} whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="about-icon-wrapper"
+                whileHover={{ scale: 1.1, rotate: 5, transition: { duration: 0.3 } }}
+              >
                 <Target size={32} />
-              </div>
+              </motion.div>
               <h3>Our Mission</h3>
               <p>
                 Bridging the gap between academic learning and professional practice 
                 by connecting DMU students with quality internship opportunities that 
                 prepare them for successful careers.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="about-card">
-              <div className="about-icon-wrapper">
+            <motion.div className="about-card" variants={fadeInUp} whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="about-icon-wrapper"
+                whileHover={{ scale: 1.1, rotate: 5, transition: { duration: 0.3 } }}
+              >
                 <Lightbulb size={32} />
-              </div>
+              </motion.div>
               <h3>Why Internships Matter</h3>
               <ul className="about-list">
-                <li><CheckCircle size={16} /> Gain real-world work experience</li>
-                <li><CheckCircle size={16} /> Build professional networks</li>
-                <li><CheckCircle size={16} /> Develop industry skills</li>
-                <li><CheckCircle size={16} /> Enhance career prospects</li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Gain real-world work experience
+                </motion.li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Build professional networks
+                </motion.li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Develop industry skills
+                </motion.li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Enhance career prospects
+                </motion.li>
               </ul>
-            </div>
+            </motion.div>
 
-            <div className="about-card">
-              <div className="about-icon-wrapper">
+            <motion.div className="about-card" variants={slideInRight} whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}>
+              <motion.div 
+                className="about-icon-wrapper"
+                whileHover={{ scale: 1.1, rotate: 5, transition: { duration: 0.3 } }}
+              >
                 <Shield size={32} />
-              </div>
+              </motion.div>
               <h3>Platform Features</h3>
               <ul className="about-list">
-                <li><CheckCircle size={16} /> Streamlined application process</li>
-                <li><CheckCircle size={16} /> Real-time advisor support</li>
-                <li><CheckCircle size={16} /> Comprehensive evaluation system</li>
-                <li><CheckCircle size={16} /> Secure certificate verification</li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Streamlined application process
+                </motion.li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Real-time advisor support
+                </motion.li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Comprehensive evaluation system
+                </motion.li>
+                <motion.li whileHover={{ x: 5, transition: { duration: 0.2 } }}>
+                  <CheckCircle size={16} /> Secure certificate verification
+                </motion.li>
               </ul>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 

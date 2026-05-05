@@ -1,6 +1,6 @@
 /**
  * Messages Page
- * Shared by Student and Advisor — real-time-style chat interface.
+ * Shared by Student and Advisor — real-time-style chat interface with edit/delete.
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from '../../components/common/Header';
@@ -15,6 +15,10 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const [hoveredMessageId, setHoveredMessageId] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const messagesEndRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -71,6 +75,50 @@ const Messages = () => {
       setNewMessage('');
     }
     setSending(false);
+  };
+
+  // Start editing a message
+  const startEdit = (msg) => {
+    setEditingMessageId(msg.id);
+    setEditContent(msg.content);
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    setEditingMessageId(null);
+    setEditContent('');
+  };
+
+  // Save edited message
+  const saveEdit = async (messageId) => {
+    if (!editContent.trim()) return;
+    const res = await messageService.editMessage(messageId, editContent.trim());
+    if (res.success) {
+      setMessages(prev => prev.map(m => m.id === messageId ? res.data : m));
+      setEditingMessageId(null);
+      setEditContent('');
+    }
+  };
+
+  // Delete message
+  const deleteMessage = async (messageId) => {
+    setDeleteConfirmId(messageId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    const res = await messageService.deleteMessage(deleteConfirmId);
+    if (res.success) {
+      setMessages(prev => prev.filter(m => m.id !== deleteConfirmId));
+      setDeleteConfirmId(null);
+    } else {
+      alert(res.error || 'Failed to delete message');
+      setDeleteConfirmId(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
   };
 
   const formatTime = (dt) => {
@@ -137,13 +185,77 @@ const Messages = () => {
     },
     bubble: (mine) => ({
       maxWidth: '70%',
-      padding: '14px 20px',
+      padding: mine ? '40px 20px 14px 20px' : '14px 20px',
       borderRadius: mine ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
       backgroundColor: mine ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255,255,255,0.05)',
       border: mine ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid rgba(255,255,255,0.05)',
       alignSelf: mine ? 'flex-end' : 'flex-start',
       wordBreak: 'break-word',
+      position: 'relative',
     }),
+    messageActions: {
+      position: 'absolute',
+      top: '8px',
+      right: '8px',
+      display: 'flex',
+      gap: '6px',
+      transition: 'all 0.2s ease',
+      zIndex: 10,
+    },
+    actionBtn: {
+      padding: '6px 12px',
+      background: 'rgba(245, 158, 11, 0.2)',
+      border: '1px solid rgba(245, 158, 11, 0.3)',
+      borderRadius: '6px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '4px',
+      color: '#fff',
+      fontSize: '11px',
+      fontWeight: '700',
+      transition: 'all 0.2s ease',
+      whiteSpace: 'nowrap',
+    },
+    editInput: {
+      width: '100%',
+      padding: '10px',
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      border: '1px solid rgba(255,255,255,0.2)',
+      borderRadius: '8px',
+      color: '#fff',
+      fontSize: '14px',
+      outline: 'none',
+      fontFamily: "'Inter', sans-serif",
+      marginBottom: '8px',
+    },
+    editActions: {
+      display: 'flex',
+      gap: '8px',
+      justifyContent: 'flex-end',
+    },
+    deleteConfirmOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0, 0, 0, 0.9)',
+      backdropFilter: 'blur(4px)',
+      borderRadius: '20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 100,
+    },
+    deleteConfirmBox: {
+      padding: '20px',
+      background: 'rgba(15, 23, 42, 0.95)',
+      border: '1px solid rgba(239, 68, 68, 0.3)',
+      borderRadius: '12px',
+      maxWidth: '280px',
+    },
     inputBar: {
       padding: '16px 24px',
       borderTop: '1px solid rgba(255,255,255,0.05)',
@@ -295,16 +407,158 @@ const Messages = () => {
                     No messages yet. Say hello! 👋
                   </div>
                 ) : messages.map(msg => (
-                  <div key={msg.id} style={S.bubble(msg.is_mine)}>
+                  <div 
+                    key={msg.id} 
+                    style={S.bubble(msg.is_mine)}
+                    onMouseEnter={() => setHoveredMessageId(msg.id)}
+                    onMouseLeave={() => setHoveredMessageId(null)}
+                  >
+                    {/* Delete Confirmation Overlay */}
+                    {deleteConfirmId === msg.id && (
+                      <div style={S.deleteConfirmOverlay}>
+                        <div style={S.deleteConfirmBox}>
+                          <div style={{ fontSize: '14px', fontWeight: '700', marginBottom: '12px', color: '#fff' }}>
+                            Delete this message?
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>
+                            This action cannot be undone.
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                            <button
+                              onClick={cancelDelete}
+                              style={{
+                                padding: '8px 16px',
+                                background: 'rgba(255,255,255,0.1)',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                borderRadius: '6px',
+                                color: '#fff',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={confirmDelete}
+                              style={{
+                                padding: '8px 16px',
+                                background: '#ef4444',
+                                border: 'none',
+                                borderRadius: '6px',
+                                color: '#fff',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Message Actions (Edit/Delete) - Only for own messages */}
+                    {msg.is_mine && editingMessageId !== msg.id && deleteConfirmId !== msg.id && (
+                      <div style={S.messageActions}>
+                        <button
+                          onClick={() => startEdit(msg)}
+                          style={{
+                            ...S.actionBtn,
+                            background: 'rgba(59, 130, 246, 0.2)',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.4)';
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="Edit message"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => deleteMessage(msg.id)}
+                          style={{
+                            ...S.actionBtn,
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.4)';
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                          title="Delete message"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    )}
+
                     <div style={{ fontSize: '10px', fontWeight: '700', color: msg.is_mine ? '#f59e0b' : '#64748b', marginBottom: '6px', textTransform: 'uppercase' }}>
                       {msg.is_mine ? 'You' : msg.sender_name}
                     </div>
-                    <div style={{ fontSize: '14px', color: '#e2e8f0', lineHeight: '1.5' }}>
-                      {msg.content}
-                    </div>
-                    <div style={{ fontSize: '10px', color: '#475569', marginTop: '6px', textAlign: 'right' }}>
-                      {formatTime(msg.created_at)}
-                    </div>
+
+                    {/* Edit Mode */}
+                    {editingMessageId === msg.id ? (
+                      <div>
+                        <input
+                          type="text"
+                          value={editContent}
+                          onChange={e => setEditContent(e.target.value)}
+                          style={S.editInput}
+                          autoFocus
+                          onKeyPress={e => {
+                            if (e.key === 'Enter') saveEdit(msg.id);
+                            if (e.key === 'Escape') cancelEdit();
+                          }}
+                        />
+                        <div style={S.editActions}>
+                          <button
+                            onClick={cancelEdit}
+                            style={{
+                              ...S.actionBtn,
+                              padding: '8px 16px',
+                              background: 'rgba(255,255,255,0.1)',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                            }}
+                          >
+                            ✕ Cancel
+                          </button>
+                          <button
+                            onClick={() => saveEdit(msg.id)}
+                            style={{
+                              ...S.actionBtn,
+                              padding: '8px 16px',
+                              background: 'rgba(245, 158, 11, 0.3)',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                            }}
+                          >
+                            ✓ Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: '14px', color: '#e2e8f0', lineHeight: '1.5' }}>
+                          {msg.content}
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#475569', marginTop: '6px', textAlign: 'right' }}>
+                          {formatTime(msg.created_at)}
+                          {msg.is_edited && <span style={{ marginLeft: '6px', fontStyle: 'italic' }}>(edited)</span>}
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))}
                 <div ref={messagesEndRef} />

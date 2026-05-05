@@ -1,0 +1,49 @@
+ALL USER EMAILS (Password: test1234 for all)
+=============================================
+
+ADMINS (4):
+admin@example.com
+admin@internship.com
+yonatanyirga397@gmail.com
+yontantyirga397@gmail.com
+
+UIL (1):
+uil@example.com
+
+DEPARTMENT HEADS (3):
+depthead@cs.test.com
+depthead@example.com
+yonyir05@gmail.com
+
+ADVISORS (6):
+advisor@example.com
+advisor@test.com
+advisor1@test.com
+simwork84@gmail.com
+y5297843@gmail.com
+yobg234@gmail.com
+
+STUDENTS (10):
+hana@example.com
+o11027107@gmail.com
+rhdvegf12@gmail.com
+sara@example.com
+student@test.com
+student1@test.com
+student2@test.com
+student3@test.com
+student4@test.com
+yonas@example.com
+
+COMPANIES (6):
+company@test.com
+company1@test.com
+company2@test.com
+company3@test.com
+ethio@telecom.com
+two306702@gmail.com
+
+=============================================
+TOTAL: 30 users
+PASSWORD: test1234 (8 characters - for ALL users)
+=============================================

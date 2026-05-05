@@ -187,6 +187,7 @@ class MarkStudentCompletedView(APIView):
         try:
             # Save department review to the report
             department_review = request.data.get('department_review', '')
+            from django.utils import timezone
             FinalReport.objects.filter(pk=report.pk).update(
                 department_review=department_review,
                 department_reviewed_at=timezone.now()
@@ -215,6 +216,45 @@ class MarkStudentCompletedView(APIView):
             cert.certificate_id    = Certificate.generate_certificate_id(student)
             cert.verification_code = Certificate.generate_verification_code()
             cert.save()
+            
+            # ── Copy company branding assets to certificate ───────────────────
+            # This ensures the certificate remains accurate even if company updates their branding
+            try:
+                company_profile = report.company.company_profile
+                
+                # Copy company logo
+                if company_profile.company_logo:
+                    from django.core.files.base import File
+                    with company_profile.company_logo.open('rb') as logo_file:
+                        cert.company_logo.save(
+                            f'cert_{cert.certificate_id}_logo.png',
+                            File(logo_file),
+                            save=False
+                        )
+                
+                # Copy company seal
+                if company_profile.company_seal:
+                    with company_profile.company_seal.open('rb') as seal_file:
+                        cert.company_seal.save(
+                            f'cert_{cert.certificate_id}_seal.png',
+                            File(seal_file),
+                            save=False
+                        )
+                
+                # Copy company signature
+                if company_profile.certificate_signature:
+                    with company_profile.certificate_signature.open('rb') as sig_file:
+                        cert.company_signature.save(
+                            f'cert_{cert.certificate_id}_signature.png',
+                            File(sig_file),
+                            save=False
+                        )
+                
+                cert.save()
+            except Exception:
+                # Non-fatal: certificate can still be generated without branding
+                pass
+                
         except Exception as e:
             return Response(
                 {'error': f'Failed to create certificate record: {e}'},
@@ -287,7 +327,8 @@ class MyCertificateView(APIView):
             cert = Certificate.objects.get(student=request.user)
             return Response(CertificateSerializer(cert, context={'request': request}).data)
         except Certificate.DoesNotExist:
-            return Response({'detail': 'No certificate found.'}, status=status.HTTP_404_NOT_FOUND)
+            # Return 200 OK instead of 404 to prevent browser console errors
+            return Response({'has_certificate': False, 'detail': 'No certificate found.'}, status=status.HTTP_200_OK)
 
 
 class DepartmentCertificatesView(ListAPIView):

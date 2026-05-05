@@ -295,6 +295,44 @@ class NotificationService:
             email_args=(advisor, student, month)
         )
 
+    @classmethod
+    def notify_placement_assigned_to_student(cls, student, internship):
+        """
+        Notify student that they have been assigned an internship placement
+        """
+        title = 'Internship Placement Assigned'
+        message = f'You have been assigned to {internship.title} at {internship.get_company_name()} by your Department Head.'
+        link = '/student/applications'
+
+        return cls.send_notification_with_email(
+            recipient=student,
+            title=title,
+            message=message,
+            notification_type='PLACEMENT_ASSIGNED',
+            link=link,
+            email_func=EmailService.send_placement_assigned_to_student_email,
+            email_args=(student, internship)
+        )
+
+    @classmethod
+    def notify_student_assigned_to_company(cls, company, student, internship):
+        """
+        Notify company that a student has been assigned to them
+        """
+        title = 'New Student Assigned'
+        message = f'{student.get_full_name()} has been assigned to your {internship.title} position by the Department Head.'
+        link = '/company/applications'
+
+        return cls.send_notification_with_email(
+            recipient=company,
+            title=title,
+            message=message,
+            notification_type='STUDENT_ASSIGNED',
+            link=link,
+            email_func=EmailService.send_student_assigned_to_company_email,
+            email_args=(company, student, internship)
+        )
+
     # ── Phase 9: Final Report Notifications ───────────────────────────────────
 
     @classmethod
@@ -480,3 +518,20 @@ class NotificationService:
         except Exception as e:
             logger.error(f'Failed to get unread count: {str(e)}')
             return 0
+
+    @classmethod
+    def notify_department_created(cls, department, temp_password):
+        """
+        Notify the department head via email that their department has been added
+        and provide their login credentials.
+        """
+        try:
+            EmailService.send_department_created_email(
+                department.name,
+                department.head_name,
+                department.email,
+                temp_password
+            )
+            logger.info(f'Department creation email with credentials sent to {department.email}')
+        except Exception as e:
+            logger.error(f'Failed to send department creation email for {department.name}: {e}')

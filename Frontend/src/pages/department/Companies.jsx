@@ -8,7 +8,7 @@ import DataTable from '../../components/common/DataTable';
 import departmentService from '../../services/departmentService';
 import {
   Building2, RefreshCw, AlertTriangle, TrendingUp, Briefcase,
-  Users, CheckCircle, AlertCircle, Shield
+  Users, CheckCircle, AlertCircle, Shield, Search
 } from 'lucide-react';
 import './Companies.css';
 
@@ -16,15 +16,19 @@ const Companies = () => {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [ordering, setOrdering] = useState('company_name');
 
   useEffect(() => {
     fetchCompanies();
-  }, []);
+  }, [search, ordering]);
 
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const response = await departmentService.getCompanies();
+      const response = await departmentService.getCompanies({ search, ordering });
+
       
       if (response.success) {
         setCompanies(response.data);
@@ -236,7 +240,42 @@ const Companies = () => {
               </button>
             </div>
           </div>
+
+          <div className="comp-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <div className="comp-search-wrapper" style={{ position: 'relative', flex: 1 }}>
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+              <input
+                type="text"
+                placeholder="Search companies by name or contact person..."
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  if (window.compTimeout) clearTimeout(window.compTimeout);
+                  window.compTimeout = setTimeout(() => setSearch(e.target.value), 400);
+                }}
+                style={{
+                  width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
+                  border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
+                }}
+              />
+            </div>
+            <select
+              value={ordering}
+              onChange={(e) => setOrdering(e.target.value)}
+              style={{
+                padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
+                outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
+              }}
+            >
+              <option value="company_name">Name (A-Z)</option>
+              <option value="-company_name">Name (Z-A)</option>
+              <option value="-posted_internships">Most Posted</option>
+              <option value="-active_interns">Most Active Interns</option>
+              <option value="city">City (A-Z)</option>
+            </select>
+          </div>
         </div>
+
 
         {/* Data Table */}
         <div className="comp-table-container">
@@ -245,7 +284,7 @@ const Companies = () => {
             data={companies}
             loading={loading}
             emptyMessage="No companies found"
-            searchPlaceholder="Search companies by name..."
+            searchable={false}
           />
         </div>
       </div>

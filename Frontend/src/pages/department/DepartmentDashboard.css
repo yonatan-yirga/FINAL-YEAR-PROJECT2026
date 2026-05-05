@@ -1097,3 +1097,388 @@
     justify-content: center;
   }
 }
+
+
+/* ========================================
+   REDESIGNED PLACEMENT TRENDS CHART
+   Modern, Animated, Beautiful
+   ======================================== */
+
+/* Trends Card Specific Styling */
+.dd-trends-card .dd-card-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+:root[data-theme='dark'] .dd-trends-card .dd-card-header {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+}
+
+.dd-card-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 4px 0 0 0;
+  font-weight: 500;
+}
+
+.dd-trends-legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.dd-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.dd-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #14a800 0%, #108a00 100%);
+  box-shadow: 0 0 8px rgba(20, 168, 0, 0.3);
+}
+
+/* New Chart Container */
+.dd-chart-container-new {
+  padding: 32px 24px 24px;
+  background: linear-gradient(180deg, rgba(20, 168, 0, 0.02) 0%, transparent 100%);
+}
+
+:root[data-theme='dark'] .dd-chart-container-new {
+  background: linear-gradient(180deg, rgba(20, 168, 0, 0.05) 0%, transparent 100%);
+}
+
+/* New Trend Chart */
+.dd-trend-chart-new {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 16px;
+  height: 240px;
+  padding: 0 8px;
+  position: relative;
+}
+
+/* Grid Lines (Optional) */
+.dd-trend-chart-new::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-image: 
+    linear-gradient(to top, var(--border-subtle) 1px, transparent 1px);
+  background-size: 100% 25%;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Trend Column */
+.dd-trend-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Bar Wrapper */
+.dd-trend-bar-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  position: relative;
+}
+
+/* New Animated Bar */
+.dd-trend-bar-new {
+  width: 100%;
+  max-width: 60px;
+  background: linear-gradient(180deg, #14a800 0%, #108a00 100%);
+  border-radius: 8px 8px 4px 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 12px rgba(20, 168, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  /* Animation */
+  animation: barGrowth 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: bottom;
+}
+
+/* Highest Bar Special Styling */
+.dd-trend-bar-new.highest {
+  background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 
+    0 6px 16px rgba(14, 165, 233, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dd-trend-bar-new.highest::after {
+  content: '★';
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  color: #0ea5e9;
+  animation: starPulse 2s infinite;
+}
+
+/* Bar Hover Effect */
+.dd-trend-bar-new:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 8px 20px rgba(20, 168, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dd-trend-bar-new.highest:hover {
+  box-shadow: 
+    0 10px 24px rgba(14, 165, 233, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Tooltip */
+.dd-trend-tooltip {
+  position: absolute;
+  top: -48px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dd-trend-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid rgba(0, 0, 0, 0.9);
+}
+
+.dd-trend-bar-new:hover .dd-trend-tooltip {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+}
+
+.dd-tooltip-count {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.dd-tooltip-label {
+  display: block;
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* Value Badge */
+.dd-trend-value-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--bg-surface);
+  border: 2px solid var(--upwork-green);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--upwork-green);
+  box-shadow: 0 2px 8px rgba(20, 168, 0, 0.15);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 0.1s + 0.4s);
+  opacity: 0;
+}
+
+/* Label */
+.dd-trend-label-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.dd-trend-month {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dd-trend-year {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Empty State */
+.dd-chart-empty-new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 32px;
+  text-align: center;
+}
+
+.dd-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(20, 168, 0, 0.1) 0%, rgba(20, 168, 0, 0.05) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--upwork-green);
+  opacity: 0.6;
+  animation: float 3s ease-in-out infinite;
+}
+
+.dd-chart-empty-new h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin: 0;
+}
+
+.dd-chart-empty-new p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* Animations */
+@keyframes barGrowth {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes badgePop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes starPulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dd-chart-container-new {
+    padding: 24px 16px 20px;
+  }
+  
+  .dd-trend-chart-new {
+    height: 200px;
+    gap: 12px;
+  }
+  
+  .dd-trend-bar-new {
+    max-width: 48px;
+  }
+  
+  .dd-trend-month {
+    font-size: 10px;
+  }
+  
+  .dd-trend-year {
+    font-size: 9px;
+  }
+  
+  .dd-trend-value-badge {
+    min-width: 28px;
+    height: 20px;
+    font-size: 11px;
+  }
+  
+  .dd-trends-legend {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dd-trend-chart-new {
+    height: 180px;
+    gap: 8px;
+  }
+  
+  .dd-trend-bar-new {
+    max-width: 40px;
+  }
+  
+  .dd-chart-empty-new {
+    padding: 40px 20px;
+  }
+  
+  .dd-empty-icon {
+    width: 60px;
+    height: 60px;
+  }
+}

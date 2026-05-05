@@ -2,7 +2,7 @@
  * PrivateRoute Component
  * Wrapper for protected routes that require authentication
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
@@ -52,15 +52,24 @@ const LoadingSpinner = () => (
  */
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const [authCheckComplete, setAuthCheckComplete] = useState(false);
+  
+  // Wait for auth context to complete initialization
+  useEffect(() => {
+    if (!isLoading) {
+      setAuthCheckComplete(true);
+    }
+  }, [isLoading]);
   
   // Show loading state while checking authentication
-  if (isLoading) {
+  if (!authCheckComplete || isLoading) {
     return <LoadingSpinner />;
   }
   
-  // If not authenticated, redirect to login
+  // If not authenticated, redirect to login with returnTo parameter
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const currentPath = window.location.pathname;
+    return <Navigate to={`/login?returnTo=${encodeURIComponent(currentPath)}`} replace />;
   }
   
   // User is authenticated, render children

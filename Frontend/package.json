@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "agora-rtc-sdk-ng": "^4.24.3",
     "axios": "^1.13.5",
     "formik": "^2.4.9",
+    "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.0",

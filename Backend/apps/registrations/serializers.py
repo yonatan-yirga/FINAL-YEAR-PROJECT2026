@@ -59,7 +59,7 @@ class RegistrationRequestSerializer(serializers.ModelSerializer):
             'submitted_at', 'reviewed_at', 'reviewed_by',
             # Student fields
             'student_full_name', 'student_phone', 'student_dob', 'student_gender',
-            'student_university_id', 'student_skills',
+            'student_university_id', 'student_skills', 'student_batch', 'student_year_of_study',
             # Company fields
             'company_name', 'company_phone', 'company_address', 'company_city',
             'company_contact_person', 'company_contact_title', 'company_description',

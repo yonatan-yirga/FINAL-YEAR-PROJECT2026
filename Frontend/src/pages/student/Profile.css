@@ -758,3 +758,26 @@
     font-size: 15px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   OPTIONAL BADGE
+   ═══════════════════════════════════════════════════════════ */
+
+.profile-optional-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  margin-left: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7177;
+  background: #f2f4f5;
+  border-radius: 12px;
+  border: 1px solid #d5e0d5;
+}
+
+.profile-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

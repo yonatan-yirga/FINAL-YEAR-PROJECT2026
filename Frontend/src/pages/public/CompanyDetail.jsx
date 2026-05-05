@@ -93,11 +93,11 @@ const CompanyDetail = () => {
   if (error || !company) {
     return (
       <div className="company-detail-error">
-        <AlertCircle size={48} />
+        <AlertCircle size={40} />
         <h2>Company Not Found</h2>
         <p>{error || 'The company you are looking for does not exist.'}</p>
         <button onClick={() => navigate('/')} className="btn-back">
-          <ArrowLeft size={20} />
+          <ArrowLeft size={16} />
           Back to Home
         </button>
       </div>
@@ -110,7 +110,7 @@ const CompanyDetail = () => {
       <div className="company-detail-header">
         <div className="company-detail-container">
           <button onClick={() => navigate('/')} className="btn-back-header">
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Home
           </button>
         </div>
@@ -149,7 +149,7 @@ const CompanyDetail = () => {
             <div className="company-stats-grid">
               <div className="stat-card">
                 <div className="stat-icon">
-                  <Calendar size={24} />
+                  <Calendar size={18} />
                 </div>
                 <div className="stat-content">
                   <div className="stat-value">Founded {company.founded}</div>
@@ -159,7 +159,7 @@ const CompanyDetail = () => {
 
               <div className="stat-card">
                 <div className="stat-icon">
-                  <Users size={24} />
+                  <Users size={18} />
                 </div>
                 <div className="stat-content">
                   <div className="stat-value">{company.employees}</div>
@@ -169,7 +169,7 @@ const CompanyDetail = () => {
 
               <div className="stat-card">
                 <div className="stat-icon">
-                  <Briefcase size={24} />
+                  <Briefcase size={18} />
                 </div>
                 <div className="stat-content">
                   <div className="stat-value">{company.active_internships}</div>
@@ -179,7 +179,7 @@ const CompanyDetail = () => {
 
               <div className="stat-card">
                 <div className="stat-icon">
-                  <TrendingUp size={24} />
+                  <TrendingUp size={18} />
                 </div>
                 <div className="stat-content">
                   <div className="stat-value">{company.success_rate}%</div>
@@ -192,28 +192,28 @@ const CompanyDetail = () => {
               <h3>Contact Information</h3>
               <div className="contact-grid">
                 <div className="contact-item">
-                  <MapPin size={20} />
+                  <MapPin size={16} />
                   <div>
                     <div className="contact-label">Address</div>
                     <div className="contact-value">{company.address}</div>
                   </div>
                 </div>
                 <div className="contact-item">
-                  <Mail size={20} />
+                  <Mail size={16} />
                   <div>
                     <div className="contact-label">Email</div>
                     <div className="contact-value">{company.email}</div>
                   </div>
                 </div>
                 <div className="contact-item">
-                  <Phone size={20} />
+                  <Phone size={16} />
                   <div>
                     <div className="contact-label">Phone</div>
                     <div className="contact-value">{company.phone}</div>
                   </div>
                 </div>
                 <div className="contact-item">
-                  <Globe size={20} />
+                  <Globe size={16} />
                   <div>
                     <div className="contact-label">Website</div>
                     <div className="contact-value">{company.website}</div>
@@ -235,7 +235,7 @@ const CompanyDetail = () => {
 
           {internships.length === 0 ? (
             <div className="no-internships">
-              <Briefcase size={48} />
+              <Briefcase size={40} />
               <h3>No Open Positions</h3>
               <p>This company currently has no open internship positions. Check back later!</p>
             </div>
@@ -309,28 +309,28 @@ const CompanyDetail = () => {
           <div className="benefits-grid">
             <div className="benefit-card">
               <div className="benefit-icon">
-                <Target size={32} />
+                <Target size={24} />
               </div>
               <h3>Real-World Experience</h3>
               <p>Work on actual projects that impact real users and businesses</p>
             </div>
             <div className="benefit-card">
               <div className="benefit-icon">
-                <Users size={32} />
+                <Users size={24} />
               </div>
               <h3>Expert Mentorship</h3>
               <p>Learn from experienced professionals in the industry</p>
             </div>
             <div className="benefit-card">
               <div className="benefit-icon">
-                <Award size={32} />
+                <Award size={24} />
               </div>
               <h3>Career Growth</h3>
               <p>Build skills and connections that advance your career</p>
             </div>
             <div className="benefit-card">
               <div className="benefit-icon">
-                <CheckCircle size={32} />
+                <CheckCircle size={24} />
               </div>
               <h3>Verified Certificate</h3>
               <p>Receive an official certificate upon successful completion</p>
@@ -339,16 +339,6 @@ const CompanyDetail = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="company-detail-container">
-          <h2>Ready to Start Your Journey?</h2>
-          <p>Create an account to apply for internship opportunities</p>
-          <button onClick={() => navigate('/register')} className="btn-cta">
-            Create Account Now
-          </button>
-        </div>
-      </section>
     </div>
   );
 };

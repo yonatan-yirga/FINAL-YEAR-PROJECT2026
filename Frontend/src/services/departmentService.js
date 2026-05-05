@@ -56,6 +56,23 @@ const departmentService = {
   },
 
   /**
+   * Get advisor details and their students
+   * GET /api/departments/advisors/:id/students/
+   * @param {number} advisorId - Advisor ID
+   */
+  getAdvisorStudents: async (advisorId) => {
+    try {
+      const response = await apiService.get(`/departments/advisors/${advisorId}/students/`);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to fetch advisor students',
+      };
+    }
+  },
+
+  /**
    * Get all companies in department
    * GET /api/departments/companies/
    * @param {Object} params - Query parameters (search)

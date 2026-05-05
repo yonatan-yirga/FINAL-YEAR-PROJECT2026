@@ -3,6 +3,7 @@ accounts/urls.py
 """
 from django.urls import path
 from . import views
+from . import partner_views
 
 app_name = 'accounts'
 
@@ -29,4 +30,9 @@ urlpatterns = [
     # Admin Management
     path('admin/users/', views.AdminUserListView.as_view(), name='admin-users'),
     path('admin/users/<int:pk>/', views.AdminUserDetailView.as_view(), name='admin-user-detail'),
+    
+    # Partner Organizations
+    path('partner-organizations/', partner_views.PartnerOrganizationsView.as_view(), name='partner-organizations'),
+    path('partner-organizations/stats/', partner_views.PartnerOrganizationsStatsView.as_view(), name='partner-organizations-stats'),
+    path('partner-organizations/<int:pk>/', partner_views.PartnerOrganizationDetailView.as_view(), name='partner-organization-detail'),
 ]

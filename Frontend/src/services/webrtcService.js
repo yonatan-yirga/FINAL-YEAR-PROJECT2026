@@ -31,32 +31,54 @@ class WebRTCService {
   }
 
   /**
+   * Check if WebRTC is ready for calls
+   */
+  isReady() {
+    const ready = this.websocket && this.websocket.readyState === WebSocket.OPEN;
+    console.log('🔍 WebRTC ready check:', ready);
+    console.log('  WebSocket exists:', !!this.websocket);
+    console.log('  WebSocket state:', this.websocket?.readyState);
+    console.log('  Expected state (OPEN):', WebSocket.OPEN);
+    return ready;
+  }
+
+  /**
    * Connect to WebSocket signaling server
    */
   connectSignaling() {
     return new Promise((resolve, reject) => {
-      const token = localStorage.getItem('token');
+      // Token is stored as 'authToken' not 'token'!
+      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${wsProtocol}//${window.location.hostname}:8000/ws/call/?token=${token}`;
+      
+      console.log('🔌 Connecting to WebSocket:', wsUrl);
+      console.log('🔑 Token:', token ? token.substring(0, 20) + '...' : 'NULL');
       
       this.websocket = new WebSocket(wsUrl);
       
       this.websocket.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('✅ WebSocket connected successfully!');
+        console.log('✅ WebSocket readyState:', this.websocket.readyState);
         resolve();
       };
       
       this.websocket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error('❌ WebSocket error:', error);
+        console.error('WebSocket URL:', wsUrl);
+        console.error('WebSocket readyState:', this.websocket?.readyState);
         reject(error);
       };
       
       this.websocket.onmessage = (event) => {
+        console.log('📨 WebSocket message received:', event.data);
         this.handleSignalingMessage(JSON.parse(event.data));
       };
       
-      this.websocket.onclose = () => {
-        console.log('WebSocket disconnected');
+      this.websocket.onclose = (event) => {
+        console.log('🔌 WebSocket disconnected');
+        console.log('Close code:', event.code);
+        console.log('Close reason:', event.reason);
       };
     });
   }
@@ -190,19 +212,46 @@ class WebRTCService {
    * Start a call (caller side)
    */
   async startCall(targetUserId, isVideoCall = true) {
+    console.log('🎬 Starting call...');
+    console.log('  Target User ID:', targetUserId);
+    console.log('  Call Type:', isVideoCall ? 'video' : 'audio');
+    console.log('  WebSocket exists:', !!this.websocket);
+    console.log('  WebSocket state:', this.websocket?.readyState);
+    console.log('  WebSocket OPEN constant:', WebSocket.OPEN);
+    
+    if (!this.websocket) {
+      console.error('❌ WebSocket is null/undefined!');
+      throw new Error('WebSocket not initialized. Please refresh the page and try again.');
+    }
+    
+    if (this.websocket.readyState !== WebSocket.OPEN) {
+      console.error('❌ WebSocket not in OPEN state!');
+      console.error('  Current state:', this.websocket.readyState);
+      console.error('  State meanings: 0=CONNECTING, 1=OPEN, 2=CLOSING, 3=CLOSED');
+      throw new Error('WebSocket not connected. Please wait a moment and try again.');
+    }
+    
+    console.log('✅ WebSocket is ready!');
+    
     this.targetUserId = targetUserId;
     this.isInitiator = true;
     
     // Initialize media
+    console.log('🎥 Initializing media...');
     await this.initializeMedia(isVideoCall);
+    console.log('✅ Media initialized');
     
     // Send call invitation
-    this.sendSignalingMessage({
+    const inviteMessage = {
       type: 'call_invite',
       target_user_id: targetUserId,
       call_type: isVideoCall ? 'video' : 'audio',
       timestamp: Date.now()
-    });
+    };
+    
+    console.log('📤 Sending call invite:', inviteMessage);
+    this.sendSignalingMessage(inviteMessage);
+    console.log('✅ Call invite sent');
   }
 
   /**
@@ -321,8 +370,18 @@ class WebRTCService {
    * Send signaling message via WebSocket
    */
   sendSignalingMessage(message) {
+    console.log('📡 Sending signaling message:', message);
+    console.log('  WebSocket state:', this.websocket?.readyState);
+    
     if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
-      this.websocket.send(JSON.stringify(message));
+      const messageStr = JSON.stringify(message);
+      console.log('  Message string:', messageStr);
+      this.websocket.send(messageStr);
+      console.log('✅ Message sent successfully');
+    } else {
+      console.error('❌ Cannot send message - WebSocket not open!');
+      console.error('  WebSocket state:', this.websocket?.readyState);
+      console.error('  Expected state:', WebSocket.OPEN);
     }
   }
 

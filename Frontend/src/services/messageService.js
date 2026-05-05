@@ -53,6 +53,38 @@ const messageService = {
       };
     }
   },
+
+  /**
+   * Edit a message.
+   */
+  editMessage: async (messageId, content) => {
+    try {
+      const response = await apiService.put(`/messages/${messageId}/edit/`, {
+        content,
+      });
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to edit message.',
+      };
+    }
+  },
+
+  /**
+   * Delete a message.
+   */
+  deleteMessage: async (messageId) => {
+    try {
+      const response = await apiService.delete(`/messages/${messageId}/delete/`);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to delete message.',
+      };
+    }
+  },
 };
 
 export default messageService;

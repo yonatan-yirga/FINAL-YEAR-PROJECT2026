@@ -1,4 +1,4 @@
-/**
+          /**
  * InternshipDetail Page
  * Modern Upwork-inspired design with professional icons
  * Full detail view of an internship for students
@@ -10,7 +10,6 @@ import SkillMatcher from '../../components/common/SkillMatcher';
 import internshipService from '../../services/internshipService';
 import applicationService from '../../services/applicationService';
 import useAuth from '../../hooks/useAuth';
-import ApplicationFormModal from '../../components/modals/ApplicationFormModal';
 import { 
   MapPin, Calendar, Clock, Users, AlertCircle, 
   Rocket, Lock, XCircle, CheckCircle, Building2,
@@ -30,7 +29,6 @@ const InternshipDetail = () => {
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState('');
   const [applyError, setApplyError] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompanyInfoOpen, setIsCompanyInfoOpen] = useState(false);
 
   // After AuthContext fix, profile is merged into user → user.skills is direct
@@ -67,64 +65,86 @@ const InternshipDetail = () => {
 
   /**
    * Check if student profile is complete
+   * Only requires essential fields: email, name, and skills
    */
   const isProfileComplete = () => {
-    if (!user) return false;
+    if (!user) {
+      console.log('❌ Profile check: No user object');
+      return false;
+    }
     
-    // Check required profile fields
-    const requiredFields = [
-      'first_name',
-      'last_name', 
-      'email',
-      'phone',
-      'skills',
-      'about'
+    // Helper function to get field value from user or user.profile
+    const getFieldValue = (fieldName) => {
+      return user[fieldName] || user.profile?.[fieldName] || '';
+    };
+    
+    console.log('📋 Checking REQUIRED fields only:');
+    
+    // Only check ESSENTIAL fields for application
+    const email = getFieldValue('email');
+    const fullName = getFieldValue('full_name') || (getFieldValue('first_name') && getFieldValue('last_name'));
+    const skills = getFieldValue('skills');
+    
+    const requiredChecks = [
+      { name: 'email', value: email },
+      { name: 'full_name', value: fullName },
+      { name: 'skills', value: skills }
     ];
     
-    return requiredFields.every(field => {
-      const value = user[field];
-      return value && value.toString().trim().length > 0;
+    // Check each field
+    const results = requiredChecks.map(check => {
+      const isValid = check.value && check.value.toString().trim().length > 0;
+      console.log(`  ${isValid ? '✅' : '❌'} ${check.name}: ${isValid ? 'OK' : 'MISSING'}`);
+      return isValid;
     });
+    
+    const isComplete = results.every(r => r);
+    console.log(`\n${isComplete ? '✅' : '❌'} Profile is ${isComplete ? 'COMPLETE' : 'INCOMPLETE'}`);
+    
+    return isComplete;
   };
 
   /**
-   * Open application modal with profile validation
+   * Apply directly with profile data - NO MODAL
    */
-  const handleApply = () => {
+  const handleApply = async () => {
     // Check if profile is complete
     if (!isProfileComplete()) {
-      setApplyError('Please complete your profile first before applying. Go to Profile → Edit Profile to fill in all required information.');
+      setApplyError('Please complete your profile first. Required fields: Email, Full Name, and Skills. Go to Profile → Edit Profile.');
       return;
     }
     
-    setApplyError(''); // Clear any previous errors
-    setIsModalOpen(true);
-  };
-
-  /**
-   * Actual submission handler — called from the modal
-   */
-  const submitApplication = async (applicationData) => {
     setApplying(true);
     setApplyError('');
     setApplySuccess('');
 
+    // Prepare application data from user profile
     const payload = {
       internship: id,
-      ...applicationData
+      // Auto-populate from profile - backend will handle this
+      // We send empty strings and let backend fill from profile
+      about_me: '',
+      experience: '',
+      education_level: '',
+      projects: '',
+      certificate: '',
+      cover_letter: 'Application submitted via profile'
     };
 
     const result = await applicationService.applyToInternship(payload);
 
     if (result.success) {
-      setApplySuccess('Your application has been submitted! The company will review it soon.');
-      setIsModalOpen(false);
+      setApplySuccess('✅ Your application has been submitted successfully! Your profile information has been sent to the company.');
+      // Refresh internship data to update application count
+      fetchInternship();
     } else {
       setApplyError(result.error || 'Failed to submit application. Please try again.');
     }
 
     setApplying(false);
   };
+
+
 
   if (loading) {
     return (
@@ -364,15 +384,6 @@ const InternshipDetail = () => {
           </div>
         </div>
       </div>
-
-      <ApplicationFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={submitApplication}
-        internship={internship}
-        userProfile={user} // 'user' in useAuth now contains profile info
-        applying={applying}
-      />
     </div>
   );
 };

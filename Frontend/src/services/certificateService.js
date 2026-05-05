@@ -37,8 +37,26 @@ const certificateService = {
   getMyCertificate: async () => {
     try {
       const response = await apiService.get('/certificates/my-certificate/');
+      
+      // Handle the new 200 OK response with has_certificate = false
+      if (response && response.has_certificate === false) {
+        return {
+          success: false,
+          status: 404,
+          error: 'No certificate found',
+        };
+      }
+      
       return { success: true, data: response };
     } catch (error) {
+      // 404 is expected if student hasn't completed internship yet
+      if (error.response?.status === 404) {
+        return {
+          success: false,
+          status: 404,
+          error: 'No certificate found',
+        };
+      }
       return {
         success: false,
         status: error.response?.status,

@@ -20,16 +20,25 @@ const Students = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [ordering, setOrdering] = useState('-created_at');
 
   useEffect(() => {
     fetchStudents();
-  }, [statusFilter]);
+  }, [statusFilter, ordering, search]);
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const params = statusFilter !== 'all' ? { status: statusFilter } : {};
+      const params = {
+        ordering,
+        search
+      };
+      if (statusFilter !== 'all') params.status = statusFilter;
+      
       const response = await departmentService.getStudents(params);
+
       
       if (response.success) {
         setStudents(response.data);
@@ -268,7 +277,43 @@ const Students = () => {
               <span className="st-filter-count">{stats.completed}</span>
             </button>
           </div>
+
+          <div className="st-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <div className="st-search-wrapper" style={{ position: 'relative', flex: 1 }}>
+              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+              <input
+                type="text"
+                placeholder="Search students by name, ID, or email..."
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  if (window.stTimeout) clearTimeout(window.stTimeout);
+                  window.stTimeout = setTimeout(() => setSearch(e.target.value), 400);
+                }}
+                style={{
+                  width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
+                  border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
+                }}
+              />
+            </div>
+            <select
+              value={ordering}
+              onChange={(e) => setOrdering(e.target.value)}
+              style={{
+                padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
+                outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
+              }}
+            >
+              <option value="-created_at">Newest First</option>
+              <option value="created_at">Oldest First</option>
+              <option value="full_name">Name (A-Z)</option>
+              <option value="-full_name">Name (Z-A)</option>
+              <option value="university_id">ID (Asc)</option>
+              <option value="-university_id">ID (Desc)</option>
+            </select>
+          </div>
         </div>
+
 
         {/* Data Table */}
         <div className="st-table-container">
@@ -278,7 +323,7 @@ const Students = () => {
             onRowClick={handleRowClick}
             loading={loading}
             emptyMessage="No students found"
-            searchPlaceholder="Search students by name, ID, or email..."
+            searchable={false}
           />
         </div>
       </div>

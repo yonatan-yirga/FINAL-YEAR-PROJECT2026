@@ -1,6 +1,6 @@
 """
 Message Model
-Simple messaging between students and their assigned advisors.
+Messaging between students, advisors, and companies within assignments.
 """
 from django.db import models
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 
 class Message(models.Model):
     """
-    A message between a student and their advisor within an active assignment.
+    A message between participants in an advisor assignment (student, advisor, company).
     """
     advisor_assignment = models.ForeignKey(
         'advisors.AdvisorAssignment',
@@ -47,13 +47,16 @@ class Message(models.Model):
     def clean(self):
         super().clean()
         if self.sender and self.advisor_assignment:
+            # Allow student, advisor, or company to send messages
             allowed = (
                 self.sender == self.advisor_assignment.student or
-                self.sender == self.advisor_assignment.advisor
+                self.sender == self.advisor_assignment.advisor or
+                (self.advisor_assignment.internship and 
+                 self.sender == self.advisor_assignment.internship.company)
             )
             if not allowed:
                 raise ValidationError(
-                    'Only the student or advisor in this assignment can send messages.'
+                    'Only the student, advisor, or company in this assignment can send messages.'
                 )
 
     def save(self, *args, **kwargs):
@@ -62,7 +65,7 @@ class Message(models.Model):
 
     @property
     def recipient(self):
-        """Return the other party in the conversation."""
+        """Return the other party in the conversation (for 2-party chats)."""
         if self.sender == self.advisor_assignment.student:
             return self.advisor_assignment.advisor
         return self.advisor_assignment.student

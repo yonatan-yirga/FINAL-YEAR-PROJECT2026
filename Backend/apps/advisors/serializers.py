@@ -158,6 +158,8 @@ class MyStudentSerializer(serializers.ModelSerializer):
     student_email = serializers.CharField(source='student.email', read_only=True)
     student_phone = serializers.SerializerMethodField()
     university_id = serializers.SerializerMethodField()
+    batch = serializers.SerializerMethodField()
+    year_of_study = serializers.SerializerMethodField()
     
     internship_id = serializers.IntegerField(source='internship.id', read_only=True)
     internship_title = serializers.CharField(source='internship.title', read_only=True)
@@ -179,6 +181,8 @@ class MyStudentSerializer(serializers.ModelSerializer):
             'student_email',
             'student_phone',
             'university_id',
+            'batch',
+            'year_of_study',
             'internship_id',
             'internship_title',
             'company_name',
@@ -204,6 +208,20 @@ class MyStudentSerializer(serializers.ModelSerializer):
         """Get university ID"""
         try:
             return obj.student.student_profile.university_id
+        except Exception:
+            return None
+    
+    def get_batch(self, obj):
+        """Get student batch"""
+        try:
+            return obj.student.student_profile.batch
+        except Exception:
+            return None
+    
+    def get_year_of_study(self, obj):
+        """Get student year of study"""
+        try:
+            return obj.student.student_profile.year_of_study
         except Exception:
             return None
     

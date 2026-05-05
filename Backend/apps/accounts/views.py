@@ -525,7 +525,13 @@ class UILUserListView(ListAPIView):
     permission_classes = [IsAuthenticated, IsUIL | IsAdmin]
     serializer_class   = UserSerializer
     filter_backends    = [SearchFilter, OrderingFilter]
-    search_fields      = ['email']
+    search_fields      = [
+        'email', 
+        'student_profile__full_name', 
+        'company_profile__company_name',
+        'advisor_profile__full_name',
+        'student_profile__university_id'
+    ]
     ordering_fields    = ['created_at', 'email', 'role']
     ordering           = ['-created_at']
 
@@ -871,27 +877,48 @@ class ValidateResetTokenView(APIView):
 
 # ── Admin User Management Views ──────────────────────────────────────────
 
-class AdminUserListView(APIView):
+class AdminUserListView(ListAPIView):
     """
-    List all users or create a new user (Admin only)
+    List all users with search and filter (Admin only)
     GET /api/auth/admin/users/
-    POST /api/auth/admin/users/
     """
     permission_classes = [IsAuthenticated, IsAdmin]
+    serializer_class = UserSerializer
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = [
+        'email', 
+        'student_profile__full_name', 
+        'company_profile__company_name',
+        'advisor_profile__full_name'
+    ]
+    ordering_fields = ['created_at', 'email', 'role', 'is_approved']
+    ordering = ['-created_at']
 
-    def get(self, request):
-        users = User.objects.all().order_by('-created_at')
-        
+    def get_queryset(self):
+        qs = User.objects.all()
+        role = self.request.query_params.get('role')
+        if role:
+            qs = qs.filter(role=role)
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        users = page if page is not None else queryset
+
         results = []
         for user in users:
             data = UserSerializer(user).data
             data['display_name'] = UILUserListView._get_display_name(user)
             data['profile_info'] = UILUserListView._get_profile_info(user)
             results.append(data)
-            
+
+        if page is not None:
+            return self.get_paginated_response(results)
         return Response(results)
 
     def post(self, request):
+        """Allow creating users from the same endpoint"""
         email = request.data.get('email', '').strip().lower()
         password = request.data.get('password')
         role = request.data.get('role', 'STUDENT')
@@ -908,7 +935,7 @@ class AdminUserListView(APIView):
                     email=email,
                     password=password,
                     role=role,
-                    is_approved=True  # Admin created users are pre-approved
+                    is_approved=True
                 )
                 
                 return Response(
@@ -917,6 +944,7 @@ class AdminUserListView(APIView):
                 )
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class AdminUserDetailView(APIView):

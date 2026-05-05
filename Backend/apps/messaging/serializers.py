@@ -24,6 +24,8 @@ class MessageSerializer(serializers.ModelSerializer):
                 return obj.sender.student_profile.full_name
             elif obj.sender.role == 'ADVISOR':
                 return obj.sender.advisor_profile.full_name
+            elif obj.sender.role == 'COMPANY':
+                return obj.sender.company_profile.company_name
         except Exception:
             pass
         return obj.sender.email

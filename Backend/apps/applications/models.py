@@ -49,7 +49,7 @@ class Application(models.Model):
         help_text='Past roles and work experience relevant to this internship'
     )
     education_level = models.CharField(
-        max_length=100,
+        max_length=500,
         blank=True,
         null=True,
         help_text='Current education level (e.g., Bachelor, Master)'

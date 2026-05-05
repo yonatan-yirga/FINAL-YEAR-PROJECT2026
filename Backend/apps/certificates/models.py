@@ -65,6 +65,23 @@ class Certificate(models.Model):
         max_length=255, blank=True, default='',
         help_text='UIL director name at time of issue (from settings.UIL_DIRECTOR_NAME)',
     )
+    
+    # ── Company branding (denormalised at issue time) ─────────────────────────
+    company_logo       = models.ImageField(
+        upload_to='certificates/company_logos/',
+        null=True, blank=True,
+        help_text='Company logo snapshot at time of issue',
+    )
+    company_seal       = models.ImageField(
+        upload_to='certificates/company_seals/',
+        null=True, blank=True,
+        help_text='Company seal snapshot at time of issue',
+    )
+    company_signature  = models.ImageField(
+        upload_to='certificates/company_signatures/',
+        null=True, blank=True,
+        help_text='Company representative signature snapshot at time of issue',
+    )
 
     # ── PDF ───────────────────────────────────────────────────────────────────
     pdf_file     = models.FileField(upload_to='certificates/', null=True, blank=True)

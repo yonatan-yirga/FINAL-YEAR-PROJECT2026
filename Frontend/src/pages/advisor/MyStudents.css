@@ -1205,3 +1205,46 @@
     padding: 14px 16px;
   }
 }
+
+
+/* Batch Grouping Styles */
+.ms-batch-group {
+  margin-bottom: 32px;
+}
+
+.ms-batch-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 16px 24px;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+}
+
+.ms-batch-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ms-batch-count {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.9;
+  margin-left: auto;
+}
+
+.ms-batch-group .ms-students-table {
+  border-radius: 0 0 8px 8px;
+  margin-top: 0;
+}
+
+.ms-batch-group .ms-students-table thead tr {
+  background: #f8f9fa;
+}
+
+.ms-batch-group:last-child .ms-students-table {
+  margin-bottom: 0;
+}

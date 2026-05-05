@@ -25,14 +25,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # Required for allauth
     
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',  # Token authentication
+    'rest_framework_simplejwt',  # JWT authentication
     'corsheaders',
     'django_cleanup.apps.CleanupConfig',
     'django_extensions',
     'channels',  # WebSocket support for real-time calling
+    
+    # OAuth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
     
     # Local apps
     'apps.accounts',
@@ -56,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # Required for allauth
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -211,12 +223,105 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379')
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [REDIS_URL],
+# Use in-memory channel layer for development (no Redis required)
+# For production, use Redis channel layer
+if DEBUG:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
         },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [REDIS_URL],
+            },
+        },
+    }
+
+
+
+# ═══════════════════════════════════════════════════════════
+# OAUTH AUTHENTICATION CONFIGURATION
+# ═══════════════════════════════════════════════════════════
+
+# Django Sites Framework
+SITE_ID = 1
+
+# Django Allauth Configuration
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional', or 'none'
+ACCOUNT_UNIQUE_EMAIL = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# OAuth Provider Settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'APP': {
+            'client_id': config('GOOGLE_CLIENT_ID', default=''),
+            'secret': config('GOOGLE_CLIENT_SECRET', default=''),
+            'key': ''
+        }
     },
+    'github': {
+        'SCOPE': [
+            'user',
+            'user:email',
+        ],
+        'APP': {
+            'client_id': config('GITHUB_CLIENT_ID', default=''),
+            'secret': config('GITHUB_CLIENT_SECRET', default=''),
+            'key': ''
+        }
+    }
 }
 
+# REST Framework JWT Configuration
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+}
+
+# REST Auth Configuration
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_HTTPONLY': False,
+    'JWT_AUTH_COOKIE': 'auth-token',
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh-token',
+    'USER_DETAILS_SERIALIZER': 'apps.accounts.serializers.UserSerializer',
+}
+
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# OAuth Redirect URLs
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+OAUTH_REDIRECT_URL = f'{FRONTEND_URL}/auth/callback'
+LOGIN_REDIRECT_URL = FRONTEND_URL
+ACCOUNT_LOGOUT_REDIRECT_URL = FRONTEND_URL

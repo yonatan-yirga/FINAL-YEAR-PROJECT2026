@@ -7,6 +7,8 @@ from .models import Certificate
 
 class CertificateSerializer(serializers.ModelSerializer):
     pdf_url = serializers.SerializerMethodField()
+    company_logo_url = serializers.SerializerMethodField()
+    company_seal_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Certificate
@@ -17,6 +19,7 @@ class CertificateSerializer(serializers.ModelSerializer):
             'advisor_name', 'start_date', 'end_date',
             'duration_months', 'performance_grade',
             'is_generated', 'pdf_url', 'created_at',
+            'company_logo_url', 'company_seal_url',
         ]
         read_only_fields = fields
 
@@ -25,6 +28,20 @@ class CertificateSerializer(serializers.ModelSerializer):
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(obj.pdf_file.url)
+        return None
+    
+    def get_company_logo_url(self, obj):
+        if obj.company_logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.company_logo.url)
+        return None
+    
+    def get_company_seal_url(self, obj):
+        if obj.company_seal:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.company_seal.url)
         return None
 
 

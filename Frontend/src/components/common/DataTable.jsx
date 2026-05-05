@@ -13,9 +13,13 @@ const DataTable = ({
   emptyMessage = 'No data available',
   searchable = true,
   searchPlaceholder = 'Search...',
+  onSearch,
+  externalSearchValue = '',
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [internalSearchTerm, setInternalSearchTerm] = useState('');
+  const searchTerm = onSearch ? externalSearchValue : internalSearchTerm;
   const [sortColumn, setSortColumn] = useState(null);
+
   const [sortDirection, setSortDirection] = useState('asc');
 
   // Filter data based on search
@@ -70,7 +74,7 @@ const DataTable = ({
             type="text"
             placeholder={searchPlaceholder}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => onSearch ? onSearch(e.target.value) : setInternalSearchTerm(e.target.value)}
             style={styles.searchInput}
           />
           <svg

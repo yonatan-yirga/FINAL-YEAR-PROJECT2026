@@ -175,6 +175,14 @@ class StudentProfile(models.Model):
         blank=True,
         help_text='University, degree, and graduation year'
     )
+    projects = models.TextField(
+        blank=True,
+        help_text='Personal or academic projects with descriptions'
+    )
+    certificates = models.TextField(
+        blank=True,
+        help_text='Certifications, awards, and achievements'
+    )
     avatar = models.ImageField(
         upload_to='uploads/avatars/%Y/%m/',
         null=True,
@@ -201,6 +209,12 @@ class StudentProfile(models.Model):
     year_of_study = models.IntegerField(
         default=4,
         help_text='Current year of study (e.g. 4 for final year, 5 for Architecture/Medicine)'
+    )
+    batch = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text='Student batch/cohort (e.g., "2024", "Batch A 2024", "Fall 2024")'
     )
     eligibility_confirmed_at = models.DateTimeField(null=True, blank=True)
     
@@ -311,6 +325,26 @@ class CompanyProfile(models.Model):
         upload_to='uploads/companies/%Y/%m/',
         validators=[validate_pdf_file],
         help_text='Company commercial license or official letter (PDF, max 5MB)'
+    )
+    
+    # Certificate branding fields
+    company_logo = models.ImageField(
+        upload_to='uploads/company_logos/%Y/%m/',
+        null=True,
+        blank=True,
+        help_text='Company logo for certificates (PNG/JPG, recommended: 500x500px)'
+    )
+    company_seal = models.ImageField(
+        upload_to='uploads/company_seals/%Y/%m/',
+        null=True,
+        blank=True,
+        help_text='Official company seal/stamp for certificates (PNG with transparency recommended)'
+    )
+    certificate_signature = models.ImageField(
+        upload_to='uploads/company_signatures/%Y/%m/',
+        null=True,
+        blank=True,
+        help_text='Digital signature of company representative (PNG with transparency)'
     )
     
     # DEPARTMENT HEAD OVERSIGHT

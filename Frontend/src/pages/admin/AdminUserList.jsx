@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import apiService from '../../services/api';
+import { Search, Filter, ChevronDown, UserPlus, Trash2, Edit2, RotateCw } from 'lucide-react';
+
 
 const AdminUserList = () => {
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -15,18 +18,28 @@ const AdminUserList = () => {
   
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [ordering, setOrdering] = useState('-created_at');
   
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [search, roleFilter, ordering]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const data = await apiService.get('/auth/admin/users/');
-      setUsers(data);
+      const params = {
+        search,
+        ordering
+      };
+      if (roleFilter) params.role = roleFilter;
+      
+      const data = await apiService.get('/auth/admin/users/', { params });
+      setUsers(data.results || data);
     } catch (err) {
       setError('Network error loading users');
     }
@@ -106,6 +119,8 @@ const AdminUserList = () => {
     .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
     .cancel-btn { flex: 1; padding: 10px; border: 1px solid #DDE3EE; background: #fff; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .submit-btn { flex: 1; padding: 10px; background: #0F2D5E; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spinning { animation: spin 1s linear infinite; }
   `;
 
   return (
@@ -116,8 +131,85 @@ const AdminUserList = () => {
       <div className="user-list-body">
         <div className="header-row">
           <h2 style={{ fontSize: '24px', color: '#111827' }}>All System Users</h2>
-          <button className="add-btn" onClick={() => setShowAddModal(true)}>+ Add User</button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              className="refresh-btn" 
+              onClick={fetchUsers} 
+              disabled={loading}
+              style={{ background: '#fff', border: '1px solid #DDE3EE', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}
+            >
+              <RotateCw size={18} className={loading ? 'spinning' : ''} color="#637084" />
+            </button>
+            <button className="add-btn" onClick={() => setShowAddModal(true)}>
+              <UserPlus size={18} style={{ marginRight: '8px' }} />
+              Add User
+            </button>
+          </div>
         </div>
+
+        {/* Filter Bar */}
+        <div style={{ 
+          display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap',
+          background: '#fff', padding: '16px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+        }}>
+          <div style={{ position: 'relative', flex: 2, minWidth: '250px' }}>
+            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+            <input 
+              type="text" 
+              placeholder="Search by email, name, or university ID..." 
+              value={searchInput}
+              onChange={e => {
+                setSearchInput(e.target.value);
+                if (window.adminSearchTimeout) clearTimeout(window.adminSearchTimeout);
+                window.adminSearchTimeout = setTimeout(() => setSearch(e.target.value), 400);
+              }}
+              style={{ 
+                width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #DDE3EE', 
+                borderRadius: '8px', outline: 'none', fontSize: '14px' 
+              }}
+            />
+          </div>
+
+          <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
+            <Filter size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+            <select 
+              value={roleFilter}
+              onChange={e => setRoleFilter(e.target.value)}
+              style={{ 
+                width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #DDE3EE', 
+                borderRadius: '8px', outline: 'none', appearance: 'none', fontSize: '14px', background: '#fff' 
+              }}
+            >
+              <option value="">All Roles</option>
+              <option value="STUDENT">Students</option>
+              <option value="ADVISOR">Advisors</option>
+              <option value="COMPANY">Companies</option>
+              <option value="DEPARTMENT_HEAD">Dept Heads</option>
+              <option value="UIL">UIL Officers</option>
+              <option value="ADMIN">Admins</option>
+            </select>
+            <ChevronDown size={14} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
+          </div>
+
+          <div style={{ position: 'relative', flex: 1, minWidth: '150px' }}>
+            <select 
+              value={ordering}
+              onChange={e => setOrdering(e.target.value)}
+              style={{ 
+                width: '100%', padding: '10px 12px', border: '1px solid #DDE3EE', 
+                borderRadius: '8px', outline: 'none', appearance: 'none', fontSize: '14px', background: '#fff' 
+              }}
+            >
+              <option value="-created_at">Newest First</option>
+              <option value="created_at">Oldest First</option>
+              <option value="email">Email (A-Z)</option>
+              <option value="-email">Email (Z-A)</option>
+              <option value="role">Role</option>
+            </select>
+            <ChevronDown size={14} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
+          </div>
+        </div>
+
 
         {error && <div style={{ padding: '16px', background: '#FEE2E2', color: '#B91C1C', borderRadius: '8px', marginBottom: '24px' }}>{error}</div>}
 
@@ -158,8 +250,12 @@ const AdminUserList = () => {
                     </td>
                     <td style={{ fontSize: '13px', color: '#637084' }}>{new Date(u.created_at).toLocaleDateString()}</td>
                     <td style={{ textAlign: 'right' }}>
-                      <button className="edit-btn" onClick={() => openEditModal(u)}>Edit</button>
-                      <button className="del-btn" onClick={() => handleDelete(u.id)}>Delete</button>
+                      <button className="edit-btn" onClick={() => openEditModal(u)} title="Edit User">
+                        <Edit2 size={14} />
+                      </button>
+                      <button className="del-btn" onClick={() => handleDelete(u.id)} title="Delete User">
+                        <Trash2 size={14} />
+                      </button>
                     </td>
                   </tr>
                 ))

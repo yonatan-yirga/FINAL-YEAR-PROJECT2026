@@ -34,6 +34,8 @@ const Profile = () => {
     about: '',
     location: '',
     education: '',
+    projects: '',
+    certificates: '',
   });
   const [cvFile, setCvFile] = useState(null);
   const [avatar, setAvatar] = useState(null);
@@ -65,6 +67,8 @@ const Profile = () => {
         about: p.about || '',
         location: p.location || '',
         education: p.education || '',
+        projects: p.projects || '',
+        certificates: p.certificates || '',
       });
     } else {
       setFeedback({ type: 'error', message: result.error });
@@ -487,6 +491,56 @@ const Profile = () => {
                     placeholder="List your educational background, degrees, certifications, and relevant coursework..."
                     rows={4}
                   />
+                </div>
+              </div>
+
+              {/* Projects (Optional) */}
+              <div className="profile-card">
+                <div className="profile-card-header">
+                  <h2 className="profile-card-title">
+                    <Briefcase size={20} />
+                    Projects
+                    <span className="profile-optional-badge">Optional</span>
+                  </h2>
+                </div>
+                
+                <div className="profile-form-group">
+                  <textarea
+                    name="projects"
+                    value={formData.projects}
+                    onChange={handleInputChange}
+                    className="profile-form-textarea"
+                    placeholder="Describe your projects, including technologies used, your role, and outcomes. Separate multiple projects with line breaks..."
+                    rows={5}
+                  />
+                  <span className="profile-form-hint">
+                    Example: "E-commerce Website - Built with React and Node.js. Implemented payment integration and user authentication."
+                  </span>
+                </div>
+              </div>
+
+              {/* Certificates (Optional) */}
+              <div className="profile-card">
+                <div className="profile-card-header">
+                  <h2 className="profile-card-title">
+                    <Award size={20} />
+                    Certificates & Achievements
+                    <span className="profile-optional-badge">Optional</span>
+                  </h2>
+                </div>
+                
+                <div className="profile-form-group">
+                  <textarea
+                    name="certificates"
+                    value={formData.certificates}
+                    onChange={handleInputChange}
+                    className="profile-form-textarea"
+                    placeholder="List your certifications, awards, and achievements. Include issuing organization and date if applicable..."
+                    rows={4}
+                  />
+                  <span className="profile-form-hint">
+                    Example: "AWS Certified Developer - Amazon Web Services, 2025"
+                  </span>
                 </div>
               </div>
             </div>

@@ -8,46 +8,28 @@ import { AuthProvider } from '../context/AuthContext';
 import { NotificationProvider } from '../context/NotificationContext';
 import { DepartmentProvider } from '../context/DepartmentContext';
 import { ThemeProvider } from '../context/ThemeContext';
-
-// Route Components
 import PrivateRoute from './PrivateRoute';
 import RoleRoute from './RoleRoute';
-
-// Auth Pages
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
-
-// Public Pages
+import OAuthCallback from '../pages/auth/OAuthCallback';
 import LandingPage from '../pages/public/LandingPage';
 import CompanyDetail from '../pages/public/CompanyDetail';
-
-// Dashboard Pages
-import {
-  StudentDashboard,
-  CompanyDashboard,
-  AdvisorDashboard,
-} from '../pages/Dashboards';
+import { StudentDashboard, CompanyDashboard, AdvisorDashboard } from '../pages/Dashboards';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminUserList from '../pages/admin/AdminUserList';
 import AdminStudentDetail from '../pages/admin/StudentDetail';
 import StudentSettings from '../pages/admin/StudentSettings';
-
-// UIL Pages
 import UILDashboard from '../pages/uil/UILDashboard';
 import PendingRegistrations from '../pages/uil/PendingRegistrations';
 import ManageUsers from '../pages/uil/ManageUsers';
 import SystemOverview from '../pages/uil/SystemOverview';
-
-// PHASE 2.4: Notification Pages
 import NotificationsPage from '../pages/common/NotificationsPage';
-
-// Messaging
 import Messages from '../pages/common/MessagesModern';
-
-// PHASE 3.2: Department Head Pages
 import DepartmentDashboard from '../pages/department/DepartmentDashboard';
 import Students from '../pages/department/Students';
 import Advisors from '../pages/department/Advisors';
+import AdvisorStudents from '../pages/department/AdvisorStudents';
 import AddAdvisor from '../pages/department/AddAdvisor';
 import Companies from '../pages/department/Companies';
 import AssignAdvisor from '../pages/department/AssignAdvisor';
@@ -56,44 +38,33 @@ import Reports from '../pages/department/Reports';
 import StudentsValidation from '../pages/department/StudentsValidation';
 import Escalations from '../pages/department/Escalations';
 import DepartmentCycles from '../pages/department/DepartmentCycles';
-
-// Company Pages
 import PostInternship from '../pages/company/PostInternship';
 import MyInternships from '../pages/company/MyInternships';
 import Applications from '../pages/company/Applications';
-// PHASE 8: Company report submission
 import ReportSubmission from '../pages/company/ReportSubmission';
-
-// Student Pages
 import SearchInternships from '../pages/student/SearchInternships';
 import MyApplications from '../pages/student/MyApplications';
 import InternshipDetail from '../pages/student/InternshipDetail';
 import ActiveInternship from '../pages/student/ActiveInternship';
 import Profile from '../pages/student/Profile';
 import StudentReports from '../pages/student/StudentReports';
-
-// PHASE 6: Advisor Pages
 import MyStudents from '../pages/advisor/MyStudents';
 import StudentDetail from '../pages/advisor/StudentDetail';
-// PHASE 8: Advisor reports page
 import AdvisorReports from '../pages/advisor/AdvisorReports';
-
-// Phase 9 — Final Reports
 import SubmitFinalReport from '../pages/company/SubmitFinalReport';
 import AdvisorFinalReports from '../pages/advisor/AdvisorFinalReports';
 import AdvisorEvaluationForm from '../pages/advisor/AdvisorEvaluationForm';
 import DepartmentFinalReports from '../pages/department/DepartmentFinalReports';
 import StudentFinalSubmission from '../pages/student/StudentFinalSubmission';
-
-// PHASE 10: Certificate Pages
 import Congratulations from '../pages/student/Congratulations';
 import StudentsCompletion from '../pages/department/StudentsCompletion';
 import VerifyCertificate from '../pages/public/VerifyCertificate';
-import VerifyLanding      from '../pages/public/VerifyLanding';
-import ForgotPassword     from '../pages/auth/ForgotPassword';
-import ResetPassword      from '../pages/auth/ResetPassword';
-import ChangePassword     from '../pages/settings/ChangePassword';
-import Settings           from '../pages/settings/Settings';
+import VerifyLanding from '../pages/public/VerifyLanding';
+import ForgotPassword from '../pages/auth/ForgotPassword';
+import ResetPassword from '../pages/auth/ResetPassword';
+import ChangePassword from '../pages/settings/ChangePassword';
+import Settings from '../pages/settings/Settings';
+
 import { Satellite } from 'lucide-react';
 
 /**
@@ -197,6 +168,7 @@ const AppRoutes = () => {
               <Route path="/company/:id" element={<CompanyDetail />} /> {/* :id is company name */}
               <Route path="/login"                       element={<Login />} />
               <Route path="/register"                    element={<Register />} />
+              <Route path="/auth/callback"               element={<OAuthCallback />} />
               <Route path="/forgot-password"             element={<ForgotPassword />} />
               <Route path="/reset-password/:token"       element={<ResetPassword />} />
               <Route path="/verify"                      element={<VerifyLanding />} />
@@ -229,6 +201,8 @@ const AppRoutes = () => {
                   </PrivateRoute>
                 }
               />
+
+
 
               {/* ── Student Routes ── */}
               <Route
@@ -411,6 +385,17 @@ const AppRoutes = () => {
                 }
               />
 
+              <Route
+                path="/company/messages"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="COMPANY">
+                      <Messages />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+
               {/* ── Advisor Routes ── */}
               <Route
                 path="/advisor/dashboard"
@@ -516,6 +501,16 @@ const AppRoutes = () => {
                   <PrivateRoute>
                     <RoleRoute allowedRoles="DEPARTMENT_HEAD">
                       <Advisors />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/department/advisor/:advisorId/students"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="DEPARTMENT_HEAD">
+                      <AdvisorStudents />
                     </RoleRoute>
                   </PrivateRoute>
                 }
@@ -652,7 +647,7 @@ const AppRoutes = () => {
                 path="/uil/manage-users"
                 element={
                   <PrivateRoute>
-                    <RoleRoute allowedRoles="UIL">
+                    <RoleRoute allowedRoles={['UIL', 'ADMIN']}>
                       <ManageUsers />
                     </RoleRoute>
                   </PrivateRoute>

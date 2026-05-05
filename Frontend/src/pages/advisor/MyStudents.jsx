@@ -10,7 +10,7 @@ import {
   Users, Search, Filter, Calendar, Clock, Building2, 
   User, Mail, Phone, MapPin, TrendingUp, Eye, RefreshCw,
   CheckCircle, AlertCircle, Star, Award, Target, ArrowRight,
-  GraduationCap, Briefcase, MessageSquare, Plus
+  GraduationCap, Briefcase, MessageSquare, Plus, ChevronDown
 } from 'lucide-react';
 import './MyStudents.css';
 
@@ -22,6 +22,7 @@ const MyStudents = () => {
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const [retryKey, setRetryKey] = useState(0);
 
   // Fetch students with retry logic
@@ -76,8 +77,32 @@ const MyStudents = () => {
       student.student_email?.toLowerCase().includes(searchLower) ||
       student.university_id?.toLowerCase().includes(searchLower) ||
       student.company_name?.toLowerCase().includes(searchLower) ||
-      student.internship_title?.toLowerCase().includes(searchLower)
+      student.internship_title?.toLowerCase().includes(searchLower) ||
+      student.batch?.toLowerCase().includes(searchLower)
     );
+  }).sort((a, b) => {
+    if (sortBy === 'name') return (a.student_name || '').localeCompare(b.student_name || '');
+    if (sortBy === 'id') return (a.university_id || '').localeCompare(b.university_id || '');
+    if (sortBy === 'newest') return new Date(b.start_date) - new Date(a.start_date);
+    if (sortBy === 'oldest') return new Date(a.start_date) - new Date(b.start_date);
+    return 0;
+  });
+
+  // Group students by batch
+  const groupedByBatch = filteredStudents.reduce((groups, student) => {
+    const batch = student.batch || 'No Batch';
+    if (!groups[batch]) {
+      groups[batch] = [];
+    }
+    groups[batch].push(student);
+    return groups;
+  }, {});
+
+  // Sort batches (most recent first, "No Batch" last)
+  const sortedBatches = Object.keys(groupedByBatch).sort((a, b) => {
+    if (a === 'No Batch') return 1;
+    if (b === 'No Batch') return -1;
+    return b.localeCompare(a); // Descending order
   });
 
   const getStatusInfo = (isActive) => {
@@ -195,6 +220,25 @@ const MyStudents = () => {
               />
             </div>
             
+            <div className="ms-sort-box" style={{ position: 'relative' }}>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="ms-sort-select"
+                style={{
+                  padding: '10px 35px 10px 15px', borderRadius: '12px', border: '1px solid #E2E8F0',
+                  outline: 'none', appearance: 'none', background: '#fff', fontSize: '14px',
+                  fontWeight: '500', color: '#64748B', minWidth: '140px'
+                }}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name">Name (A-Z)</option>
+                <option value="id">University ID</option>
+              </select>
+              <ChevronDown size={14} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
+            </div>
+
             <button 
               className="ms-refresh-btn"
               onClick={() => setRetryKey(k => k + 1)}
@@ -204,6 +248,7 @@ const MyStudents = () => {
             </button>
           </div>
         </div>
+
 
         {/* Error Alert */}
         {error && (
@@ -265,124 +310,136 @@ const MyStudents = () => {
           </div>
         ) : (
           <div className="ms-table-container">
-            <table className="ms-students-table">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>University ID</th>
-                  <th>Internship</th>
-                  <th>Company</th>
-                  <th>Start Date</th>
-                  <th>Duration</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map((student) => {
-                  const statusInfo = getStatusInfo(student.is_active);
-                  const StatusIcon = statusInfo.icon;
-                  
-                  return (
-                    <tr
-                      key={student.id}
-                      className="ms-table-row"
-                      onClick={() => handleStudentClick(student)}
-                    >
-                      {/* Student Name with Avatar */}
-                      <td className="ms-student-cell">
-                        <div className="ms-student-info">
-                          <div className="ms-student-avatar-sm">
-                            {student.student_name?.charAt(0).toUpperCase() || '?'}
-                          </div>
-                          <div className="ms-student-details">
-                            <div className="ms-student-name-sm">{student.student_name}</div>
-                            {student.student_email && (
-                              <div className="ms-student-email">{student.student_email}</div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      
-                      {/* University ID */}
-                      <td>
-                        <span className="ms-table-text">{student.university_id}</span>
-                      </td>
-                      
-                      {/* Internship Title */}
-                      <td>
-                        <span className="ms-table-text">{student.internship_title}</span>
-                      </td>
-                      
-                      {/* Company */}
-                      <td>
-                        <div className="ms-company-cell">
-                          <Building2 size={14} />
-                          <span className="ms-table-text">{student.company_name}</span>
-                        </div>
-                      </td>
-                      
-                      {/* Start Date */}
-                      <td>
-                        <span className="ms-table-text">
-                          {new Date(student.start_date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </td>
-                      
-                      {/* Duration */}
-                      <td>
-                        <span className="ms-table-text">{student.duration_days} days</span>
-                      </td>
-                      
-                      {/* Status */}
-                      <td>
-                        <div 
-                          className="ms-status-badge-sm"
-                          style={{ 
-                            color: statusInfo.color, 
-                            backgroundColor: statusInfo.bg 
-                          }}
-                        >
-                          <StatusIcon size={12} />
-                          <span>{statusInfo.label}</span>
-                        </div>
-                      </td>
-                      
-                      {/* Actions */}
-                      <td>
-                        <div className="ms-table-actions">
-                          <button 
-                            className="ms-table-action-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/advisor/students/${student.id}`);
-                            }}
-                            title="View Details"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          
-                          <button 
-                            className="ms-table-action-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate('/advisor/reports');
-                            }}
-                            title="View Reports"
-                          >
-                            <MessageSquare size={16} />
-                          </button>
-                        </div>
-                      </td>
+            {sortedBatches.map((batch) => (
+              <div key={batch} className="ms-batch-group">
+                <div className="ms-batch-header">
+                  <h3 className="ms-batch-title">
+                    <GraduationCap size={20} />
+                    <span>Batch: {batch}</span>
+                    <span className="ms-batch-count">({groupedByBatch[batch].length} students)</span>
+                  </h3>
+                </div>
+                
+                <table className="ms-students-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>University ID</th>
+                      <th>Internship</th>
+                      <th>Company</th>
+                      <th>Start Date</th>
+                      <th>Duration</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {groupedByBatch[batch].map((student) => {
+                      const statusInfo = getStatusInfo(student.is_active);
+                      const StatusIcon = statusInfo.icon;
+                      
+                      return (
+                        <tr
+                          key={student.id}
+                          className="ms-table-row"
+                          onClick={() => handleStudentClick(student)}
+                        >
+                          {/* Student Name with Avatar */}
+                          <td className="ms-student-cell">
+                            <div className="ms-student-info">
+                              <div className="ms-student-avatar-sm">
+                                {student.student_name?.charAt(0).toUpperCase() || '?'}
+                              </div>
+                              <div className="ms-student-details">
+                                <div className="ms-student-name-sm">{student.student_name}</div>
+                                {student.student_email && (
+                                  <div className="ms-student-email">{student.student_email}</div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          
+                          {/* University ID */}
+                          <td>
+                            <span className="ms-table-text">{student.university_id}</span>
+                          </td>
+                          
+                          {/* Internship Title */}
+                          <td>
+                            <span className="ms-table-text">{student.internship_title}</span>
+                          </td>
+                          
+                          {/* Company */}
+                          <td>
+                            <div className="ms-company-cell">
+                              <Building2 size={14} />
+                              <span className="ms-table-text">{student.company_name}</span>
+                            </div>
+                          </td>
+                          
+                          {/* Start Date */}
+                          <td>
+                            <span className="ms-table-text">
+                              {new Date(student.start_date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </td>
+                          
+                          {/* Duration */}
+                          <td>
+                            <span className="ms-table-text">{student.duration_days} days</span>
+                          </td>
+                          
+                          {/* Status */}
+                          <td>
+                            <div 
+                              className="ms-status-badge-sm"
+                              style={{ 
+                                color: statusInfo.color, 
+                                backgroundColor: statusInfo.bg 
+                              }}
+                            >
+                              <StatusIcon size={12} />
+                              <span>{statusInfo.label}</span>
+                            </div>
+                          </td>
+                          
+                          {/* Actions */}
+                          <td>
+                            <div className="ms-table-actions">
+                              <button 
+                                className="ms-table-action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/advisor/students/${student.id}`);
+                                }}
+                                title="View Details"
+                              >
+                                <Eye size={16} />
+                              </button>
+                              
+                              <button 
+                                className="ms-table-action-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate('/advisor/reports');
+                                }}
+                                title="View Reports"
+                              >
+                                <MessageSquare size={16} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
         )}
       </div>

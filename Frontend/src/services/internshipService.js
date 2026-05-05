@@ -36,15 +36,46 @@ const internshipService = {
    */
   getAll: async (params = {}) => {
     try {
+      console.log('🔍 internshipService.getAll called with params:', params);
       const response = await apiService.get('/internships/', { params });
+      console.log('✅ internshipService.getAll response:', response);
       return {
         success: true,
         data: response,
       };
     } catch (error) {
+      console.error('❌ internshipService.getAll error:', error);
+      console.error('❌ Error response:', error.response);
+      console.error('❌ Error message:', error.message);
+      
+      let errorMessage = 'Failed to fetch internships';
+      
+      if (error.response) {
+        // Server responded with error status
+        if (error.response.data) {
+          if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else if (error.response.data.detail) {
+            errorMessage = error.response.data.detail;
+          } else {
+            errorMessage = JSON.stringify(error.response.data);
+          }
+        } else {
+          errorMessage = `Server error: ${error.response.status} ${error.response.statusText}`;
+        }
+      } else if (error.request) {
+        // Request made but no response
+        errorMessage = 'No response from server. Please check your connection.';
+      } else {
+        // Error in request setup
+        errorMessage = error.message || 'Request failed';
+      }
+      
       return {
         success: false,
-        error: error.response?.data || 'Failed to fetch internships',
+        error: errorMessage,
       };
     }
   },

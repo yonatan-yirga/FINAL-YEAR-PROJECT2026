@@ -21,7 +21,11 @@ const Applications = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [filterInternship, setFilterInternship] = useState('ALL');
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [sortBy, setSortBy] = useState('-created_at');
   const [acceptModal, setAcceptModal] = useState({ show: false, application: null });
+
   const [rejectModal, setRejectModal] = useState({ show: false, application: null });
   const [detailModal, setDetailModal] = useState({ show: false, application: null });
 
@@ -63,11 +67,30 @@ const Applications = () => {
   };
 
   const getFiltered = () => {
-    let d = applications;
+    let d = [...applications];
     if (filterStatus !== 'ALL') d = d.filter(a => a.status === filterStatus);
     if (filterInternship !== 'ALL') d = d.filter(a => a.internship === parseInt(filterInternship));
+    
+    // Search filter
+    if (search) {
+      const s = search.toLowerCase();
+      d = d.filter(a => 
+        a.student_name?.toLowerCase().includes(s) || 
+        a.university_id?.toLowerCase().includes(s)
+      );
+    }
+
+    // Sort
+    d.sort((a, b) => {
+      if (sortBy === '-created_at') return new Date(b.created_at) - new Date(a.created_at);
+      if (sortBy === 'created_at') return new Date(a.created_at) - new Date(b.created_at);
+      if (sortBy === 'student_name') return (a.student_name || '').localeCompare(b.student_name || '');
+      return 0;
+    });
+
     return d;
   };
+
 
   const counts = {
     all: applications.length,
@@ -171,6 +194,39 @@ const Applications = () => {
             </div>
           )}
         </div>
+
+        <div className="ap-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16, marginBottom: 20 }}>
+          <div className="ap-search-wrapper" style={{ position: 'relative', flex: 1 }}>
+            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+            <input
+              type="text"
+              placeholder="Search by student name or university ID..."
+              value={searchInput}
+              onChange={(e) => {
+                setSearchInput(e.target.value);
+                if (window.apTimeout) clearTimeout(window.apTimeout);
+                window.apTimeout = setTimeout(() => setSearch(e.target.value), 400);
+              }}
+              style={{
+                width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
+                border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
+              }}
+            />
+          </div>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            style={{
+              padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
+              outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
+            }}
+          >
+            <option value="-created_at">Newest First</option>
+            <option value="created_at">Oldest First</option>
+            <option value="student_name">Student Name (A-Z)</option>
+          </select>
+        </div>
+
 
         {/* Loading */}
         {loading && (
