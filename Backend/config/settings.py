@@ -179,9 +179,19 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Add production frontend URL from environment variable
-FRONTEND_URL = config('FRONTEND_URL', default=None)
-if FRONTEND_URL:
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+if FRONTEND_URL and FRONTEND_URL not in CORS_ALLOWED_ORIGINS:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+    # Also allow the URL without trailing slash
+    clean_url = FRONTEND_URL.rstrip('/')
+    if clean_url not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(clean_url)
+
+# Allow all .vercel.app and .onrender.com subdomains
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -215,8 +225,9 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-# Local Dev Frame Fix
-X_FRAME_OPTIONS = 'ALLOWALL'
+else:
+    # Local Dev Frame Fix
+    X_FRAME_OPTIONS = 'ALLOWALL'
 
 # WebSocket Configuration for Real-Time Calling
 ASGI_APPLICATION = 'config.asgi.application'
@@ -320,8 +331,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# OAuth Redirect URLs
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+# OAuth Redirect URLs (FRONTEND_URL already declared above in CORS section)
 OAUTH_REDIRECT_URL = f'{FRONTEND_URL}/auth/callback'
 LOGIN_REDIRECT_URL = FRONTEND_URL
 ACCOUNT_LOGOUT_REDIRECT_URL = FRONTEND_URL
