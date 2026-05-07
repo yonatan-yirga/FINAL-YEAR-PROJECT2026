@@ -111,7 +111,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
         fields = [
             'user', 'user_email', 'company_name', 'phone_number',
             'address', 'city', 'contact_person_name', 'contact_person_title',
-            'description', 'document', 'created_at', 'updated_at',
+            'description', 'document', 'created_at', 'updated_at', 'website',
             'company_logo', 'company_seal', 'certificate_signature',
             'company_logo_url', 'company_seal_url', 'certificate_signature_url',
         ]

@@ -9,7 +9,7 @@ import authService from '../../services/authService';
 import {
   User, Lock, Bell, Globe, Moon, Sun, Shield, Mail,
   Phone, MapPin, Building2, Save, AlertTriangle, CheckCircle,
-  Eye, EyeOff, RefreshCw
+  Eye, EyeOff, RefreshCw, FileText
 } from 'lucide-react';
 import './Settings.css';
 
@@ -23,15 +23,18 @@ const Settings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   
   // Get user info from localStorage
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const user = authService.getUser();
+  const isCompany = user?.role === 'COMPANY';
   
   // Profile form
   const [profileForm, setProfileForm] = useState({
-    full_name: userInfo.full_name || '',
-    email: userInfo.email || '',
-    phone_number: userInfo.phone_number || '',
-    city: userInfo.city || '',
-    address: userInfo.address || '',
+    full_name: '',
+    email: '',
+    phone_number: '',
+    city: '',
+    address: '',
+    website: '',
+    description: '',
   });
 
   // Password form
@@ -55,6 +58,27 @@ const Settings = () => {
   );
 
   useEffect(() => {
+    // Fetch profile on mount
+    const fetchProfile = async () => {
+      setLoading(true);
+      const res = await authService.getProfile();
+      if (res.success) {
+        const { user, profile } = res.data;
+        setProfileForm({
+          full_name: user.full_name || '',
+          email: user.email || '',
+          phone_number: profile.phone_number || '',
+          city: profile.city || '',
+          address: profile.address || '',
+          website: profile.website || '',
+          description: profile.description || '',
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+    
     // Apply theme
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -67,17 +91,21 @@ const Settings = () => {
     setSuccess('');
 
     try {
-      // Simulate API call - replace with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await authService.updateProfile(profileForm);
       
-      // Update localStorage
-      const updatedUser = { ...userInfo, ...profileForm };
-      localStorage.setItem('userInfo', JSON.stringify(updatedUser));
-      
-      setSuccess('Profile updated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      if (res.success) {
+        setSuccess('Profile updated successfully!');
+        // Update local user info if needed
+        const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { ...existingUser, ...res.data.user };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error || 'Failed to update profile.');
+      }
     } catch (err) {
-      setError('Failed to update profile. Please try again.');
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -296,6 +324,35 @@ const Settings = () => {
                       rows="3"
                     />
                   </div>
+
+                  {isCompany && (
+                    <>
+                      <div className="settings-form-group">
+                        <label>
+                          <Globe size={14} />
+                          Website
+                        </label>
+                        <input
+                          type="url"
+                          value={profileForm.website}
+                          onChange={(e) => setProfileForm({ ...profileForm, website: e.target.value })}
+                          placeholder="https://www.yourcompany.com"
+                        />
+                      </div>
+                      <div className="settings-form-group">
+                        <label>
+                          <FileText size={14} />
+                          Company Description
+                        </label>
+                        <textarea
+                          value={profileForm.description}
+                          onChange={(e) => setProfileForm({ ...profileForm, description: e.target.value })}
+                          placeholder="Tell us about your company..."
+                          rows="4"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="settings-form-actions">
                     <button type="submit" className="settings-btn-primary" disabled={loading}>

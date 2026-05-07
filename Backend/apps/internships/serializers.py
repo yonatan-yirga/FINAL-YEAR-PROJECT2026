@@ -46,7 +46,7 @@ class InternshipSerializer(serializers.ModelSerializer):
             'is_deadline_passed',
             'is_accepting_applications',
         ]
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at', 'is_active']
     
     def get_company_name(self, obj):
         """Get company name from company profile"""
@@ -131,6 +131,13 @@ class InternshipListSerializer(serializers.ModelSerializer):
     application_count = serializers.SerializerMethodField()
     match_percentage = serializers.FloatField(required=False, read_only=True)
     
+    company_email = serializers.SerializerMethodField()
+    company_phone = serializers.SerializerMethodField()
+    company_address = serializers.SerializerMethodField()
+    company_city = serializers.SerializerMethodField()
+    company_website = serializers.SerializerMethodField()
+    company_description = serializers.SerializerMethodField()
+    
     class Meta:
         model = Internship
         fields = [
@@ -138,6 +145,12 @@ class InternshipListSerializer(serializers.ModelSerializer):
             'title',
             'company_name',
             'company_logo',
+            'company_email',
+            'company_phone',
+            'company_address',
+            'company_city',
+            'company_website',
+            'company_description',
             'location',
             'duration_months',
             'start_date',
@@ -157,6 +170,30 @@ class InternshipListSerializer(serializers.ModelSerializer):
         """Get total application count"""
         return obj.get_application_count()
 
+    def get_company_email(self, obj):
+        try: return obj.company.email
+        except: return None
+        
+    def get_company_phone(self, obj):
+        try: return obj.company.company_profile.phone_number
+        except: return None
+        
+    def get_company_address(self, obj):
+        try: return obj.company.company_profile.address
+        except: return None
+        
+    def get_company_city(self, obj):
+        try: return obj.company.company_profile.city
+        except: return None
+
+    def get_company_website(self, obj):
+        try: return obj.company.company_profile.website
+        except: return None
+
+    def get_company_description(self, obj):
+        try: return obj.company.company_profile.description
+        except: return None
+
 
 class InternshipDetailSerializer(serializers.ModelSerializer):
     """
@@ -172,6 +209,8 @@ class InternshipDetailSerializer(serializers.ModelSerializer):
     company_city = serializers.SerializerMethodField()
     contact_person_name = serializers.SerializerMethodField()
     contact_person_title = serializers.SerializerMethodField()
+    company_website = serializers.SerializerMethodField()
+    company_description = serializers.SerializerMethodField()
     
     # Department information
     department_name = serializers.SerializerMethodField()
@@ -214,6 +253,8 @@ class InternshipDetailSerializer(serializers.ModelSerializer):
             'company_city',
             'contact_person_name',
             'contact_person_title',
+            'company_website',
+            'company_description',
             # Department
             'department_name',
             # Statistics
@@ -271,6 +312,20 @@ class InternshipDetailSerializer(serializers.ModelSerializer):
         """Get contact person title"""
         try:
             return obj.company.company_profile.contact_person_title
+        except Exception:
+            return None
+    
+    def get_company_website(self, obj):
+        """Get company website"""
+        try:
+            return obj.company.company_profile.website
+        except Exception:
+            return None
+            
+    def get_company_description(self, obj):
+        """Get company description from profile"""
+        try:
+            return obj.company.company_profile.description
         except Exception:
             return None
     

@@ -19,6 +19,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
   const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     students: 500,
     companies: 50,
@@ -31,17 +32,33 @@ const LandingPage = () => {
     fetchCompanies();
     // Fetch stats
     fetchStats();
+    
+    // Set up auto-refresh every 30 seconds to show new posts
+    const refreshInterval = setInterval(() => {
+      fetchCompanies();
+      fetchStats();
+    }, 30000); // 30 seconds
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const fetchCompanies = async () => {
+    console.log('=== LANDING PAGE: Starting fetchCompanies ===');
+    setLoading(true);
     const result = await publicService.getPublicCompanies();
+    console.log('=== LANDING PAGE: fetchCompanies result ===', result);
     if (result.success) {
+      console.log('=== LANDING PAGE: Setting companies ===', result.data);
       setCompanies(result.data);
+      console.log('Fetched companies:', result.data.length);
     } else {
       console.error('Failed to fetch companies:', result.error);
       // Keep empty array if fetch fails
       setCompanies([]);
     }
+    setLoading(false);
+    console.log('=== LANDING PAGE: fetchCompanies complete ===');
   };
 
   const fetchStats = async () => {
@@ -319,9 +336,41 @@ const LandingPage = () => {
             <p className="section-subtitle">
               Join students working with leading companies
             </p>
+            <div style={{ marginTop: '10px', display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+              <button 
+                onClick={fetchCompanies} 
+                className="btn-refresh"
+                style={{
+                  padding: '8px 16px',
+                  background: '#14a800',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                {loading ? 'Loading...' : 'Refresh'}
+              </button>
+              <span style={{ fontSize: '14px', color: '#666' }}>
+                {companies.length} companies loaded
+              </span>
+            </div>
           </motion.div>
 
-          {companies.length > 0 ? (
+          {loading ? (
+            <motion.div 
+              className="loading-state"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeIn}
+              style={{ textAlign: 'center', padding: '40px' }}
+            >
+              <p>Loading partner organizations...</p>
+            </motion.div>
+          ) : companies.length > 0 ? (
             <motion.div 
               className="organizations-grid"
               initial="hidden"

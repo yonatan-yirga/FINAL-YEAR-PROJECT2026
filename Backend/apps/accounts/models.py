@@ -326,6 +326,7 @@ class CompanyProfile(models.Model):
         validators=[validate_pdf_file],
         help_text='Company commercial license or official letter (PDF, max 5MB)'
     )
+    website = models.URLField(max_length=255, blank=True, null=True)
     
     # Certificate branding fields
     company_logo = models.ImageField(

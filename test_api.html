@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Public API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #14a800;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #0f8600;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .company-card {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #14a800;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .company-details {
+            color: #666;
+            font-size: 14px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .section {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Public API - Landing Page Companies</h1>
+        
+        <button id="testBtn" onclick="testAPI()">Test API Now</button>
+        
+        <div id="status"></div>
+        
+        <div class="section">
+            <h2>Companies Found:</h2>
+            <div id="companies"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Raw API Response:</h2>
+            <pre id="rawData">Click "Test API Now" to fetch data...</pre>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const companiesDiv = document.getElementById('companies');
+            const rawDataDiv = document.getElementById('rawData');
+            const testBtn = document.getElementById('testBtn');
+            
+            // Disable button
+            testBtn.disabled = true;
+            testBtn.textContent = 'Loading...';
+            
+            // Clear previous results
+            statusDiv.innerHTML = '<div class="info">Fetching data from API...</div>';
+            companiesDiv.innerHTML = '';
+            rawDataDiv.textContent = 'Loading...';
+            
+            try {
+                // Add timestamp to prevent caching
+                const timestamp = new Date().getTime();
+                const url = `http://localhost:8000/api/internships/public/?ordering=-created_at&_t=${timestamp}`;
+                
+                console.log('Fetching from:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    cache: 'no-store'
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                console.log('Data received:', data);
+                
+                // Show raw data
+                rawDataDiv.textContent = JSON.stringify(data, null, 2);
+                
+                // Process companies
+                const companiesMap = new Map();
+                
+                data.forEach(internship => {
+                    const companyName = internship.company_name;
+                    
+                    if (!companyName) {
+                        console.warn('Internship missing company_name:', internship);
+                        return;
+                    }
+                    
+                    if (!companiesMap.has(companyName)) {
+                        companiesMap.set(companyName, {
+                            name: companyName,
+                            location: internship.location || 'Ethiopia',
+                            internships: 0,
+                            posts: []
+                        });
+                    }
+                    
+                    const company = companiesMap.get(companyName);
+                    company.internships++;
+                    company.posts.push({
+                        id: internship.id,
+                        title: internship.title,
+                        status: internship.status,
+                        is_active: internship.is_active
+                    });
+                });
+                
+                // Convert to array and sort
+                const companies = Array.from(companiesMap.values())
+                    .sort((a, b) => b.internships - a.internships);
+                
+                // Display status
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        ✅ Success! Found ${data.length} internships from ${companies.length} companies
+                    </div>
+                `;
+                
+                // Display companies
+                if (companies.length === 0) {
+                    companiesDiv.innerHTML = '<div class="error">No companies found!</div>';
+                } else {
+                    companiesDiv.innerHTML = companies.map((company, index) => `
+                        <div class="company-card">
+                            <div class="company-name">${index + 1}. ${company.name}</div>
+                            <div class="company-details">
+                                📍 ${company.location} | 
+                                💼 ${company.internships} internship${company.internships > 1 ? 's' : ''}
+                            </div>
+                            <div class="company-details" style="margin-top: 5px;">
+                                Posts: ${company.posts.map(p => `${p.title} (ID: ${p.id})`).join(', ')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                console.log('Companies processed:', companies);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
+                rawDataDiv.textContent = `Error: ${error.message}\n\nMake sure the backend server is running on http://localhost:8000`;
+            } finally {
+                // Re-enable button
+                testBtn.disabled = false;
+                testBtn.textContent = 'Test API Again';
+            }
+        }
+        
+        // Auto-run on page load
+        window.addEventListener('load', () => {
+            testAPI();
+        });
+    </script>
+</body>
+</html>

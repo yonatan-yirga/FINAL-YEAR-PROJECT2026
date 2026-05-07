@@ -13,13 +13,15 @@ import advisorService      from '../services/advisorService';
 import departmentService   from '../services/departmentService';
 import notificationService from '../services/notificationService';
 import reportService       from '../services/reportService';
+import authService         from '../services/authService';
 import { API_URL } from '../services/api';
 import { 
   ClipboardList, Clock, CheckCircle, XCircle, Search, FileText, 
   GraduationCap, MessageSquare, User, Trophy, Award, Link2, 
   Building2, FileCheck, Target, Shield, Users, UserCheck, UserCircle,
   BarChart3, TrendingUp, Calendar, Video, Lock, Eye,
-  Briefcase, Send, Edit, Trash2, Plus, Settings, Home
+  Briefcase, Send, Edit, Trash2, Plus, Settings, Home, AlertTriangle,
+  Mail, Globe, Phone, MapPin, Save, RefreshCw
 } from 'lucide-react';
 
 const BACKEND_URL = API_URL.replace('/api', '');
@@ -708,13 +710,26 @@ export const CompanyDashboard = () => {
   const { user } = useAuth();
   const [counts, setCounts]         = useState(null);
   const [internships, setInternships] = useState([]);
+  const [profile, setProfile]         = useState(null);
   const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
+  const [success, setSuccess]       = useState('');
+  const [saving, setSaving]         = useState(false);
+  
+  // Contact Form State
+  const [contactForm, setContactForm] = useState({
+    email: '',
+    website: '',
+    phone_number: '',
+    address: ''
+  });
 
   useEffect(() => {
     Promise.all([
       internshipService.getMyInternships(),
       applicationService.getCompanyApplications(),
-    ]).then(([iRes, aRes]) => {
+      authService.getProfile(),
+    ]).then(([iRes, aRes, pRes]) => {
       const ints = iRes.success ? (iRes.data?.results || iRes.data || []) : [];
       const apps = aRes.success ? (aRes.data?.results || aRes.data || []) : [];
       setCounts({
@@ -725,9 +740,45 @@ export const CompanyDashboard = () => {
         total_apps: apps.length,
       });
       setInternships(ints.slice(0, 6));
+      if (pRes.success && pRes.data) {
+        const p = pRes.data.profile || {};
+        const u = pRes.data.user || {};
+        setProfile(p);
+        setContactForm({
+          email: u.email || user?.email || '',
+          website: p.website || '',
+          phone_number: p.phone_number || '',
+          address: p.address || ''
+        });
+      }
       setLoading(false);
     });
   }, []);
+
+  const isProfileIncomplete = !profile?.address || !profile?.phone_number || !profile?.website;
+
+  const handleContactSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      const res = await authService.updateProfile(contactForm);
+      if (res.success) {
+        setSuccess('Contact information updated successfully!');
+        setProfile({ ...profile, ...contactForm });
+        // Auto-clear success after 3s
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error || 'Failed to update contact info');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="db-root">
@@ -743,6 +794,54 @@ export const CompanyDashboard = () => {
             tagline="Source top talent, manage active internships, and track the progress of your professional cohorts."
           />
 
+          {isProfileIncomplete && !loading && (
+            <div style={{ 
+              background: '#fffbeb', 
+              border: '1px solid #fef3c7', 
+              borderRadius: '16px', 
+              padding: '20px', 
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.1)'
+            }}>
+              <div style={{ 
+                background: '#fef3c7', 
+                color: '#b45309', 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '10px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <AlertTriangle size={20} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: '#92400e', fontSize: '14px', marginBottom: '2px' }}>Complete Your Company Profile</div>
+                <div style={{ fontSize: '12px', color: '#b45309' }}>Your contact information is missing. Fill it out to make your profile visible to students.</div>
+              </div>
+              <button 
+                onClick={() => navigate('/settings')}
+                style={{ 
+                  background: '#f59e0b', 
+                  color: '#fff', 
+                  border: 'none', 
+                  padding: '10px 18px', 
+                  borderRadius: '10px', 
+                  fontSize: '13px', 
+                  fontWeight: 700, 
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 10px rgba(245, 158, 11, 0.2)'
+                }}
+              >
+                Complete Now →
+              </button>
+            </div>
+          )}
+
           {/* Stats Bar */}
           <p className="db-section-title">Program Statistics</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 28 }}>
@@ -752,6 +851,89 @@ export const CompanyDashboard = () => {
               <StatCard label="Pending Candidates" value={counts?.pending}    accent="#f59e0b" icon={Clock} />
               <StatCard label="Total Applicants"   value={counts?.total_apps} accent="#6b7177" icon={Users} />
             </>}
+          </div>
+
+          {/* New Contact Info Form Section */}
+          <p className="db-section-title">Company Contact Information</p>
+          <div className="db-card" style={{ padding: '24px', marginBottom: '28px', background: '#fff' }}>
+            <form onSubmit={handleContactSave}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div className="db-group">
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                    <Mail size={14} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-subtle)', fontSize: '14px' }}
+                    placeholder="company@example.com"
+                  />
+                </div>
+                <div className="db-group">
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                    <Globe size={14} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> Website URL
+                  </label>
+                  <input
+                    type="url"
+                    value={contactForm.website}
+                    onChange={(e) => setContactForm({ ...contactForm, website: e.target.value })}
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-subtle)', fontSize: '14px' }}
+                    placeholder="https://www.company.com"
+                  />
+                </div>
+                <div className="db-group">
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                    <Phone size={14} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={contactForm.phone_number}
+                    onChange={(e) => setContactForm({ ...contactForm, phone_number: e.target.value })}
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-subtle)', fontSize: '14px' }}
+                    placeholder="+251-XXX-XXXXXX"
+                  />
+                </div>
+                <div className="db-group">
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
+                    <MapPin size={14} style={{ verticalAlign: 'middle', marginRight: '6px' }} /> Office Address
+                  </label>
+                  <input
+                    type="text"
+                    value={contactForm.address}
+                    onChange={(e) => setContactForm({ ...contactForm, address: e.target.value })}
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border-subtle)', fontSize: '14px' }}
+                    placeholder="Building, Street, City"
+                  />
+                </div>
+              </div>
+
+              {error && <div style={{ color: '#dc2626', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>⚠️ {error}</div>}
+              {success && <div style={{ color: '#16a34a', fontSize: '13px', marginBottom: '16px', fontWeight: 600 }}>✓ {success}</div>}
+
+              <button
+                type="submit"
+                disabled={saving}
+                style={{
+                  background: 'var(--accent-navy)',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: 'var(--shadow-md)',
+                  transition: 'var(--transition)'
+                }}
+              >
+                {saving ? <RefreshCw size={16} className="pi-btn-spinner" /> : <Save size={16} />}
+                {saving ? 'Saving...' : 'Update Contact Info'}
+              </button>
+            </form>
           </div>
 
           {/* Core Modules Grid */}
@@ -771,7 +953,7 @@ export const CompanyDashboard = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 28 }}>
             <NavCard icon={FileText} label="Monthly Progress" sub="Submit performance reports for your interns" onClick={() => navigate('/company/report-submission')} />
             <NavCard icon={Award} label="Final Evaluations" sub="Complete final assessments for interns" onClick={() => navigate('/company/submit-final-report')} />
-            <NavCard icon={Settings} label="Account Settings" sub="Update your profile and password" onClick={() => navigate('/settings/change-password')} />
+            <NavCard icon={Settings} label="Account Settings" sub="Update your profile and contact info" onClick={() => navigate('/settings')} />
           </div>
 
 

@@ -182,6 +182,7 @@ class CreateInternshipView(generics.CreateAPIView):
             serializer.save(
                 company=user,
                 department=user.department,
+                is_active=True,  # Ensure new internships are active by default
             )
         except Exception as e:
             raise serializers.ValidationError({

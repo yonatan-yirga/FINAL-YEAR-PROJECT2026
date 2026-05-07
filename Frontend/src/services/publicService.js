@@ -15,16 +15,23 @@ const publicService = {
     try {
       console.log('Fetching public internships...');
       
-      const response = await apiService.get('/internships/public/', { 
-        params: { 
-          ordering: '-created_at'
-        } 
+      const response = await fetch('http://localhost:8000/api/internships/public/?ordering=-created_at', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
-      console.log('Public internships response:', response);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      if (!response || !Array.isArray(response)) {
-        console.error('Invalid response format:', response);
+      const data = await response.json();
+      
+      console.log('Public internships response:', data);
+      
+      if (!data || !Array.isArray(data)) {
+        console.error('Invalid response format:', data);
         return {
           success: false,
           error: 'Invalid response from server',
@@ -33,13 +40,13 @@ const publicService = {
       
       return {
         success: true,
-        data: response,
+        data: data,
       };
     } catch (error) {
       console.error('Error fetching public internships:', error);
       return {
         success: false,
-        error: error.response?.data?.error || error.message || 'Failed to fetch internships',
+        error: error.message || 'Failed to fetch internships',
       };
     }
   },
@@ -53,17 +60,34 @@ const publicService = {
     try {
       console.log('Fetching public companies...');
       
+      // Add cache-busting timestamp to prevent browser caching
+      const timestamp = new Date().getTime();
+      const url = `http://localhost:8000/api/internships/public/?ordering=-created_at&_t=${timestamp}`;
+      
+      console.log('Fetching from URL:', url);
+      
       // Fetch all open internships from public endpoint (no auth required)
-      const response = await apiService.get('/internships/public/', { 
-        params: { 
-          ordering: '-created_at'
-        } 
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store', // Disable browser caching
       });
       
-      console.log('Public internships response:', response);
+      console.log('Response status:', response.status);
       
-      if (!response || !Array.isArray(response)) {
-        console.error('Invalid response format:', response);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      console.log('Public internships response:', data);
+      console.log('Total internships fetched:', data.length);
+      
+      if (!data || !Array.isArray(data)) {
+        console.error('Invalid response format:', data);
         return {
           success: false,
           error: 'Invalid response from server',
@@ -73,14 +97,23 @@ const publicService = {
       // Group internships by company
       const companiesMap = new Map();
       
-      response.forEach(internship => {
+      data.forEach((internship, index) => {
         const companyName = internship.company_name;
+        console.log(`Processing internship ${index + 1}:`, {
+          id: internship.id,
+          title: internship.title,
+          company: companyName,
+          status: internship.status,
+          is_active: internship.is_active
+        });
+        
         if (!companyName) {
           console.warn('Internship missing company_name:', internship);
           return;
         }
         
         if (!companiesMap.has(companyName)) {
+          console.log(`Creating new company entry for: ${companyName}`);
           companiesMap.set(companyName, {
             id: internship.id, // Use first internship ID as company identifier
             name: companyName,
@@ -96,6 +129,7 @@ const publicService = {
         const company = companiesMap.get(companyName);
         company.internships++;
         company.active_internships.push(internship);
+        console.log(`${companyName} now has ${company.internships} internships`);
       });
       
       // Convert map to array and limit to 6 companies for landing page
@@ -103,7 +137,11 @@ const publicService = {
         .sort((a, b) => b.internships - a.internships)
         .slice(0, 6);
       
-      console.log('Processed companies:', companies);
+      console.log('=== FINAL PROCESSED COMPANIES ===');
+      companies.forEach((company, index) => {
+        console.log(`${index + 1}. ${company.name} - ${company.internships} internships`);
+      });
+      console.log('================================');
       
       return {
         success: true,
@@ -111,10 +149,9 @@ const publicService = {
       };
     } catch (error) {
       console.error('Error fetching public companies:', error);
-      console.error('Error details:', error.response?.data);
       return {
         success: false,
-        error: error.response?.data?.error || error.message || 'Failed to fetch companies',
+        error: error.message || 'Failed to fetch companies',
       };
     }
   },
@@ -129,17 +166,23 @@ const publicService = {
     try {
       console.log('Fetching internships for company:', companyName);
       
-      // Fetch all open internships from public endpoint
-      const response = await apiService.get('/internships/public/', { 
-        params: { 
-          ordering: '-created_at'
-        } 
+      const response = await fetch('http://localhost:8000/api/internships/public/?ordering=-created_at', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
       
-      console.log('Public internships response:', response);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      if (!response || !Array.isArray(response)) {
-        console.error('Invalid response format:', response);
+      const data = await response.json();
+      
+      console.log('Public internships response:', data);
+      
+      if (!data || !Array.isArray(data)) {
+        console.error('Invalid response format:', data);
         return {
           success: false,
           error: 'Invalid response from server',
@@ -147,7 +190,7 @@ const publicService = {
       }
       
       // Filter internships for this company
-      const companyInternships = response.filter(
+      const companyInternships = data.filter(
         internship => internship.company_name === companyName
       );
       
@@ -165,13 +208,13 @@ const publicService = {
       const company = {
         id: companyName, // Use company name as ID
         name: companyName,
-        logo: '🏢',
-        description: `Leading company specializing in professional development and internship opportunities. We work with Debre Markos University to provide meaningful experiences for students.`,
+        logo: firstInternship.company_logo || '🏢',
+        description: firstInternship.company_description || `Leading company specializing in professional development and internship opportunities.`,
         location: firstInternship.location || 'Ethiopia',
         address: firstInternship.company_address || 'Addis Ababa, Ethiopia',
         email: firstInternship.company_email || 'info@company.et',
         phone: firstInternship.company_phone || '+251-11-XXX-XXXX',
-        website: 'www.company.et',
+        website: firstInternship.company_website || 'www.company.et',
         founded: '2015',
         employees: '50-100',
         industry: 'Various Industries',
@@ -191,10 +234,9 @@ const publicService = {
       };
     } catch (error) {
       console.error('Error fetching company details:', error);
-      console.error('Error details:', error.response?.data);
       return {
         success: false,
-        error: error.response?.data?.error || error.message || 'Failed to fetch company details',
+        error: error.message || 'Failed to fetch company details',
       };
     }
   },
@@ -207,10 +249,21 @@ const publicService = {
   getPublicStats: async () => {
     try {
       // Fetch open internships from public endpoint to calculate stats
-      const response = await apiService.get('/internships/public/');
+      const response = await fetch('http://localhost:8000/api/internships/public/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
       
       // Calculate stats from internships
-      const internships = response || [];
+      const internships = data || [];
       const uniqueCompanies = new Set(internships.map(i => i.company_name)).size;
       
       return {
@@ -226,7 +279,7 @@ const publicService = {
       console.error('Error fetching public stats:', error);
       return {
         success: false,
-        error: error.response?.data || 'Failed to fetch statistics',
+        error: 'Failed to fetch statistics',
       };
     }
   },
