@@ -3,7 +3,7 @@
  * API service for public (unauthenticated) data access
  * Used for landing page and public company profiles
  */
-import apiService from './api';
+import apiService, { API_URL } from './api';
 
 const publicService = {
   /**
@@ -15,7 +15,7 @@ const publicService = {
     try {
       console.log('Fetching public internships...');
       
-      const response = await fetch('http://localhost:8000/api/internships/public/?ordering=-created_at', {
+      const response = await fetch(`${API_URL}/internships/public/?ordering=-created_at`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const publicService = {
       
       // Add cache-busting timestamp to prevent browser caching
       const timestamp = new Date().getTime();
-      const url = `http://localhost:8000/api/internships/public/?ordering=-created_at&_t=${timestamp}`;
+      const url = `${API_URL}/internships/public/?ordering=-created_at&_t=${timestamp}`;
       
       console.log('Fetching from URL:', url);
       
@@ -166,7 +166,7 @@ const publicService = {
     try {
       console.log('Fetching internships for company:', companyName);
       
-      const response = await fetch('http://localhost:8000/api/internships/public/?ordering=-created_at', {
+      const response = await fetch(`${API_URL}/internships/public/?ordering=-created_at`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -249,7 +249,7 @@ const publicService = {
   getPublicStats: async () => {
     try {
       // Fetch open internships from public endpoint to calculate stats
-      const response = await fetch('http://localhost:8000/api/internships/public/', {
+      const response = await fetch(`${API_URL}/internships/public/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

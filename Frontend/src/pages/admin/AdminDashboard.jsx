@@ -14,7 +14,7 @@ import useAuth from '../../hooks/useAuth';
 import departmentService from '../../services/departmentService';
 import './AdminDashboard.css';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://internship-backend-0rcg.onrender.com';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();

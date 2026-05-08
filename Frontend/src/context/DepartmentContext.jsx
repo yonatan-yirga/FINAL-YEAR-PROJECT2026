@@ -4,6 +4,7 @@
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
+import { API_URL } from '../services/api';
 
 const DepartmentContext = createContext();
 
@@ -58,7 +59,7 @@ export const DepartmentProvider = ({ children }) => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/departments/', {
+      const response = await fetch(`${API_URL}/departments/`, {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json',
