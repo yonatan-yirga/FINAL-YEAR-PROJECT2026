@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,7 +25,7 @@ urlpatterns = [
     path('api/messages/', include('apps.messaging.urls')),
 
     # Root API view
-    path('api/', lambda request: __import__('django.http').JsonResponse({
+    path('api/', lambda request: JsonResponse({
         'status': 'success',
         'message': 'University Internship API is running',
         'version': '1.0.0',
