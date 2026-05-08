@@ -366,7 +366,7 @@ class DepartmentViewSet(viewsets.ViewSet):
                     # Safely get student profile data
                     student_profile = getattr(student, 'student_profile', None)
                     full_name = student_profile.full_name if student_profile else student.email
-                    student_id = student_profile.student_id if student_profile else None
+                    student_id = student_profile.university_id if student_profile else None
                     phone_number = student_profile.phone_number if student_profile else None
                     batch = student_profile.batch if student_profile else None
                     
