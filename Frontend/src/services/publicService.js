@@ -58,13 +58,13 @@ const publicService = {
    */
   getPublicCompanies: async () => {
     try {
-      console.log('Fetching public companies...');
+      console.log('=== publicService: getPublicCompanies started ===');
       
       // Add cache-busting timestamp to prevent browser caching
       const timestamp = new Date().getTime();
       const url = `${API_URL}/internships/public/?ordering=-created_at&_t=${timestamp}`;
       
-      console.log('Fetching from URL:', url);
+      console.log(`=== publicService: Fetching from: ${url} ===`);
       
       // Fetch all open internships from public endpoint (no auth required)
       const response = await fetch(url, {
@@ -75,53 +75,48 @@ const publicService = {
         cache: 'no-store', // Disable browser caching
       });
       
-      console.log('Response status:', response.status);
+      console.log(`=== publicService: Response status: ${response.status} ${response.statusText} ===`);
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`=== publicService: HTTP error! status: ${response.status}, body: ${errorText} ===`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
       
-      console.log('Public internships response:', data);
-      console.log('Total internships fetched:', data.length);
+      console.log('=== publicService: Data received ===', data);
       
       if (!data || !Array.isArray(data)) {
-        console.error('Invalid response format:', data);
+        console.error('=== publicService: Invalid response format, expected array ===', data);
         return {
           success: false,
           error: 'Invalid response from server',
         };
       }
       
+      console.log(`=== publicService: Processing ${data.length} internships ===`);
+      
       // Group internships by company
       const companiesMap = new Map();
       
       data.forEach((internship, index) => {
         const companyName = internship.company_name;
-        console.log(`Processing internship ${index + 1}:`, {
-          id: internship.id,
-          title: internship.title,
-          company: companyName,
-          status: internship.status,
-          is_active: internship.is_active
-        });
         
         if (!companyName) {
-          console.warn('Internship missing company_name:', internship);
+          console.warn(`=== publicService: Internship ${index} missing company_name ===`, internship);
           return;
         }
         
         if (!companiesMap.has(companyName)) {
-          console.log(`Creating new company entry for: ${companyName}`);
           companiesMap.set(companyName, {
-            id: internship.id, // Use first internship ID as company identifier
+            id: internship.id || `comp-${index}`, 
             name: companyName,
-            logo: '🏢', // Default logo
-            description: `Leading company offering quality internship opportunities in ${internship.location || 'various locations'}.`,
+            logo: internship.company_logo || '🏢', 
+            description: internship.company_description || `Leading company offering quality internship opportunities in ${internship.location || 'various locations'}.`,
             location: internship.location || 'Ethiopia',
             internships: 0,
-            rating: 4.5 + Math.random() * 0.5, // Mock rating 4.5-5.0
+            rating: 4.5 + Math.random() * 0.5, 
             active_internships: []
           });
         }
@@ -129,7 +124,6 @@ const publicService = {
         const company = companiesMap.get(companyName);
         company.internships++;
         company.active_internships.push(internship);
-        console.log(`${companyName} now has ${company.internships} internships`);
       });
       
       // Convert map to array and limit to 6 companies for landing page
@@ -137,18 +131,14 @@ const publicService = {
         .sort((a, b) => b.internships - a.internships)
         .slice(0, 6);
       
-      console.log('=== FINAL PROCESSED COMPANIES ===');
-      companies.forEach((company, index) => {
-        console.log(`${index + 1}. ${company.name} - ${company.internships} internships`);
-      });
-      console.log('================================');
+      console.log(`=== publicService: Final processed ${companies.length} companies ===`);
       
       return {
         success: true,
         data: companies,
       };
     } catch (error) {
-      console.error('Error fetching public companies:', error);
+      console.error('=== publicService: Error fetching public companies ===', error);
       return {
         success: false,
         error: error.message || 'Failed to fetch companies',

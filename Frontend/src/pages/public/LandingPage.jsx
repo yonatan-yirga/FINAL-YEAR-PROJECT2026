@@ -46,19 +46,34 @@ const LandingPage = () => {
   const fetchCompanies = async () => {
     console.log('=== LANDING PAGE: Starting fetchCompanies ===');
     setLoading(true);
-    const result = await publicService.getPublicCompanies();
-    console.log('=== LANDING PAGE: fetchCompanies result ===', result);
-    if (result.success) {
-      console.log('=== LANDING PAGE: Setting companies ===', result.data);
-      setCompanies(result.data);
-      console.log('Fetched companies:', result.data.length);
-    } else {
-      console.error('Failed to fetch companies:', result.error);
-      // Keep empty array if fetch fails
-      setCompanies([]);
+    try {
+      const result = await publicService.getPublicCompanies();
+      console.log('=== LANDING PAGE: fetchCompanies result ===', result);
+      
+      if (result.success && result.data && result.data.length > 0) {
+        console.log('=== LANDING PAGE: Setting companies ===', result.data);
+        setCompanies(result.data);
+        console.log('Fetched companies:', result.data.length);
+      } else if (result.success && result.data && result.data.length === 0) {
+        console.warn('=== LANDING PAGE: No companies returned from server ===');
+        // Keep existing companies if we already have some, or set to empty if it's the first load
+        if (companies.length === 0) {
+          setCompanies([]);
+        }
+      } else {
+        console.error('Failed to fetch companies:', result.error);
+        // DO NOT clear existing companies on failure to prevent UI jumping/disappearing
+        // Only set to empty if we have no data at all
+        if (companies.length === 0) {
+          setCompanies([]);
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error in fetchCompanies:', error);
+    } finally {
+      setLoading(false);
+      console.log('=== LANDING PAGE: fetchCompanies complete ===');
     }
-    setLoading(false);
-    console.log('=== LANDING PAGE: fetchCompanies complete ===');
   };
 
   const fetchStats = async () => {
@@ -359,7 +374,7 @@ const LandingPage = () => {
             </div>
           </motion.div>
 
-          {loading ? (
+          {loading && companies.length === 0 ? (
             <motion.div 
               className="loading-state"
               initial="hidden"
@@ -383,34 +398,39 @@ const LandingPage = () => {
                   key={company.id} 
                   className="organization-card"
                   variants={scaleIn}
-                  whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.3 } }}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => navigate(`/company/${encodeURIComponent(company.name)}`)}
                 >
-                  <div className="org-header">
+                  {/* Header with Logo and Company Name */}
+                  <div className="org-header-new">
                     <motion.div 
-                      className="org-logo"
-                      whileHover={{ rotate: [0, -10, 10, -10, 0], transition: { duration: 0.5 } }}
+                      className="org-logo-new"
+                      whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
                     >
                       {company.logo}
                     </motion.div>
-                    <div className="org-rating">
-                      <Star size={14} fill="#14a800" color="#14a800" />
-                      <span>{company.rating.toFixed(1)}</span>
+                    <div className="org-info">
+                      <h3 className="org-name-new">{company.name}</h3>
+                      <div className="org-rating-new">
+                        <Star size={12} fill="#14a800" color="#14a800" />
+                        <span>{company.rating.toFixed(1)}</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <h3 className="org-name">{company.name}</h3>
-                  <p className="org-description">{company.description}</p>
+                  {/* Description */}
+                  <p className="org-description-new">{company.description}</p>
                   
-                  <div className="org-footer">
-                    <div className="org-meta">
-                      <MapPin size={14} />
+                  {/* Footer with Stats */}
+                  <div className="org-footer-new">
+                    <div className="org-stat">
+                      <MapPin size={13} color="#14a800" />
                       <span>{company.location}</span>
                     </div>
-                    <div className="org-meta">
-                      <Briefcase size={14} />
-                      <span>{company.internships} positions</span>
+                    <div className="org-stat">
+                      <Briefcase size={13} color="#14a800" />
+                      <span>{company.internships} {company.internships === 1 ? 'position' : 'positions'}</span>
                     </div>
                   </div>
                 </motion.div>

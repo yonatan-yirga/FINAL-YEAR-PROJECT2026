@@ -16,7 +16,7 @@ const oauthService = {
     const state = Math.random().toString(36).substring(7);
     
     // Store state for verification
-    sessionStorage.setItem('oauth_state', state);
+    localStorage.setItem('oauth_state', state);
     
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&state=${state}&access_type=online`;
   },
@@ -31,7 +31,7 @@ const oauthService = {
     const state = Math.random().toString(36).substring(7);
     
     // Store state for verification
-    sessionStorage.setItem('oauth_state', state);
+    localStorage.setItem('oauth_state', state);
     
     return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
   },
@@ -93,7 +93,7 @@ const oauthService = {
    */
   handleCallback: async (code, state, provider) => {
     // Verify state
-    const storedState = sessionStorage.getItem('oauth_state');
+    const storedState = localStorage.getItem('oauth_state');
     if (state !== storedState) {
       return {
         success: false,
@@ -102,7 +102,7 @@ const oauthService = {
     }
 
     // Clear stored state
-    sessionStorage.removeItem('oauth_state');
+    localStorage.removeItem('oauth_state');
 
     // Exchange code for access token
     const tokenResult = await oauthService.exchangeToken(provider, code);

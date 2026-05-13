@@ -27,12 +27,12 @@ const Login = () => {
   useAuthRedirect();
 
   const handleGoogleLogin = () => {
-    sessionStorage.setItem('oauth_provider', 'google');
+    localStorage.setItem('oauth_provider', 'google');
     window.location.href = oauthService.getGoogleAuthUrl();
   };
 
   const handleGitHubLogin = () => {
-    sessionStorage.setItem('oauth_provider', 'github');
+    localStorage.setItem('oauth_provider', 'github');
     window.location.href = oauthService.getGitHubAuthUrl();
   };
 

@@ -3,35 +3,53 @@
  * Shows all partner companies in the system
  */
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import partnerService from '../../services/partnerService';
 import apiService from '../../services/api';
-import { Building2, MapPin, Phone, Mail, Briefcase, Users, TrendingUp, Search, ExternalLink, RefreshCw, Clock, Calendar } from 'lucide-react';
+import { Building2, MapPin, Briefcase, Users, TrendingUp, Search, ExternalLink, RefreshCw, Clock, Calendar } from 'lucide-react';
 
 
-// Add CSS for spin animation
-const spinKeyframes = `
+// Add CSS for spin animation and responsive styles
+const responsiveStyles = `
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+  }
+
+  /* Responsive container padding */
+  @media (max-width: 768px) {
+    .partner-container {
+      padding: 16px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .partner-container {
+      padding: 12px !important;
+    }
   }
 `;
 
 // Inject CSS
 if (typeof document !== 'undefined') {
   const style = document.createElement('style');
-  style.textContent = spinKeyframes;
+  style.textContent = responsiveStyles;
   document.head.appendChild(style);
 }
 
 const PartnerOrganizations = () => {
-  const navigate = useNavigate();
   const [partners, setPartners] = useState([]);
   const [filteredPartners, setFilteredPartners] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -94,67 +112,85 @@ const PartnerOrganizations = () => {
     <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
       <Header title="Partner Organizations" subtitle="Companies partnered with the university for internships" />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '28px 32px' }}>
+      <div className="partner-container" style={{ maxWidth: 1280, margin: '0 auto', padding: '28px 32px' }}>
         
         {/* Statistics Cards */}
         {stats && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: 16, 
+            marginBottom: 28 
+          }}>
             <StatCard
-              icon={<Building2 size={24} />}
+              icon={<Building2 size={22} />}
               label="Total Partners"
               value={stats.total_partners}
-              color="#667eea"
+              color="#14a800"
             />
             <StatCard
-              icon={<Briefcase size={24} />}
-              label="Total Internships"
+              icon={<Briefcase size={22} />}
+              label="Total Positions"
               value={stats.total_internships}
               color="#14a800"
             />
             <StatCard
-              icon={<TrendingUp size={24} />}
-              label="Active Positions"
+              icon={<TrendingUp size={22} />}
+              label="Active Now"
               value={stats.active_internships}
-              color="#f59e0b"
+              color="#14a800"
             />
             <StatCard
-              icon={<Users size={24} />}
-              label="Total Applications"
+              icon={<Users size={22} />}
+              label="Total Applicants"
               value={stats.total_applications}
-              color="#6b7177"
+              color="#14a800"
             />
           </div>
         )}
 
         {/* Search Bar and Refresh */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-          <div style={{ position: 'relative', flex: 1, maxWidth: 500 }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: windowWidth <= 640 ? 'column' : 'row',
+          alignItems: windowWidth <= 640 ? 'stretch' : 'center',
+          gap: 12, 
+          marginBottom: 24 
+        }}>
+          <div style={{ position: 'relative', flex: 1, maxWidth: windowWidth <= 640 ? '100%' : 500 }}>
             <Search
-              size={20}
+              size={18}
               style={{
                 position: 'absolute',
-                left: 16,
+                left: 14,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                color: '#6b7177'
+                color: '#5e6d55'
               }}
             />
             <input
               type="text" 
-              placeholder="Search by company name, city, or description..." 
+              placeholder="Search companies..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: '100%',
-                padding: '12px 16px 12px 48px',
-                border: '1px solid #e4e5e7',
-                borderRadius: 8,
+                padding: '11px 14px 11px 44px',
+                border: '1px solid #d5e0d5',
+                borderRadius: 10,
                 fontSize: 14,
                 outline: 'none',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                background: '#fff'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e4e5e7'}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#14a800';
+                e.target.style.boxShadow = '0 0 0 3px rgba(20, 168, 0, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#d5e0d5';
+                e.target.style.boxShadow = 'none';
+              }}
             />
           </div>
           
@@ -164,17 +200,21 @@ const PartnerOrganizations = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: 8,
-              padding: '12px 20px',
-              background: loading ? '#f1f5f9' : '#667eea',
-              color: loading ? '#6b7177' : '#fff',
+              padding: '11px 18px',
+              background: loading ? '#f1f5f9' : '#14a800',
+              color: loading ? '#5e6d55' : '#fff',
               border: 'none',
-              borderRadius: 8,
+              borderRadius: 10,
               fontSize: 14,
               fontWeight: 600,
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              width: windowWidth <= 640 ? '100%' : 'auto'
             }}
+            onMouseEnter={(e) => !loading && (e.target.style.background = '#108900')}
+            onMouseLeave={(e) => !loading && (e.target.style.background = '#14a800')}
           >
             <RefreshCw 
               size={16} 
@@ -203,7 +243,11 @@ const PartnerOrganizations = () => {
             </div>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 20 }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))', 
+            gap: 16 
+          }}>
             {filteredPartners.map(partner => (
               <PartnerCard key={partner.id} partner={partner} />
             ))}
@@ -217,31 +261,40 @@ const PartnerOrganizations = () => {
 const StatCard = ({ icon, label, value, color }) => (
   <div style={{
     background: '#fff',
-    border: '1px solid #e4e5e7',
+    border: '1px solid #d5e0d5',
     borderRadius: 12,
-    padding: 20,
+    padding: '16px 20px',
     display: 'flex',
     alignItems: 'center',
-    gap: 16
+    gap: 14,
+    minWidth: 0
   }}>
     <div style={{
-      width: 48,
-      height: 48,
-      borderRadius: 12,
-      background: `${color}15`,
+      width: 44,
+      height: 44,
+      borderRadius: 10,
+      background: `${color}10`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: color
+      color: color,
+      flexShrink: 0
     }}>
       {icon}
     </div>
-    <div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7177', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
-        {label}
-      </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#1f2d3d', lineHeight: 1 }}>
+    <div style={{ minWidth: 0, flex: 1 }}>
+      <div style={{ fontSize: 24, fontWeight: 700, color: '#001e00', lineHeight: 1, marginBottom: 4 }}>
         {value}
+      </div>
+      <div style={{ 
+        fontSize: 13, 
+        fontWeight: 500, 
+        color: '#5e6d55',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }}>
+        {label}
       </div>
     </div>
   </div>
@@ -261,11 +314,9 @@ const PartnerCard = ({ partner }) => {
 
     setLoadingInternships(true);
     try {
-      // Use the apiService instead of hardcoded fetch
       const response = await apiService.get('/internships/public/');
       const data = response.data || response;
       
-      // Filter internships for this specific company
       const companyInternships = data.filter(internship => 
         internship.company_name === partner.company_name
       );
@@ -282,36 +333,35 @@ const PartnerCard = ({ partner }) => {
     <div
       style={{
         background: '#fff',
-        border: '1px solid #e4e5e7',
-        borderRadius: 12,
-        overflow: 'hidden',
-        transition: 'all 0.3s',
+        border: '1px solid #d5e0d5',
+        borderRadius: 16,
+        padding: '20px',
+        transition: 'all 0.2s ease',
         cursor: 'pointer',
-        transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
-        boxShadow: isHovered ? '0 8px 24px rgba(0,0,0,0.12)' : '0 2px 8px rgba(0,0,0,0.04)'
+        transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+        boxShadow: isHovered ? '0 6px 16px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Header with Logo */}
-      <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: 24,
-        position: 'relative',
-        height: 120
-      }}>
+      {/* Header - Company Info */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        {/* Logo */}
         {partner.company_logo ? (
           <div style={{
-            width: 80,
-            height: 80,
+            width: 56,
+            height: 56,
             borderRadius: 12,
-            background: '#fff',
+            background: '#f8f9fa',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
-            border: '3px solid #fff',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            border: '1px solid #e4e5e7',
+            flexShrink: 0
           }}>
             <img
               src={partner.company_logo}
@@ -321,176 +371,160 @@ const PartnerCard = ({ partner }) => {
           </div>
         ) : (
           <div style={{
-            width: 80,
-            height: 80,
+            width: 56,
+            height: 56,
             borderRadius: 12,
-            background: '#fff',
+            background: 'linear-gradient(135deg, #14a800 0%, #108900 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '3px solid #fff',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            flexShrink: 0
           }}>
-            <Building2 size={32} color="#667eea" />
+            <Building2 size={28} color="#fff" />
           </div>
         )}
+
+        {/* Company Name and Location */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3 style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: '#001e00',
+            marginBottom: 4,
+            lineHeight: 1.3,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            {partner.company_name}
+          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#5e6d55', fontSize: 13 }}>
+            <MapPin size={13} />
+            <span>{partner.city}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Content */}
-      <div style={{ padding: 20 }}>
-        <h3 style={{
-          fontSize: 18,
-          fontWeight: 700,
-          color: '#1f2d3d',
-          marginBottom: 8,
-          lineHeight: 1.3
-        }}>
-          {partner.company_name}
-        </h3>
+      {/* Description */}
+      <p style={{
+        fontSize: 14,
+        color: '#5e6d55',
+        lineHeight: 1.5,
+        margin: 0,
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }}>
+        {partner.description}
+      </p>
 
-        <p style={{
-          fontSize: 13,
-          color: '#6b7177',
-          marginBottom: 16,
-          lineHeight: 1.5,
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {partner.description}
-        </p>
-
-        {/* Info Items */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-          <InfoItem icon={<MapPin size={14} />} text={partner.city} />
-          <InfoItem icon={<Mail size={14} />} text={partner.email} />
-          {partner.phone_number && (
-            <InfoItem icon={<Phone size={14} />} text={partner.phone_number} />
-          )}
+      {/* Stats Row - Upwork Style */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 12,
+        paddingTop: 12,
+        borderTop: '1px solid #e4e5e7'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Briefcase size={14} color="#14a800" />
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#001e00' }}>
+            {partner.total_internships}
+          </span>
+          <span style={{ fontSize: 13, color: '#5e6d55' }}>
+            {partner.total_internships === 1 ? 'position' : 'positions'}
+          </span>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <TrendingUp size={14} color="#14a800" />
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#14a800' }}>
+            {partner.active_internships}
+          </span>
+          <span style={{ fontSize: 13, color: '#5e6d55' }}>active</span>
         </div>
 
-        {/* Stats */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Users size={14} color="#5e6d55" />
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#001e00' }}>
+            {partner.total_applications}
+          </span>
+          <span style={{ fontSize: 13, color: '#5e6d55' }}>applicants</span>
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <button
+        onClick={loadInternships}
+        disabled={loadingInternships}
+        style={{
+          width: '100%',
+          padding: '10px 16px',
+          background: isHovered ? '#14a800' : '#fff',
+          color: isHovered ? '#fff' : '#14a800',
+          border: '1px solid #14a800',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: loadingInternships ? 'not-allowed' : 'pointer',
+          transition: 'all 0.2s',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8
+        }}
+      >
+        {loadingInternships ? (
+          <>Loading...</>
+        ) : showInternships ? (
+          <>
+            Hide Positions
+            <ExternalLink size={14} />
+          </>
+        ) : (
+          <>
+            View {partner.total_internships} {partner.total_internships === 1 ? 'Position' : 'Positions'}
+            <ExternalLink size={14} />
+          </>
+        )}
+      </button>
+
+      {/* Internships List */}
+      {showInternships && (
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 12,
+          marginTop: 8,
           paddingTop: 16,
           borderTop: '1px solid #e4e5e7'
         }}>
-          <MiniStat label="Internships" value={partner.total_internships} />
-          <MiniStat label="Active" value={partner.active_internships} color="#14a800" />
-          <MiniStat label="Applications" value={partner.total_applications} />
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          marginTop: 16,
-          paddingTop: 16,
-          borderTop: '1px solid #e4e5e7',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{ fontSize: 11, color: '#6b7177' }}>
-            Joined {partner.joined_date}
-          </div>
-          <button
-            onClick={loadInternships}
-            disabled={loadingInternships}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              fontSize: 12,
-              fontWeight: 600,
-              color: '#667eea',
-              background: 'none',
-              border: 'none',
-              cursor: loadingInternships ? 'not-allowed' : 'pointer',
-              padding: '4px 8px',
-              borderRadius: 4,
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => !loadingInternships && (e.target.style.background = '#f1f5f9')}
-            onMouseLeave={(e) => (e.target.style.background = 'none')}
-          >
-            {loadingInternships ? (
-              <>Loading...</>
-            ) : showInternships ? (
-              <>Hide Internships</>
-            ) : (
-              <>View Internships ({partner.total_internships})</>
-            )}
-            <ExternalLink size={12} />
-          </button>
-        </div>
-
-        {/* Internships List */}
-        {showInternships && (
-          <div style={{
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: '1px solid #e4e5e7'
-          }}>
-            <h4 style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: '#1f2d3d',
-              marginBottom: 12,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
+          {internships.length === 0 ? (
+            <div style={{
+              padding: 16,
+              textAlign: 'center',
+              color: '#5e6d55',
+              fontSize: 13,
+              background: '#f8f9fa',
+              borderRadius: 8
             }}>
-              <Briefcase size={16} />
-              Posted Internships ({internships.length})
-            </h4>
-            
-            {internships.length === 0 ? (
-              <div style={{
-                padding: 16,
-                textAlign: 'center',
-                color: '#6b7177',
-                fontSize: 13,
-                background: '#f8f9fa',
-                borderRadius: 8
-              }}>
-                No internships posted yet
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {internships.map((internship) => (
-                  <InternshipItem key={internship.id} internship={internship} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              No positions posted yet
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {internships.map((internship) => (
+                <InternshipItem key={internship.id} internship={internship} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-const InfoItem = ({ icon, text }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-    <div style={{ color: '#6b7177' }}>{icon}</div>
-    <div style={{ fontSize: 13, color: '#6b7177' }}>{text}</div>
-  </div>
-);
-
-const MiniStat = ({ label, value, color = '#1f2d3d' }) => (
-  <div style={{ textAlign: 'center' }}>
-    <div style={{ fontSize: 18, fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
-    <div style={{ fontSize: 10, color: '#6b7177', marginTop: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-      {label}
-    </div>
-  </div>
-);
-
 const InternshipItem = ({ internship }) => {
   const getStatusColor = (status) => {
     switch (status) {
-      case 'OPEN': return { bg: '#dcfce7', color: '#14a800', text: 'Open' };
+      case 'OPEN': return { bg: '#d4f4dd', color: '#14a800', text: 'Open' };
       case 'CLOSED': return { bg: '#fee2e2', color: '#dc2626', text: 'Closed' };
       case 'FILLED': return { bg: '#fef3c7', color: '#f59e0b', text: 'Filled' };
       default: return { bg: '#f1f5f9', color: '#6b7177', text: status };
@@ -501,19 +535,19 @@ const InternshipItem = ({ internship }) => {
 
   return (
     <div style={{
-      padding: 12,
+      padding: 14,
       background: '#f8f9fa',
-      borderRadius: 8,
+      borderRadius: 12,
       border: '1px solid #e4e5e7',
       transition: 'all 0.2s'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
         <h5 style={{
           fontSize: 14,
           fontWeight: 600,
-          color: '#1f2d3d',
+          color: '#001e00',
           margin: 0,
-          lineHeight: 1.3,
+          lineHeight: 1.4,
           flex: 1
         }}>
           {internship.title}
@@ -523,29 +557,30 @@ const InternshipItem = ({ internship }) => {
           fontWeight: 600,
           color: statusConfig.color,
           background: statusConfig.bg,
-          padding: '4px 8px',
+          padding: '4px 10px',
           borderRadius: 12,
-          marginLeft: 8
+          marginLeft: 8,
+          whiteSpace: 'nowrap'
         }}>
           {statusConfig.text}
         </span>
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6b7177' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#5e6d55' }}>
           <MapPin size={12} />
           <span>{internship.location}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6b7177' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#5e6d55' }}>
           <Clock size={12} />
           <span>{internship.duration_months} months</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6b7177' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#5e6d55' }}>
           <Users size={12} />
           <span>{internship.available_slots} slots</span>
         </div>
         {internship.start_date && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#6b7177' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#5e6d55' }}>
             <Calendar size={12} />
             <span>Starts {new Date(internship.start_date).toLocaleDateString()}</span>
           </div>
@@ -553,8 +588,8 @@ const InternshipItem = ({ internship }) => {
       </div>
 
       {internship.application_count > 0 && (
-        <div style={{ fontSize: 11, color: '#14a800', fontWeight: 500 }}>
-          {internship.application_count} applications received
+        <div style={{ fontSize: 12, color: '#14a800', fontWeight: 500 }}>
+          {internship.application_count} {internship.application_count === 1 ? 'application' : 'applications'} received
         </div>
       )}
     </div>
