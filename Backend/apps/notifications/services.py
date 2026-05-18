@@ -211,6 +211,28 @@ class NotificationService:
         )
 
     @classmethod
+    def notify_application_auto_withdrawn(cls, company, student, internship):
+        """
+        Notify company that a student's pending application was automatically
+        withdrawn/rejected because the student accepted another placement.
+        In-app notification only.
+        """
+        student_name = student.student_profile.full_name
+        title = 'Applicant No Longer Available'
+        message = f'{student_name} has accepted another internship placement. Their application for {internship.title} has been automatically withdrawn.'
+        link = '/company/applications'
+
+        return cls.send_notification_with_email(
+            recipient=company,
+            title=title,
+            message=message,
+            notification_type='GENERAL',
+            link=link,
+            email_func=None,
+            email_args=None,
+        )
+
+    @classmethod
     def notify_application_submitted(cls, company, student, internship):
         """
         Notify company that a student has applied.

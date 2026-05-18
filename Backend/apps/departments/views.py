@@ -34,6 +34,10 @@ from apps.accounts.permissions import IsUIL, IsAdmin
 from apps.accounts.models import User, DepartmentHeadProfile
 from django.utils.crypto import get_random_string
 from apps.notifications.services import NotificationService
+import openpyxl
+import io
+import string
+import random
 
 
 class DepartmentViewSet(viewsets.ViewSet):
@@ -108,12 +112,12 @@ class DepartmentViewSet(viewsets.ViewSet):
             # Active internships (status = ACTIVE)
             active_internships = internships_qs.filter(status='ACTIVE').count()
             
-            # Pending advisor assignments (accepted applications without any advisor ever assigned)
+            # Pending advisor assignments (accepted applications without an ACTIVE advisor assignment)
             accepted_applications = Application.objects.filter(
                 status='ACCEPTED',
                 internship__department=department if department else Q()
             ).exclude(
-                student__in=assignments_qs.values('student')
+                student__in=assignments_qs.filter(is_active=True).values('student')
             ).count()
             
             # Completed internships
@@ -216,24 +220,46 @@ class DepartmentViewSet(viewsets.ViewSet):
             # Filter by status
             status_filter = request.query_params.get('status', None)
             if status_filter:
-                if status_filter == 'not_applied':
-                    # Students with no applications
-                    queryset = queryset.filter(student_applications__isnull=True)
-                elif status_filter == 'applied':
-                    # Students with pending applications
-                    queryset = queryset.filter(
-                        student_applications__status='PENDING'
-                    ).distinct()
-                elif status_filter == 'active':
+                if status_filter == 'active':
                     # Students with active internships
                     queryset = queryset.filter(
                         student_advisor_assignments__is_active=True
                     ).distinct()
                 elif status_filter == 'completed':
-                    # Students who completed internships
+                    # Students who completed internships (and have no active ones)
                     queryset = queryset.filter(
                         student_advisor_assignments__is_active=False
+                    ).exclude(
+                        student_advisor_assignments__is_active=True
                     ).distinct()
+                elif status_filter == 'applied':
+                    # Students with applications but no advisor assignments (neither active nor completed)
+                    queryset = queryset.filter(
+                        student_applications__isnull=False
+                    ).exclude(
+                        student_advisor_assignments__isnull=False
+                    ).distinct()
+                elif status_filter == 'not_applied':
+                    # Students with no applications at all
+                    queryset = queryset.filter(
+                        student_applications__isnull=True
+                    )
+            
+            # Ordering
+            ordering = request.query_params.get('ordering', '-created_at')
+            if ordering:
+                # Map frontend ordering keys to backend model fields
+                order_map = {
+                    'full_name': 'student_profile__full_name',
+                    '-full_name': '-student_profile__full_name',
+                    'university_id': 'student_profile__university_id',
+                    '-university_id': '-student_profile__university_id',
+                    'created_at': 'created_at',
+                    '-created_at': '-created_at'
+                }
+                
+                db_ordering = order_map.get(ordering, '-created_at')
+                queryset = queryset.order_by(db_ordering)
             
             # Serialize
             serializer = DepartmentStudentSerializer(queryset, many=True)
@@ -242,6 +268,150 @@ class DepartmentViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response(
                 {'error': 'Failed to fetch students', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=True, methods=['get'], url_path='')
+    def student_detail(self, request, pk=None):
+        """
+        GET /api/departments/students/:id/
+        
+        Get detailed information about a specific student including:
+        - Student profile information
+        - Company/internship details
+        - Advisor information
+        
+        Returns comprehensive student data for department head view
+        """
+        try:
+            if not self._check_department_permission(request):
+                return Response(
+                    {'error': 'Only Department Heads can access this endpoint.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            department = self._get_department(request)
+            
+            # Get student
+            try:
+                student = User.objects.select_related(
+                    'student_profile',
+                    'department'
+                ).prefetch_related(
+                    Prefetch(
+                        'student_applications',
+                        queryset=Application.objects.select_related(
+                            'internship__company__company_profile'
+                        ).filter(status='ACCEPTED').order_by('-applied_at')
+                    ),
+                    Prefetch(
+                        'student_advisor_assignments',
+                        queryset=AdvisorAssignment.objects.select_related(
+                            'advisor__advisor_profile',
+                            'internship__company__company_profile'
+                        ).filter(is_active=True)
+                    )
+                ).get(
+                    id=pk,
+                    role='STUDENT',
+                    is_approved=True
+                )
+            except User.DoesNotExist:
+                return Response(
+                    {'error': 'Student not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Check department permission (robust ID comparison)
+            if department and student.department_id != department.id:
+                return Response(
+                    {'error': 'Student not in your department'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Get student profile data safely
+            student_profile = getattr(student, 'student_profile', None)
+            
+            # Determine internship status and related objects
+            # Use prefetched data if available, or fall back to DB efficiently
+            all_assignments = list(student.student_advisor_assignments.all())
+            active_assignment = next((a for a in all_assignments if a.is_active), None)
+            
+            all_apps = list(student.student_applications.all())
+            accepted_app = next((a for a in all_apps if a.status == 'ACCEPTED'), None)
+            
+            if active_assignment:
+                internship_status = 'ACTIVE'
+                internship = active_assignment.internship
+                company = internship.company if internship else None
+            elif accepted_app:
+                internship_status = 'APPLIED'
+                internship = accepted_app.internship
+                company = internship.company if internship else None
+            elif student.student_applications.filter(status='PENDING').exists():
+                internship_status = 'APPLIED'
+                internship = None
+                company = None
+            else:
+                internship_status = 'NOT_APPLIED'
+                internship = None
+                company = None
+            
+            # Build response data with safe extraction
+            data = {
+                # Student Information
+                'id': student.id,
+                'full_name': student_profile.full_name if student_profile else (student.get_full_name() or student.email),
+                'university_id': student_profile.university_id if student_profile else None,
+                'email': student.email,
+                'phone_number': student_profile.phone_number if student_profile else None,
+                'department': student.department.name if student.department else None,
+                'internship_status': internship_status,
+                'has_accepted_application': accepted_app is not None,  # NEW: Check if student can be assigned advisor
+                
+                # Company Information
+                'company_name': None,
+                'company_location': None,
+                'internship_title': internship.title if internship else None,
+                'start_date': None,
+                'end_date': None,
+                
+                # Advisor Information
+                'advisor_name': None,
+                'advisor_email': None,
+                'advisor_phone': None,
+                'advisor_location': None,
+            }
+
+            # Safe company info
+            if company:
+                cp = getattr(company, 'company_profile', None)
+                data['company_name'] = cp.company_name if cp else (company.get_full_name() or company.email)
+                data['company_location'] = cp.city if cp else None # Use city from profile
+            
+            # Safe dates
+            if internship:
+                if hasattr(internship, 'start_date') and internship.start_date:
+                    data['start_date'] = internship.start_date.isoformat()
+                if hasattr(internship, 'end_date') and internship.end_date:
+                    data['end_date'] = internship.end_date.isoformat()
+            
+            # Add advisor info if assigned
+            if active_assignment and active_assignment.advisor:
+                advisor = active_assignment.advisor
+                advisor_profile = getattr(advisor, 'advisor_profile', None)
+                data['advisor_name'] = advisor_profile.full_name if advisor_profile else advisor.get_full_name()
+                data['advisor_email'] = advisor.email
+                data['advisor_phone'] = advisor_profile.phone_number if advisor_profile else None
+                data['advisor_location'] = advisor_profile.advising_location if advisor_profile else None
+            
+            return Response(data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {'error': 'Failed to fetch student details', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
@@ -482,6 +652,321 @@ class DepartmentViewSet(viewsets.ViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
+    @action(detail=False, methods=['get'], url_path='advisors/overloaded')
+    def overloaded_advisors(self, request):
+        """
+        GET /api/departments/advisors/overloaded/
+        
+        Get list of advisors who exceed their max_students limit
+        
+        Returns:
+            - List of overloaded advisors with:
+                - Advisor info
+                - Current workload
+                - Max students limit
+                - Excess count
+                - List of students that can be reassigned
+        """
+        try:
+            if not self._check_department_permission(request):
+                return Response(
+                    {'error': 'Only Department Heads can access this endpoint.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            department = self._get_department(request)
+            
+            # Get advisors with their workload
+            advisors = User.objects.filter(
+                role='ADVISOR',
+                is_approved=True
+            ).select_related(
+                'advisor_profile',
+                'department'
+            ).annotate(
+                active_students=Count(
+                    'supervised_students',
+                    filter=Q(supervised_students__is_active=True)
+                )
+            )
+            
+            if department:
+                advisors = advisors.filter(department=department)
+            
+            # Filter overloaded advisors
+            overloaded = []
+            for advisor in advisors:
+                profile = getattr(advisor, 'advisor_profile', None)
+                max_students = profile.max_students if profile else 15
+                active_count = advisor.active_students
+                
+                if active_count > max_students:
+                    # Get students that can be reassigned (most recent assignments)
+                    excess = active_count - max_students
+                    assignments = AdvisorAssignment.objects.filter(
+                        advisor=advisor,
+                        is_active=True
+                    ).select_related(
+                        'student__student_profile',
+                        'internship__company__company_profile'
+                    ).order_by('-assigned_at')[:excess]
+                    
+                    students = []
+                    for assignment in assignments:
+                        student = assignment.student
+                        student_profile = getattr(student, 'student_profile', None)
+                        company = assignment.internship.company if assignment.internship else None
+                        company_profile = getattr(company, 'company_profile', None) if company else None
+                        
+                        students.append({
+                            'assignment_id': assignment.id,
+                            'student_id': student.id,
+                            'student_name': student_profile.full_name if student_profile else student.email,
+                            'student_email': student.email,
+                            'university_id': student_profile.university_id if student_profile else None,
+                            'company_name': company_profile.company_name if company_profile else None,
+                            'internship_title': assignment.internship.title if assignment.internship else None,
+                            'assigned_date': assignment.assigned_at.isoformat() if assignment.assigned_at else None,
+                        })
+                    
+                    overloaded.append({
+                        'advisor_id': advisor.id,
+                        'advisor_name': profile.full_name if profile else advisor.email,
+                        'advisor_email': advisor.email,
+                        'staff_id': profile.staff_id if profile else None,
+                        'department': advisor.department.name if advisor.department else None,
+                        'advising_location': profile.advising_location if profile else None,
+                        'current_load': active_count,
+                        'max_students': max_students,
+                        'excess': excess,
+                        'percentage': round((active_count / max_students * 100), 1) if max_students > 0 else 0,
+                        'students': students,
+                    })
+            
+            return Response({
+                'count': len(overloaded),
+                'advisors': overloaded
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {'error': 'Failed to fetch overloaded advisors', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=False, methods=['get'], url_path='advisors/available')
+    def available_advisors(self, request):
+        """
+        GET /api/departments/advisors/available/
+        
+        Get list of advisors who can take more students (not at capacity)
+        
+        Returns:
+            - List of available advisors with:
+                - Advisor info
+                - Current workload
+                - Available capacity
+        """
+        try:
+            if not self._check_department_permission(request):
+                return Response(
+                    {'error': 'Only Department Heads can access this endpoint.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            department = self._get_department(request)
+            
+            # Get advisors with their workload
+            advisors = User.objects.filter(
+                role='ADVISOR',
+                is_approved=True
+            ).select_related(
+                'advisor_profile',
+                'department'
+            ).annotate(
+                active_students=Count(
+                    'supervised_students',
+                    filter=Q(supervised_students__is_active=True)
+                )
+            )
+            
+            if department:
+                advisors = advisors.filter(department=department)
+            
+            # Filter available advisors (not at capacity)
+            available = []
+            for advisor in advisors:
+                profile = getattr(advisor, 'advisor_profile', None)
+                max_students = profile.max_students if profile else 15
+                active_count = advisor.active_students
+                
+                if active_count < max_students:
+                    capacity = max_students - active_count
+                    available.append({
+                        'advisor_id': advisor.id,
+                        'advisor_name': profile.full_name if profile else advisor.email,
+                        'advisor_email': advisor.email,
+                        'staff_id': profile.staff_id if profile else None,
+                        'department': advisor.department.name if advisor.department else None,
+                        'advising_location': profile.advising_location if profile else None,
+                        'current_load': active_count,
+                        'max_students': max_students,
+                        'available_capacity': capacity,
+                        'percentage': round((active_count / max_students * 100), 1) if max_students > 0 else 0,
+                    })
+            
+            # Sort by available capacity (most capacity first)
+            available.sort(key=lambda x: x['available_capacity'], reverse=True)
+            
+            return Response({
+                'count': len(available),
+                'advisors': available
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {'error': 'Failed to fetch available advisors', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=False, methods=['post'], url_path='advisors/reassign')
+    def reassign_students(self, request):
+        """
+        POST /api/departments/advisors/reassign/
+        
+        Reassign students from one advisor to another
+        
+        Request body:
+        {
+            "from_advisor_id": 5,
+            "to_advisor_id": 8,
+            "assignment_ids": [12, 15, 18]
+        }
+        
+        Returns:
+            - Success message
+            - Count of reassigned students
+        """
+        try:
+            if not self._check_department_permission(request):
+                return Response(
+                    {'error': 'Only Department Heads can access this endpoint.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            from_advisor_id = request.data.get('from_advisor_id')
+            to_advisor_id = request.data.get('to_advisor_id')
+            assignment_ids = request.data.get('assignment_ids', [])
+            
+            # Validate input
+            if not from_advisor_id or not to_advisor_id:
+                return Response(
+                    {'error': 'Both from_advisor_id and to_advisor_id are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if not assignment_ids or not isinstance(assignment_ids, list):
+                return Response(
+                    {'error': 'assignment_ids must be a non-empty list'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Get advisors
+            try:
+                from_advisor = User.objects.get(id=from_advisor_id, role='ADVISOR', is_approved=True)
+                to_advisor = User.objects.get(id=to_advisor_id, role='ADVISOR', is_approved=True)
+            except User.DoesNotExist:
+                return Response(
+                    {'error': 'One or both advisors not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Check department permission
+            department = self._get_department(request)
+            if department:
+                if from_advisor.department != department or to_advisor.department != department:
+                    return Response(
+                        {'error': 'Advisors must be in your department'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            
+            # Check if advisors are in same department
+            if from_advisor.department != to_advisor.department:
+                return Response(
+                    {'error': 'Advisors must be in the same department'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Get assignments
+            assignments = AdvisorAssignment.objects.filter(
+                id__in=assignment_ids,
+                advisor=from_advisor,
+                is_active=True
+            )
+            
+            if assignments.count() != len(assignment_ids):
+                return Response(
+                    {'error': 'Some assignments not found or not active'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Check if target advisor has capacity
+            to_advisor_profile = getattr(to_advisor, 'advisor_profile', None)
+            max_students = to_advisor_profile.max_students if to_advisor_profile else 15
+            current_load = AdvisorAssignment.objects.filter(
+                advisor=to_advisor,
+                is_active=True
+            ).count()
+            
+            if current_load + len(assignment_ids) > max_students:
+                return Response(
+                    {'error': f'Target advisor does not have enough capacity. Current: {current_load}, Max: {max_students}, Trying to add: {len(assignment_ids)}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Perform reassignment
+            reassigned_count = 0
+            for assignment in assignments:
+                # Update advisor
+                assignment.advisor = to_advisor
+                assignment.save()
+                reassigned_count += 1
+                
+                # Send notifications
+                NotificationService.create_notification(
+                    recipient=assignment.student,
+                    title='Advisor Changed',
+                    message=f'Your advisor has been changed to {to_advisor.get_full_name()}.',
+                    notification_type='ADVISOR_CHANGED',
+                    link='/student/active-internship'
+                )
+                
+                NotificationService.create_notification(
+                    recipient=to_advisor,
+                    title='New Student Assigned',
+                    message=f'{assignment.student.get_full_name()} has been assigned to you.',
+                    notification_type='ADVISOR_ASSIGNED',
+                    link='/advisor/my-students'
+                )
+            
+            return Response({
+                'success': True,
+                'message': f'Successfully reassigned {reassigned_count} students',
+                'reassigned_count': reassigned_count
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response(
+                {'error': 'Failed to reassign students', 'details': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
     @action(detail=False, methods=['get'], url_path='unassigned-students')
     def unassigned_students(self, request):
         """
@@ -511,8 +996,9 @@ class DepartmentViewSet(viewsets.ViewSet):
             if department:
                 accepted_apps = accepted_apps.filter(internship__department=department)
             
-            # Exclude students who have ANY advisor assignment (active or completed)
-            assigned_students = AdvisorAssignment.objects.values_list('student_id', flat=True)
+            # Exclude students who have an ACTIVE advisor assignment
+            # We check for is_active=True to allow reassignment or new assignments for new internships
+            assigned_students = AdvisorAssignment.objects.filter(is_active=True).values_list('student_id', flat=True)
             
             accepted_apps = accepted_apps.exclude(student_id__in=assigned_students)
             
@@ -1881,6 +2367,142 @@ Internship Management System
                 {'error': 'Failed to register advisor', 'details': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    @action(detail=False, methods=['post'], url_path='bulk-add-advisors')
+    def bulk_add_advisors(self, request):
+        """
+        POST /api/departments/bulk-add-advisors/
+        
+        Register multiple advisors from an Excel file
+        
+        Expected Excel columns:
+        full_name, email, phone_number, staff_id, max_students (optional)
+        """
+        try:
+            if not self._check_department_permission(request):
+                return Response(
+                    {'error': 'Only Department Heads can register advisors.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            file = request.FILES.get('file')
+            if not file:
+                return Response({'error': 'No file uploaded.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if not file.name.endswith(('.xlsx', '.xls')):
+                return Response({'error': 'Please upload a valid Excel file (.xlsx or .xls)'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Load workbook
+            try:
+                wb = openpyxl.load_workbook(io.BytesIO(file.read()))
+                sheet = wb.active
+            except Exception as e:
+                return Response({'error': f'Failed to parse Excel file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Get department
+            department = self._get_department(request)
+            if not department:
+                return Response({'error': 'Department context not found.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Process rows
+            created_count = 0
+            errors = []
+            
+            # Header mapping (assuming first row is header)
+            # Find column indices
+            header_row = [str(cell.value).strip().lower() if cell.value else "" for cell in sheet[1]]
+            
+            cols = {
+                'full_name': -1,
+                'email': -1,
+                'phone_number': -1,
+                'staff_id': -1,
+                'max_students': -1
+            }
+            
+            for i, val in enumerate(header_row):
+                if 'name' in val: cols['full_name'] = i
+                elif 'email' in val: cols['email'] = i
+                elif 'phone' in val or 'tel' in val: cols['phone_number'] = i
+                elif 'staff' in val or 'id' in val: cols['staff_id'] = i
+                elif 'max' in val or 'limit' in val: cols['max_students'] = i
+            
+            # Check mandatory columns
+            missing = [k for k, v in cols.items() if v == -1 and k != 'max_students']
+            if missing:
+                return Response({
+                    'error': f'Missing required columns in Excel: {", ".join(missing)}',
+                    'hint': 'Ensure your Excel has headers: Full Name, Email, Phone Number, Staff ID'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Iterate data rows
+            from django.core.mail import send_mail
+            from django.conf import settings
+            
+            try:
+                frontend_url = settings.CORS_ALLOWED_ORIGINS[0]
+            except (AttributeError, IndexError):
+                frontend_url = 'http://localhost:5173'
+            
+            for row_idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+                try:
+                    f_name = str(row[cols['full_name']]) if row[cols['full_name']] else None
+                    email = str(row[cols['email']]).strip() if row[cols['email']] else None
+                    phone = str(row[cols['phone_number']]) if row[cols['phone_number']] else None
+                    s_id = str(row[cols['staff_id']]) if row[cols['staff_id']] else None
+                    max_st = int(row[cols['max_students']]) if cols['max_students'] != -1 and row[cols['max_students']] else 15
+                    
+                    if not all([f_name, email, phone, s_id]):
+                        errors.append(f"Row {row_idx}: Missing required data.")
+                        continue
+                    
+                    # Validate unique
+                    if User.objects.filter(email=email).exists():
+                        errors.append(f"Row {row_idx}: Email '{email}' already exists.")
+                        continue
+                    
+                    if AdvisorProfile.objects.filter(staff_id=s_id).exists():
+                        errors.append(f"Row {row_idx}: Staff ID '{s_id}' already exists.")
+                        continue
+                    
+                    # Create user
+                    password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+                    user = User.objects.create_user(
+                        email=email,
+                        password=password,
+                        role='ADVISOR',
+                        department=department,
+                        is_approved=True
+                    )
+                    
+                    # Create profile
+                    AdvisorProfile.objects.create(
+                        user=user,
+                        full_name=f_name,
+                        phone_number=phone,
+                        staff_id=s_id,
+                        max_students=max_st
+                    )
+                    
+                    # Send email
+                    subject = 'Welcome to Internship Management System - Advisor Account Created'
+                    message = f"Dear {f_name},\n\nYour advisor account has been created.\n\nLogin Credentials:\nEmail: {email}\nPassword: {password}\n\nLogin at: {frontend_url}/login"
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=True)
+                    
+                    created_count += 1
+                    
+                except Exception as row_err:
+                    errors.append(f"Row {row_idx}: {str(row_err)}")
+            
+            return Response({
+                'success': True,
+                'message': f'Successfully registered {created_count} advisors.',
+                'created_count': created_count,
+                'errors': errors
+            }, status=status.HTTP_201_CREATED if created_count > 0 else status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UILDepartmentViewSet(viewsets.ModelViewSet):

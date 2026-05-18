@@ -3,9 +3,26 @@
  * Review and manage student applications
  */
 import React, { useState, useEffect } from 'react';
-import { FileText, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
+import { 
+  Users,
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  Search, 
+  Mail, 
+  Calendar, 
+  Eye, 
+  Check, 
+  X,
+  User,
+  Award,
+  Briefcase,
+  UserCheck,
+  UserX,
+  ClipboardList
+} from 'lucide-react';
 import Header from '../../components/common/Header';
-import ApplicationCard from '../../components/cards/ApplicationCard';
+import StatusBadge from '../../components/common/StatusBadge';
 import AcceptModal from '../../components/modals/AcceptModal';
 import RejectModal from '../../components/modals/RejectModal';
 import ApplicationDetailModal from '../../components/modals/ApplicationDetailModal';
@@ -124,7 +141,7 @@ const Applications = () => {
         <div className="ap-stats">
           <div className="ap-stat-card">
             <div className="ap-stat-icon ap-icon-green">
-              <FileText size={20} strokeWidth={2} />
+              <ClipboardList size={24} strokeWidth={2.5} />
             </div>
             <div className="ap-stat-body">
               <span className="ap-stat-label">Total Applications</span>
@@ -133,7 +150,7 @@ const Applications = () => {
           </div>
           <div className="ap-stat-card">
             <div className="ap-stat-icon ap-icon-yellow">
-              <Clock size={20} strokeWidth={2} />
+              <Clock size={24} strokeWidth={2.5} />
             </div>
             <div className="ap-stat-body">
               <span className="ap-stat-label">Pending Review</span>
@@ -142,7 +159,7 @@ const Applications = () => {
           </div>
           <div className="ap-stat-card">
             <div className="ap-stat-icon ap-icon-green">
-              <CheckCircle size={20} strokeWidth={2} />
+              <UserCheck size={24} strokeWidth={2.5} />
             </div>
             <div className="ap-stat-body">
               <span className="ap-stat-label">Accepted</span>
@@ -151,7 +168,7 @@ const Applications = () => {
           </div>
           <div className="ap-stat-card">
             <div className="ap-stat-icon ap-icon-red">
-              <XCircle size={20} strokeWidth={2} />
+              <UserX size={24} strokeWidth={2.5} />
             </div>
             <div className="ap-stat-body">
               <span className="ap-stat-label">Rejected</span>
@@ -195,9 +212,9 @@ const Applications = () => {
           )}
         </div>
 
-        <div className="ap-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16, marginBottom: 20 }}>
+        <div className="ap-search-sort-row" style={{ display: 'flex', gap: 16, marginTop: 20, marginBottom: 24 }}>
           <div className="ap-search-wrapper" style={{ position: 'relative', flex: 1 }}>
-            <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+            <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#667eea', zIndex: 1 }} />
             <input
               type="text"
               placeholder="Search by student name or university ID..."
@@ -208,8 +225,29 @@ const Applications = () => {
                 window.apTimeout = setTimeout(() => setSearch(e.target.value), 400);
               }}
               style={{
-                width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
-                border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
+                width: '100%',
+                padding: '14px 16px 14px 48px',
+                borderRadius: 16,
+                border: '2px solid rgba(102, 126, 234, 0.2)',
+                outline: 'none',
+                fontSize: 14,
+                fontWeight: 500,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#667eea';
+                e.target.style.background = 'white';
+                e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.15)';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
+                e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+                e.target.style.boxShadow = '0 8px 32px rgba(102, 126, 234, 0.15)';
+                e.target.style.transform = 'translateY(0)';
               }}
             />
           </div>
@@ -217,8 +255,31 @@ const Applications = () => {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             style={{
-              padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
-              outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
+              padding: '14px 16px',
+              borderRadius: 16,
+              border: '2px solid rgba(102, 126, 234, 0.2)',
+              outline: 'none',
+              fontSize: 14,
+              fontWeight: 700,
+              minWidth: 180,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              color: '#667eea',
+              cursor: 'pointer',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 8px 32px rgba(102, 126, 234, 0.15)',
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#667eea';
+              e.target.style.background = 'white';
+              e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.15)';
+              e.target.style.transform = 'translateY(-2px)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(102, 126, 234, 0.2)';
+              e.target.style.background = 'rgba(255, 255, 255, 0.95)';
+              e.target.style.boxShadow = '0 8px 32px rgba(102, 126, 234, 0.15)';
+              e.target.style.transform = 'translateY(0)';
             }}
           >
             <option value="-created_at">Newest First</option>
@@ -236,19 +297,104 @@ const Applications = () => {
           </div>
         )}
 
-        {/* Grid */}
+        {/* Table */}
         {!loading && filtered.length > 0 && (
-          <div className="ap-grid">
-            {filtered.map((application) => (
-              <ApplicationCard
-                key={application.id}
-                application={application}
-                userRole="COMPANY"
-                onView={() => setDetailModal({ show: true, application })}
-                onAccept={() => setAcceptModal({ show: true, application })}
-                onReject={() => setRejectModal({ show: true, application })}
-              />
-            ))}
+          <div className="ap-table-card">
+            <div className="ap-table-wrapper">
+              <table className="ap-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Skills</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((application) => (
+                    <tr key={application.id} className="ap-table-row">
+                      <td>
+                        <div className="ap-student-cell">
+                          <div className="ap-student-avatar">
+                            <User size={20} strokeWidth={2.5} />
+                          </div>
+                          <div>
+                            <div className="ap-student-name">{application.student_name}</div>
+                            <div className="ap-student-id">{application.university_id}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="ap-email-cell">
+                          <Mail size={16} strokeWidth={2.5} />
+                          <span>{application.student_email}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="ap-skills-cell">
+                          {application.student_skills ? (
+                            <>
+                              {application.student_skills.split(',').slice(0, 2).map((skill, idx) => (
+                                <span key={idx} className="ap-skill-badge">
+                                  {skill.trim()}
+                                </span>
+                              ))}
+                              {application.student_skills.split(',').length > 2 && (
+                                <span className="ap-skill-more">
+                                  +{application.student_skills.split(',').length - 2}
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="ap-no-skills">No skills listed</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="ap-date-cell">
+                          <Calendar size={16} strokeWidth={2.5} />
+                          <span>{new Date(application.applied_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <StatusBadge status={application.status} />
+                      </td>
+                      <td>
+                        <div className="ap-actions-cell">
+                          <button
+                            className="ap-action-btn ap-action-view"
+                            onClick={() => setDetailModal({ show: true, application })}
+                            title="View Details"
+                          >
+                            <Eye size={18} strokeWidth={2.5} />
+                          </button>
+                          {application.status === 'PENDING' && (
+                            <>
+                              <button
+                                className="ap-action-btn ap-action-accept"
+                                onClick={() => setAcceptModal({ show: true, application })}
+                                title="Accept Application"
+                              >
+                                <Check size={18} strokeWidth={2.5} />
+                              </button>
+                              <button
+                                className="ap-action-btn ap-action-reject"
+                                onClick={() => setRejectModal({ show: true, application })}
+                                title="Reject Application"
+                              >
+                                <X size={18} strokeWidth={2.5} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -256,7 +402,7 @@ const Applications = () => {
         {!loading && filtered.length === 0 && (
           <div className="ap-empty">
             <div className="ap-empty-icon-circle">
-              <FileText size={40} strokeWidth={1.5} color="#6b7177" />
+              <Users size={48} strokeWidth={1.5} />
             </div>
             <h2>No applications found</h2>
             <p>

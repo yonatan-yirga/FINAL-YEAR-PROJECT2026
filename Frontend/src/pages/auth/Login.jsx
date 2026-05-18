@@ -9,7 +9,9 @@ import * as Yup from 'yup';
 import useAuth from '../../hooks/useAuth';
 import useAuthRedirect from '../../hooks/useAuthRedirect';
 import oauthService from '../../services/oauthService';
-import dmuLogo from '../../assets/logodmu.jpg';
+import { useTheme } from '../../context/ThemeContext';
+import { Moon, Sun } from 'lucide-react';
+import dmuLogo from '../../assets/Debre_Markos_University.png';
 import './Login.css';
 
 const LoginSchema = Yup.object().shape({
@@ -19,6 +21,7 @@ const LoginSchema = Yup.object().shape({
 
 const Login = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo');
   const { login, isLoading } = useAuth();
@@ -68,42 +71,34 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      {/* Welcome Panel (Left) */}
-      <div className="login-welcome">
-        <div className="login-welcome-content">
-          <div className="login-logo">
-            <img src={dmuLogo} alt="DMU Logo" className="login-logo-img" />
-          </div>
-          <h1 className="login-title">
-            DMU Internship Portal
-          </h1>
-          <p className="login-subtitle">
-            Debre Markos University's platform for managing academic internships, 
-            advisor support, and industry partnerships.
-          </p>
+      {/* Theme Toggle */}
+      <button 
+        onClick={toggleTheme} 
+        className="login-theme-toggle"
+        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
 
-          <div className="login-features">
-            {[
-              'User Management',
-              'Student Monitoring',
-              'Certificate Verification',
-              'Department Statistics',
-            ].map(feature => (
-              <div key={feature} className="login-feature">
-                <span className="login-feature-icon"></span>
-                {feature}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Form Panel (Right) */}
+      {/* Form Panel (Centered) */}
       <div className="login-form-panel">
         <div className="login-form-container">
           <div className="login-form-header">
-            <h2 className="login-form-title">Sign In</h2>
-            <p className="login-form-subtitle">
+            {/* Centered University Branding */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+              <img 
+                src={dmuLogo} 
+                alt="DMU Crest" 
+                style={{ 
+                  height: '48px', 
+                  width: 'auto', 
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.06))'
+                }} 
+              />
+            </div>
+            <h2 className="login-form-title" style={{ fontSize: '22px', marginBottom: '4px' }}>Sign In</h2>
+            <p className="login-form-subtitle" style={{ fontSize: '12px' }}>
               {returnTo ? 'Sign in to continue to your application' : 'Sign in to access your dashboard'}
             </p>
           </div>
@@ -116,7 +111,7 @@ const Login = () => {
             {({ isSubmitting, errors, touched }) => (
               <Form className="login-form">
                 
-                {/* OAuth Buttons */}
+                {/* OAuth Buttons (Side-by-Side) */}
                 {true && (
                   <>
                     <div className="oauth-buttons">
@@ -131,7 +126,7 @@ const Login = () => {
                           <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/>
                           <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
                         </svg>
-                        Continue with Google
+                        Google
                       </button>
 
                       <button
@@ -142,7 +137,7 @@ const Login = () => {
                         <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
                           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                         </svg>
-                        Continue with GitHub
+                        GitHub
                       </button>
                     </div>
 

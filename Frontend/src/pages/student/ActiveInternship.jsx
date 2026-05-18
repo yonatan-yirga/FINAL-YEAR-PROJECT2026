@@ -1,6 +1,6 @@
 /**
  * ActiveInternship Page
- * Student's live internship view — company info, advisor, feedback timeline
+ * Student's live internship view — compact premium layout
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +13,7 @@ import {
   GraduationCap, ClipboardList, Building2, UserCheck, 
   MessageSquare, Bell, FileText, Award, Link2, Download,
   Mail, Phone, MapPin, Calendar, TrendingUp, Search,
-  ArrowRight, Plus, RefreshCw, Eye
+  ArrowRight, Plus, RefreshCw, Eye, Briefcase
 } from 'lucide-react';
 import './ActiveInternship.css';
 
@@ -30,7 +30,6 @@ const ActiveInternship = () => {
   const [downloadingCert, setDownloadingCert] = useState(false);
   const [error, setError] = useState('');
 
-  // ── Load active internship ─────────────────────────────────────────────────
   const fetchActiveInternship = useCallback(async () => {
     try {
       setLoading(true);
@@ -41,10 +40,7 @@ const ActiveInternship = () => {
         const accepted = Array.isArray(data) ? data : [];
 
         if (accepted.length > 0) {
-          const application = accepted[0];
-          setInternshipData(application);
-
-          // Fetch feedback and reports
+          setInternshipData(accepted[0]);
           fetchFeedbacks();
           fetchReports();
         }
@@ -58,7 +54,6 @@ const ActiveInternship = () => {
     }
   }, []);
 
-  // ── Load feedbacks for this student (student-accessible endpoint) ──────────
   const fetchFeedbacks = async () => {
     try {
       setFeedbackLoading(true);
@@ -86,7 +81,6 @@ const ActiveInternship = () => {
     }
   };
 
-  // ── Load certificate (if available) ────────────────────────────────────────
   const fetchCertificate = async () => {
     try {
       setCertificateLoading(true);
@@ -101,7 +95,6 @@ const ActiveInternship = () => {
     }
   };
 
-  // ── Download certificate ───────────────────────────────────────────────────
   const handleDownloadCertificate = async () => {
     if (!certificate) return;
     try {
@@ -117,14 +110,13 @@ const ActiveInternship = () => {
 
   useEffect(() => {
     fetchActiveInternship();
-    fetchCertificate(); // Check for certificate
+    fetchCertificate();
   }, [fetchActiveInternship]);
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'long', day: 'numeric',
+      year: 'numeric', month: 'short', day: 'numeric',
     });
   };
 
@@ -133,72 +125,46 @@ const ActiveInternship = () => {
     try {
       const start = new Date(startDate);
       const now = new Date();
-      
-      // Calculate difference in calendar days using UTC to avoid DST/timezone issues
       const startUTC = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
       const nowUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-      
-      const diffDays = Math.floor((nowUTC - startUTC) / (1000 * 60 * 60 * 24));
-      return Math.max(0, diffDays);
+      return Math.max(0, Math.floor((nowUTC - startUTC) / (1000 * 60 * 60 * 24)));
     } catch (e) {
-      console.error("Date parsing error:", e);
       return 0;
     }
   };
 
-  // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="ai-page">
         <Header title="Active Internship" subtitle="Loading your internship details..." />
-        <div className="ai-loading">
-          <div className="ai-spinner" />
-          <p>Loading internship details...</p>
+        <div className="ai-content">
+          <div className="ai-loading-mini">
+            <div className="ai-spinner-mini" />
+            <span>Loading internship details...</span>
+          </div>
         </div>
       </div>
     );
   }
 
-  // ── No active internship ──────────────────────────────────────────────────
   if (error || !internshipData) {
     return (
       <div className="ai-page">
         <Header title="Active Internship" />
         <div className="ai-content">
-          <div className="ai-empty-state">
-            <div className="ai-empty-illustration">
-              <div className="ai-empty-icon-container">
-                <GraduationCap size={64} strokeWidth={1.5} />
-              </div>
-              <div className="ai-empty-particles">
-                <div className="particle"></div>
-                <div className="particle"></div>
-                <div className="particle"></div>
-              </div>
+          <div className="ai-empty-premium">
+            <div className="ai-empty-icon-ring">
+              <GraduationCap size={32} strokeWidth={1.5} />
             </div>
-            
-            <div className="ai-empty-content">
-              <h2>No Active Internship</h2>
-              <p>You don't have an active internship yet. Apply to internships to get started on your professional journey!</p>
-              
-              <div className="ai-empty-actions">
-                <button
-                  className="ai-cta-btn primary"
-                  onClick={() => navigate('/student/search-internships')}
-                >
-                  <Search size={18} />
-                  <span>Browse Internships</span>
-                  <ArrowRight size={16} />
-                </button>
-                
-                <button
-                  className="ai-cta-btn secondary"
-                  onClick={() => navigate('/student/applications')}
-                >
-                  <Eye size={18} />
-                  <span>View Applications</span>
-                </button>
-              </div>
+            <h2 className="ai-empty-title">No Active Internship</h2>
+            <p className="ai-empty-desc">You don't have an active internship yet. Apply to internships to get started on your professional journey!</p>
+            <div className="ai-cta-group">
+              <button className="ai-cta-btn-premium primary" onClick={() => navigate('/student/search-internships')}>
+                <Search size={14} /> Scan Internships <ArrowRight size={14} />
+              </button>
+              <button className="ai-cta-btn-premium secondary" onClick={() => navigate('/student/applications')}>
+                <Eye size={14} /> View Applications
+              </button>
             </div>
           </div>
         </div>
@@ -210,20 +176,17 @@ const ActiveInternship = () => {
   const durationMonths = parseInt(internshipData.internship_duration) || 1;
   let totalDays = durationMonths * 30;
   
-  // Progress calculation
   const reportsSubmittedCount = Array.isArray(reports) ? reports.length : 0;
   const isReportsFinished = reportsSubmittedCount >= durationMonths && durationMonths > 0;
 
   let progressPct = 0;
   if (internshipData.student_internship_status === 'COMPLETED' || isReportsFinished) {
     progressPct = 100;
-    daysElapsed = totalDays; // Show full duration as elapsed
+    daysElapsed = totalDays;
   } else if (totalDays > 0) {
     const timeProgress = Math.round((daysElapsed / totalDays) * 100);
     const reportProgress = Math.round((reportsSubmittedCount / durationMonths) * 100);
     progressPct = Math.min(100, Math.max(timeProgress, reportProgress));
-
-    // If it started today, show at least 1% for visual feedback
     if (daysElapsed === 0 && new Date(internshipData.start_date).toDateString() === new Date().toDateString()) {
       progressPct = Math.max(progressPct, 1);
     }
@@ -231,10 +194,7 @@ const ActiveInternship = () => {
   progressPct = Math.min(100, Math.max(0, progressPct));
 
   const monthsElapsed = isReportsFinished ? durationMonths : Math.min(durationMonths, Math.max(reportsSubmittedCount, Math.floor(daysElapsed / 30)));
-  const remainingMonths = Math.max(0, durationMonths - monthsElapsed);
   const currentMonth = Math.min(durationMonths, monthsElapsed + 1);
-  const daysInCurrentMonth = daysElapsed % 30;
-
   const advisorName = internshipData.advisor_name;
   const advisorEmail = internshipData.advisor_email;
 
@@ -246,83 +206,100 @@ const ActiveInternship = () => {
       />
 
       <div className="ai-content">
-
-        {/* Status Banner */}
-        <div className="ai-status-banner">
-          <div className="ai-status-left">
-            <span className="ai-status-dot" />
-            <span className="ai-status-text">
-              {internshipData.student_internship_status === 'COMPLETED' 
-                ? 'Internship Completed' 
-                : `Month ${currentMonth} of ${durationMonths} In Progress`}
-            </span>
-          </div>
-          <span className="ai-days-badge">{daysElapsed} days total</span>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="ai-progress-card">
-          <div className="ai-progress-header">
-            <span className="ai-progress-label">Overall Progress</span>
-            <span className="ai-progress-pct">{progressPct}%</span>
-          </div>
-          <div className="ai-progress-track">
-            <div className="ai-progress-fill" style={{ width: `${progressPct}%` }} />
-          </div>
-          <div className="ai-progress-meta">
-            <div className="ai-progress-stat">
-              <span className="ai-stat-val">{monthsElapsed}</span>
-              <span className="ai-stat-label">Months Completed</span>
+        
+        {/* Top Status & Progress Bar (Combined & Slim) */}
+        <div className="ai-glass-card ai-top-dashboard">
+          <div className="ai-status-widget">
+            <div className="ai-status-row">
+              <span className="ai-status-dot" />
+              <span className="ai-status-text">
+                {internshipData.student_internship_status === 'COMPLETED' ? 'Completed' : `Month ${currentMonth} / ${durationMonths}`}
+              </span>
             </div>
-            <div className="ai-progress-stat">
-              <span className="ai-stat-val">{remainingMonths}</span>
-              <span className="ai-stat-label">Months Remaining</span>
+            <span className="ai-days-badge">{daysElapsed} Days Active</span>
+          </div>
+          
+          <div className="ai-progress-widget">
+            <div className="ai-progress-header">
+              <span className="ai-progress-label">Completion Progress</span>
+              <span className="ai-progress-pct">{progressPct}%</span>
             </div>
-            <div className="ai-progress-stat">
-              <span className="ai-stat-val">{daysElapsed}</span>
-              <span className="ai-stat-label">Total Days</span>
+            <div className="ai-progress-track">
+              <div className="ai-progress-fill" style={{ width: `${progressPct}%` }} />
+            </div>
+            <div className="ai-progress-stats">
+              <span><strong>{monthsElapsed}</strong> mo completed</span>
+              <span><strong>{reportsSubmittedCount}</strong> reports</span>
             </div>
           </div>
         </div>
 
-        <div className="ai-grid">
-
-          {/* ── Left column ── */}
-          <div className="ai-left">
-
-            {/* Internship Details */}
-            <div className="ai-card">
+        <div className="ai-layout-grid">
+          
+          {/* Main Left Column */}
+          <div className="ai-main-col">
+            
+            {/* Combined Details & Contact */}
+            <div className="ai-glass-card">
               <h3 className="ai-card-title">
-                <ClipboardList size={20} />
-                Internship Details
+                <div className="ai-premium-icon"><ClipboardList size={20} /></div>
+                Sector Details & Contact
               </h3>
-              <div className="ai-info-grid">
-                <InfoRow label="Position"  value={internshipData.internship_title} />
-                <InfoRow label="Company"   value={internshipData.company_name} />
-                <InfoRow label="Location"  value={internshipData.internship_location || '—'} />
-                <InfoRow label="Duration"  value={`${internshipData.internship_duration} months`} />
-                <InfoRow label="Start Date" value={formatDate(internshipData.start_date)} />
-                <InfoRow label="End Date"   value={formatDate(internshipData.end_date)} />
-                <InfoRow label="Status"     value="Active" highlight />
+              <div className="ai-detail-grid">
+                <div className="ai-info-block">
+                  <span className="ai-info-label"><Briefcase /> Position</span>
+                  <span className="ai-info-value">{internshipData.internship_title}</span>
+                </div>
+                <div className="ai-info-block">
+                  <span className="ai-info-label"><Building2 /> Company</span>
+                  <span className="ai-info-value">{internshipData.company_name}</span>
+                </div>
+                <div className="ai-info-block">
+                  <span className="ai-info-label"><MapPin /> Location</span>
+                  <span className="ai-info-value">{internshipData.internship_location || '—'}</span>
+                </div>
+                <div className="ai-info-block">
+                  <span className="ai-info-label"><Calendar /> Timeline</span>
+                  <span className="ai-info-value">{formatDate(internshipData.start_date)} – {formatDate(internshipData.end_date)}</span>
+                </div>
+                {internshipData.company_contact_name && (
+                  <div className="ai-info-block">
+                    <span className="ai-info-label"><UserCheck /> Contact Person</span>
+                    <span className="ai-info-value">{internshipData.company_contact_name}</span>
+                  </div>
+                )}
+                {internshipData.company_phone && (
+                  <div className="ai-info-block">
+                    <span className="ai-info-label"><Phone /> Phone</span>
+                    <span className="ai-info-value">{internshipData.company_phone}</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Feedback Timeline */}
-            <div className="ai-card">
-              <div className="ai-card-title-row">
-                <h3 className="ai-card-title">
-                  <MessageSquare size={20} />
-                  Advisor Feedback
-                </h3>
-                <span className="ai-badge-count">
-                  {feedbackLoading ? '…' : `${feedbacks.length} messages`}
-                </span>
+            {/* Advisor Hub (Profile + Feedback) */}
+            <div className="ai-glass-card">
+              <h3 className="ai-card-title">
+                <div className="ai-premium-icon"><MessageSquare size={20} /></div>
+                Advisor Hub
+              </h3>
+              
+              <div className="ai-advisor-header">
+                <div className="ai-advisor-avatar">
+                  {advisorName ? advisorName.charAt(0).toUpperCase() : '?'}
+                </div>
+                <div className="ai-advisor-meta">
+                  <span className="ai-advisor-name">{advisorName || 'Pending Assignment'}</span>
+                  {advisorEmail && (
+                    <a href={`mailto:${advisorEmail}`} className="ai-advisor-email">
+                      <Mail size={10} /> {advisorEmail}
+                    </a>
+                  )}
+                </div>
               </div>
 
               {feedbackLoading ? (
-                <div className="ai-no-feedback">
-                  <p>Loading feedback...</p>
-                </div>
+                <div className="ai-no-feedback">Loading feedback logs...</div>
               ) : feedbacks.length > 0 ? (
                 <div className="ai-timeline">
                   {feedbacks.map((fb, idx) => (
@@ -330,12 +307,7 @@ const ActiveInternship = () => {
                       <div className="ai-timeline-dot" />
                       <div className="ai-timeline-content">
                         <div className="ai-timeline-meta">
-                          <span className="ai-timeline-author">
-                            {fb.advisor_name || advisorName || 'Your Advisor'}
-                          </span>
-                          <span className="ai-timeline-date">
-                            {formatDate(fb.created_at)}
-                          </span>
+                          <span className="ai-timeline-date">{formatDate(fb.created_at)}</span>
                         </div>
                         <p className="ai-timeline-text">{fb.feedback_text}</p>
                       </div>
@@ -344,201 +316,63 @@ const ActiveInternship = () => {
                 </div>
               ) : (
                 <div className="ai-no-feedback">
-                  <p>
-                    {advisorName
-                      ? 'No feedback yet. Your advisor will send feedback during your internship.'
-                      : 'Your advisor will be assigned soon and can then send feedback.'}
-                  </p>
+                  No feedback transmissions recorded yet.
                 </div>
               )}
             </div>
+
           </div>
 
-          {/* ── Right column ── */}
-          <div className="ai-right">
-
-            {/* Advisor Card */}
-            <div className="ai-card ai-card-highlight">
-              <h3 className="ai-card-title">
-                <UserCheck size={20} />
-                Your Advisor
-              </h3>
-              {advisorName ? (
-                <div className="ai-advisor-info">
-                  <div className="ai-advisor-avatar">
-                    {advisorName.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="ai-advisor-name">{advisorName}</div>
-                    {advisorEmail && (
-                      <a href={`mailto:${advisorEmail}`} className="ai-advisor-email">
-                        <Mail size={14} style={{ marginRight: '6px' }} />
-                        {advisorEmail}
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="ai-no-feedback">
-                  <p>Advisor not assigned yet. Your department will assign one soon.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Company Contact */}
-            <div className="ai-card">
-              <h3 className="ai-card-title">
-                <Building2 size={20} />
-                Company Contact
-              </h3>
-              <div className="ai-info-grid">
-                {internshipData.company_contact_name && (
-                  <InfoRow label="Contact" value={internshipData.company_contact_name} />
-                )}
-                {internshipData.company_email && (
-                  <InfoRow label="Email" value={internshipData.company_email} />
-                )}
-                {internshipData.company_phone && (
-                  <InfoRow label="Phone" value={internshipData.company_phone} />
-                )}
-                {internshipData.company_address && (
-                  <InfoRow label="Address" value={internshipData.company_address} />
-                )}
-              </div>
-              <div className="ai-company-note">
-                <MapPin size={16} />
-                <span>Visit the company physically to report for your internship.</span>
-              </div>
-            </div>
-
+          {/* Right Side Column */}
+          <div className="ai-side-col">
+            
             {/* Quick Actions */}
-            <div className="ai-card">
+            <div className="ai-glass-card">
               <h3 className="ai-card-title">
-                <TrendingUp size={20} />
-                Quick Actions
+                <div className="ai-premium-icon"><TrendingUp size={20} /></div>
+                Quick Links
               </h3>
-              <div className="ai-actions">
-                <button
-                  className="ai-action-btn"
-                  onClick={() => navigate('/student/applications')}
-                >
-                  <ClipboardList size={18} />
-                  <span>View Application</span>
+              <div className="ai-actions-group">
+                <button className="ai-action-btn" onClick={() => navigate('/student/applications')}>
+                  <div className="ai-action-icon"><Eye size={16} /></div> View Application Form
                 </button>
-                <button
-                  className="ai-action-btn"
-                  onClick={() => navigate('/student/reports')}
-                >
-                  <FileText size={18} />
-                  <span>Monthly Reports</span>
+                <button className="ai-action-btn" onClick={() => navigate('/student/reports')}>
+                  <div className="ai-action-icon"><FileText size={16} /></div> Submit Monthly Report
                 </button>
-                <button
-                  className="ai-action-btn ai-action-btn-secondary"
-                  onClick={() => navigate('/notifications')}
-                >
-                  <Bell size={18} />
-                  <span>Notifications</span>
+                <button className="ai-action-btn" onClick={() => navigate('/notifications')}>
+                  <div className="ai-action-icon"><Bell size={16} /></div> Notification Center
                 </button>
               </div>
             </div>
 
-            {/* Certificate Card (if available) */}
-            {certificate && (
-              <div className="ai-card ai-certificate-card">
-                <div className="ai-certificate-header">
-                  <div className="ai-certificate-icon">
-                    <Award size={32} color="#15803D" />
-                  </div>
+            {/* Certificate Ticket */}
+            {certificateLoading && !certificate ? (
+              <div className="ai-glass-card"><div className="ai-loading-mini"><div className="ai-spinner-mini" /></div></div>
+            ) : certificate ? (
+              <div className="ai-cert-ticket">
+                <div className="ai-cert-header">
+                  <div className="ai-cert-icon"><Award size={20} /></div>
                   <div>
-                    <h3 className="ai-card-title" style={{ marginBottom: '4px' }}>
-                      Your Certificate
-                    </h3>
-                    <p className="ai-certificate-subtitle">
-                      Internship completion certificate
-                    </p>
+                    <h4 className="ai-cert-title">Completion Certificate</h4>
+                    <span className="ai-cert-status">{certificate.is_generated ? 'Ready' : 'Generating'}</span>
                   </div>
                 </div>
-
-                <div className="ai-certificate-details">
-                  <div className="ai-certificate-info-row">
-                    <span className="ai-certificate-label">Certificate ID</span>
-                    <span className="ai-certificate-value">{certificate.certificate_id}</span>
-                  </div>
-                  <div className="ai-certificate-info-row">
-                    <span className="ai-certificate-label">Issue Date</span>
-                    <span className="ai-certificate-value">{formatDate(certificate.issue_date)}</span>
-                  </div>
-                  {certificate.performance_grade && (
-                    <div className="ai-certificate-info-row">
-                      <span className="ai-certificate-label">Grade</span>
-                      <span className="ai-certificate-value ai-certificate-grade">
-                        {certificate.performance_grade}
-                      </span>
-                    </div>
-                  )}
-                  <div className="ai-certificate-info-row">
-                    <span className="ai-certificate-label">Status</span>
-                    <span className="ai-certificate-status">
-                      {certificate.is_generated ? '✓ Ready' : '⏳ Generating...'}
-                    </span>
-                  </div>
-                </div>
-
-                {certificate.is_generated ? (
-                  <button
-                    className="ai-certificate-download-btn"
-                    onClick={handleDownloadCertificate}
-                    disabled={downloadingCert}
-                  >
-                    {downloadingCert ? (
-                      <>
-                        <span className="ai-spinner-small"></span>
-                        <span>Downloading...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Download size={18} />
-                        <span>Download Certificate</span>
-                      </>
-                    )}
+                {certificate.is_generated && (
+                  <button className="ai-cert-btn" onClick={handleDownloadCertificate} disabled={downloadingCert}>
+                    {downloadingCert ? 'Downloading...' : <><Download size={14} /> Download PDF</>}
                   </button>
-                ) : (
-                  <div className="ai-certificate-generating">
-                    <span className="ai-spinner-small"></span>
-                    Certificate is being generated...
-                  </div>
                 )}
-
-                <button
-                  className="ai-certificate-verify-btn"
-                  onClick={() => window.open(`/verify-certificate/${certificate.verification_code}`, '_blank')}
-                >
-                  <Link2 size={18} />
-                  <span>Verify Certificate Online</span>
-                </button>
+                <a href={`/verify-certificate/${certificate.verification_code}`} target="_blank" rel="noreferrer" className="ai-cert-link">
+                  Verify Online →
+                </a>
               </div>
-            )}
+            ) : null}
 
-            {/* Certificate Loading State */}
-            {certificateLoading && !certificate && (
-              <div className="ai-card">
-                <div className="ai-no-feedback">
-                  <p>Checking for certificate...</p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-const InfoRow = ({ label, value, highlight }) => (
-  <div className="ai-info-row">
-    <span className="ai-info-label">{label}</span>
-    <span className={`ai-info-value ${highlight ? 'ai-info-highlight' : ''}`}>{value}</span>
-  </div>
-);
 
 export default ActiveInternship;

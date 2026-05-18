@@ -167,6 +167,24 @@ class StudentProfile(models.Model):
         blank=True, 
         help_text='City, Country'
     )
+    
+    # LOCATION PREFERENCES FOR INTERNSHIP PLACEMENT (REQUIRED)
+    preferred_location_1 = models.CharField(
+        max_length=100,
+        default='Addis Ababa',
+        help_text='First choice location for internship (e.g., Addis Ababa, Dire Dawa) - REQUIRED'
+    )
+    preferred_location_2 = models.CharField(
+        max_length=100,
+        default='Dire Dawa',
+        help_text='Second choice location for internship - REQUIRED'
+    )
+    preferred_location_3 = models.CharField(
+        max_length=100,
+        default='Bahir Dar',
+        help_text='Third choice location for internship - REQUIRED'
+    )
+    
     experience = models.TextField(
         blank=True,
         help_text='Past roles, projects, or work experience'
@@ -328,6 +346,32 @@ class CompanyProfile(models.Model):
     )
     website = models.URLField(max_length=255, blank=True, null=True)
     
+    # Supervisor Information (for student-advisor communication)
+    supervisor_name = models.CharField(
+        max_length=255, 
+        blank=True,
+        default='',
+        help_text='Name of the supervisor overseeing interns (Required for active internships)'
+    )
+    supervisor_email = models.EmailField(
+        max_length=255, 
+        blank=True,
+        default='',
+        help_text='Email address of the supervisor (Required for active internships)'
+    )
+    supervisor_phone = models.CharField(
+        max_length=20, 
+        blank=True,
+        default='',
+        help_text='Phone number of the supervisor (Required for active internships)'
+    )
+    supervisor_title = models.CharField(
+        max_length=100, 
+        blank=True,
+        default='',
+        help_text='Job title of the supervisor (Required for active internships)'
+    )
+    
     # Certificate branding fields
     company_logo = models.ImageField(
         upload_to='uploads/company_logos/%Y/%m/',
@@ -390,6 +434,11 @@ class AdvisorProfile(models.Model):
         upload_to='uploads/advisors/%Y/%m/',
         validators=[validate_pdf_file],
         help_text='University staff ID card or appointment letter (PDF, max 5MB)'
+    )
+    advising_location = models.TextField(
+        blank=True,
+        null=True,
+        help_text='Preferred location for advising students (e.g., Office Building A, Room 205)'
     )
     
     # DEPARTMENT HEAD OVERSIGHT

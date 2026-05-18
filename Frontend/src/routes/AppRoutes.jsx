@@ -15,7 +15,9 @@ import Register from '../pages/auth/Register';
 import OAuthCallback from '../pages/auth/OAuthCallback';
 import LandingPage from '../pages/public/LandingPage';
 import CompanyDetail from '../pages/public/CompanyDetail';
-import { StudentDashboard, CompanyDashboard, AdvisorDashboard } from '../pages/Dashboards';
+import CompanyInternships from '../pages/public/CompanyInternships';
+import { StudentDashboard, AdvisorDashboard } from '../pages/Dashboards';
+import CompanyDashboardPremium from '../pages/company/CompanyDashboardPremium';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminUserList from '../pages/admin/AdminUserList';
 import AdminStudentDetail from '../pages/admin/StudentDetail';
@@ -28,6 +30,7 @@ import NotificationsPage from '../pages/common/NotificationsPage';
 import Messages from '../pages/common/MessagesModern';
 import DepartmentDashboard from '../pages/department/DepartmentDashboard';
 import Students from '../pages/department/Students';
+import DepartmentStudentDetail from '../pages/department/StudentDetail';
 import Advisors from '../pages/department/Advisors';
 import AdvisorStudents from '../pages/department/AdvisorStudents';
 import AddAdvisor from '../pages/department/AddAdvisor';
@@ -38,10 +41,13 @@ import Reports from '../pages/department/Reports';
 import StudentsValidation from '../pages/department/StudentsValidation';
 import Escalations from '../pages/department/Escalations';
 import DepartmentCycles from '../pages/department/DepartmentCycles';
+import AdvisorOverloadResolution from '../pages/department/AdvisorOverloadResolution';
 import PostInternship from '../pages/company/PostInternship';
 import MyInternships from '../pages/company/MyInternships';
 import Applications from '../pages/company/Applications';
-import ReportSubmission from '../pages/company/ReportSubmission';
+import ReportSubmission from '../pages/company/ReportSubmissionModern';
+import CompanyInternshipDetail from '../pages/company/InternshipDetail';
+
 import SearchInternships from '../pages/student/SearchInternships';
 import MyApplications from '../pages/student/MyApplications';
 import InternshipDetail from '../pages/student/InternshipDetail';
@@ -51,6 +57,7 @@ import StudentReports from '../pages/student/StudentReports';
 import MyStudents from '../pages/advisor/MyStudents';
 import StudentDetail from '../pages/advisor/StudentDetail';
 import AdvisorReports from '../pages/advisor/AdvisorReports';
+import AdvisorProfile from '../pages/advisor/AdvisorProfile';
 import SubmitFinalReport from '../pages/company/SubmitFinalReport';
 import AdvisorFinalReports from '../pages/advisor/AdvisorFinalReports';
 import AdvisorEvaluationForm from '../pages/advisor/AdvisorEvaluationForm';
@@ -166,6 +173,8 @@ const AppRoutes = () => {
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/company/:id" element={<CompanyDetail />} /> {/* :id is company name */}
+              <Route path="/company/:id/internships" element={<CompanyInternships />} /> {/* Company internships list */}
+              <Route path="/internship/:id" element={<InternshipDetail />} /> {/* Public internship detail */}
               <Route path="/login"                       element={<Login />} />
               <Route path="/register"                    element={<Register />} />
               <Route path="/auth/callback"               element={<OAuthCallback />} />
@@ -205,6 +214,11 @@ const AppRoutes = () => {
 
 
               {/* ── Student Routes ── */}
+              {/* Redirect /student/ to /student/dashboard */}
+              <Route
+                path="/student"
+                element={<Navigate to="/student/dashboard" replace />}
+              />
               <Route
                 path="/student/dashboard"
                 element={
@@ -237,13 +251,7 @@ const AppRoutes = () => {
               />
               <Route
                 path="/student/internships/:id"
-                element={
-                  <PrivateRoute>
-                    <RoleRoute allowedRoles="STUDENT">
-                      <InternshipDetail />
-                    </RoleRoute>
-                  </PrivateRoute>
-                }
+                element={<InternshipDetail />}
               />
               <Route
                 path="/student/active-internship"
@@ -322,12 +330,17 @@ const AppRoutes = () => {
               />
 
               {/* ── Company Routes ── */}
+              {/* Redirect /company/ to /company/dashboard */}
+              <Route
+                path="/company"
+                element={<Navigate to="/company/dashboard" replace />}
+              />
               <Route
                 path="/company/dashboard"
                 element={
                   <PrivateRoute>
                     <RoleRoute allowedRoles="COMPANY">
-                      <CompanyDashboard />
+                      <CompanyDashboardPremium />
                     </RoleRoute>
                   </PrivateRoute>
                 }
@@ -338,6 +351,16 @@ const AppRoutes = () => {
                   <PrivateRoute>
                     <RoleRoute allowedRoles="COMPANY">
                       <PostInternship />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/company/internship/:id"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="COMPANY">
+                      <CompanyInternshipDetail />
                     </RoleRoute>
                   </PrivateRoute>
                 }
@@ -397,6 +420,11 @@ const AppRoutes = () => {
               />
 
               {/* ── Advisor Routes ── */}
+              {/* Redirect /advisor/ to /advisor/dashboard */}
+              <Route
+                path="/advisor"
+                element={<Navigate to="/advisor/dashboard" replace />}
+              />
               <Route
                 path="/advisor/dashboard"
                 element={
@@ -431,6 +459,17 @@ const AppRoutes = () => {
               {/* PHASE 8: Monthly reports view */}
               <Route
                 path="/advisor/reports"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="ADVISOR">
+                      <AdvisorReports />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+              {/* Student-specific monthly reports */}
+              <Route
+                path="/advisor/students/:id/reports"
                 element={
                   <PrivateRoute>
                     <RoleRoute allowedRoles="ADVISOR">
@@ -474,7 +513,24 @@ const AppRoutes = () => {
                 }
               />
 
+              {/* Advisor Profile */}
+              <Route
+                path="/advisor/profile"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="ADVISOR">
+                      <AdvisorProfile />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+
               {/* ── Department Head Routes ── */}
+              {/* Redirect /department/ to /department/dashboard */}
+              <Route
+                path="/department"
+                element={<Navigate to="/department/dashboard" replace />}
+              />
               <Route
                 path="/department/dashboard"
                 element={
@@ -491,6 +547,16 @@ const AppRoutes = () => {
                   <PrivateRoute>
                     <RoleRoute allowedRoles="DEPARTMENT_HEAD">
                       <Students />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/department/students/:id"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="DEPARTMENT_HEAD">
+                      <DepartmentStudentDetail />
                     </RoleRoute>
                   </PrivateRoute>
                 }
@@ -521,6 +587,16 @@ const AppRoutes = () => {
                   <PrivateRoute>
                     <RoleRoute allowedRoles="DEPARTMENT_HEAD">
                       <AddAdvisor />
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/department/advisor-overload"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles="DEPARTMENT_HEAD">
+                      <AdvisorOverloadResolution />
                     </RoleRoute>
                   </PrivateRoute>
                 }
@@ -623,6 +699,11 @@ const AppRoutes = () => {
               />
 
               {/* ── UIL Routes ── */}
+              {/* Redirect /uil/ to /uil/dashboard */}
+              <Route
+                path="/uil"
+                element={<Navigate to="/uil/dashboard" replace />}
+              />
               <Route
                 path="/uil/dashboard"
                 element={
@@ -665,6 +746,11 @@ const AppRoutes = () => {
               />
 
               {/* ── Admin Routes ── */}
+              {/* Redirect /admin/ to /admin/dashboard */}
+              <Route
+                path="/admin"
+                element={<Navigate to="/admin/dashboard" replace />}
+              />
               <Route
                 path="/admin/dashboard"
                 element={

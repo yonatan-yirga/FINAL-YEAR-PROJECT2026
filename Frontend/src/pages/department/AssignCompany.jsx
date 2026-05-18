@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import departmentService from '../../services/departmentService';
 import internshipService from '../../services/internshipService';
+import { useLocation } from 'react-router-dom';
 import {
   Users, Building2, Briefcase, ArrowRight, Search, CheckCircle,
   AlertTriangle, RefreshCw, Save, X, UserCheck, Calendar
@@ -15,6 +16,7 @@ import './AssignCompany.css';
 
 const AssignCompany = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [students, setStudents] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [internships, setInternships] = useState([]);
@@ -31,6 +33,8 @@ const AssignCompany = () => {
   // Search states
   const [studentSearch, setStudentSearch] = useState('');
   const [companySearch, setCompanySearch] = useState('');
+  const [locationFilter, setLocationFilter] = useState(''); // New: location filter
+  const [availableLocations, setAvailableLocations] = useState([]); // New: list of locations
 
   useEffect(() => {
     fetchData();
@@ -51,22 +55,44 @@ const AssignCompany = () => {
       setLoading(true);
       setError('');
       
-      // Fetch all students (we'll filter on frontend)
+      // Get studentId from query params if available
+      const queryParams = new URLSearchParams(location.search);
+      const studentIdFromQuery = queryParams.get('studentId');
+      
+      // Fetch all students (handle pagination)
       const studentsRes = await departmentService.getStudents();
       
-      // Fetch companies
+      // Fetch companies (handle pagination)
       const companiesRes = await departmentService.getCompanies();
       
       if (studentsRes.success && companiesRes.success) {
-        // Filter students who don't have accepted applications
-        // Show students with no internship status or NOT_APPLIED status
-        const availableStudents = studentsRes.data.filter(
-          s => !s.internship_status || 
-               s.internship_status === 'NOT_APPLIED' || 
-               s.internship_status === 'not_applied'
-        );
+        // Extract results from paginated response or use direct array
+        const allStudents = Array.isArray(studentsRes.data) ? studentsRes.data : studentsRes.data.results || [];
+        const allCompanies = Array.isArray(companiesRes.data) ? companiesRes.data : companiesRes.data.results || [];
+        
+        // Filter students who are available for placement
+        // If a student was specifically clicked (studentIdFromQuery), always include them
+        const availableStudents = allStudents.filter(s => {
+          if (studentIdFromQuery && s.id.toString() === studentIdFromQuery.toString()) return true;
+          
+          return !s.internship_status || 
+                 ['NOT_APPLIED', 'not_applied', 'APPLIED', 'applied'].includes(s.internship_status);
+        });
+
         setStudents(availableStudents);
-        setCompanies(companiesRes.data);
+        setCompanies(allCompanies);
+        
+        // Extract unique locations from companies
+        const locations = [...new Set(allCompanies.map(c => c.city).filter(Boolean))].sort();
+        setAvailableLocations(locations);
+        
+        // Auto-select student if studentId was passed
+        if (studentIdFromQuery) {
+          const targetStudent = availableStudents.find(s => s.id.toString() === studentIdFromQuery.toString());
+          if (targetStudent) {
+            setSelectedStudent(targetStudent);
+          }
+        }
       } else {
         setError(studentsRes.error || companiesRes.error || 'Failed to load data');
       }
@@ -115,7 +141,7 @@ const AssignCompany = () => {
         else if (response.data && Array.isArray(response.data.results)) {
           internshipData = response.data.results;
           console.log('✅ Data has results array, length:', internshipData.length);
-        } 
+        }
         // Check if response.data.data exists
         else if (response.data && response.data.data && Array.isArray(response.data.data)) {
           internshipData = response.data.data;
@@ -219,10 +245,12 @@ const AssignCompany = () => {
     (s.email || '').toLowerCase().includes(studentSearch.toLowerCase())
   );
 
-  const filteredCompanies = companies.filter(c =>
-    (c.company_name || '').toLowerCase().includes(companySearch.toLowerCase()) ||
-    (c.email || '').toLowerCase().includes(companySearch.toLowerCase())
-  );
+  const filteredCompanies = companies.filter(c => {
+    const matchesSearch = (c.company_name || '').toLowerCase().includes(companySearch.toLowerCase()) ||
+                         (c.email || '').toLowerCase().includes(companySearch.toLowerCase());
+    const matchesLocation = !locationFilter || c.city === locationFilter;
+    return matchesSearch && matchesLocation;
+  });
 
   if (loading) {
     return (
@@ -277,12 +305,36 @@ const AssignCompany = () => {
             <div className="ac-summary-flow">
               <div className={`ac-summary-item ${selectedStudent ? 'selected' : ''}`}>
                 <Users size={16} />
-                <span>{selectedStudent ? (selectedStudent.full_name || selectedStudent.student_name) : 'Select Student'}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span>{selectedStudent ? (selectedStudent.full_name || selectedStudent.student_name) : 'Select Student'}</span>
+                  {selectedStudent && (selectedStudent.preferred_location_1 || selectedStudent.preferred_location_2 || selectedStudent.preferred_location_3) && (
+                    <span style={{ 
+                      fontSize: '11px', 
+                      color: '#6B7280', 
+                      fontWeight: 500,
+                      marginTop: '2px'
+                    }}>
+                      📍 Prefers: {[selectedStudent.preferred_location_1, selectedStudent.preferred_location_2, selectedStudent.preferred_location_3].filter(Boolean).join(', ')}
+                    </span>
+                  )}
+                </div>
               </div>
               <ArrowRight size={18} className="ac-arrow" />
               <div className={`ac-summary-item ${selectedCompany ? 'selected' : ''}`}>
                 <Building2 size={16} />
-                <span>{selectedCompany ? selectedCompany.company_name : 'Select Company'}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span>{selectedCompany ? selectedCompany.company_name : 'Select Company'}</span>
+                  {selectedCompany && (
+                    <span style={{ 
+                      fontSize: '11px', 
+                      color: '#14a800', 
+                      fontWeight: 600,
+                      marginTop: '2px'
+                    }}>
+                      {selectedCompany.active_interns_count || 0} active intern{(selectedCompany.active_interns_count || 0) !== 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
               </div>
               <ArrowRight size={18} className="ac-arrow" />
               <div className={`ac-summary-item ${selectedInternship ? 'selected' : ''}`}>
@@ -352,6 +404,20 @@ const AssignCompany = () => {
                     <div className="ac-item-info">
                       <h4>{student.full_name || student.student_name}</h4>
                       <p>{student.university_id} • {student.email}</p>
+                      {/* Show location preferences if available */}
+                      {(student.preferred_location_1 || student.preferred_location_2 || student.preferred_location_3) && (
+                        <p style={{ 
+                          fontSize: '13px', 
+                          color: '#6B7280', 
+                          fontWeight: 500,
+                          marginTop: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          📍 Preferred locations: {[student.preferred_location_1, student.preferred_location_2, student.preferred_location_3].filter(Boolean).join(', ')}
+                        </p>
+                      )}
                     </div>
                     {selectedStudent?.id === student.id && (
                       <CheckCircle size={18} className="ac-check-icon" />
@@ -382,6 +448,34 @@ const AssignCompany = () => {
               />
             </div>
 
+            {/* Location Filter Dropdown */}
+            <div className="ac-filter-box" style={{ marginTop: '12px' }}>
+              <select
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #E2E8F0',
+                  fontSize: '14px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  background: 'white'
+                }}
+              >
+                <option value="">📍 All Locations ({companies.length} companies)</option>
+                {availableLocations.map(location => {
+                  const count = companies.filter(c => c.city === location).length;
+                  return (
+                    <option key={location} value={location}>
+                      📍 {location} ({count} {count === 1 ? 'company' : 'companies'})
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
             <div className="ac-list">
               {filteredCompanies.length === 0 ? (
                 <div className="ac-empty">
@@ -389,7 +483,21 @@ const AssignCompany = () => {
                   <p>No companies found</p>
                 </div>
               ) : (
-                filteredCompanies.map(company => (
+                filteredCompanies.map(company => {
+                  // Check if company location matches any student preference
+                  const matchesPreference = selectedStudent && company.city && (
+                    company.city === selectedStudent.preferred_location_1 ||
+                    company.city === selectedStudent.preferred_location_2 ||
+                    company.city === selectedStudent.preferred_location_3
+                  );
+                  
+                  const preferenceRank = selectedStudent && company.city ? (
+                    company.city === selectedStudent.preferred_location_1 ? 1 :
+                    company.city === selectedStudent.preferred_location_2 ? 2 :
+                    company.city === selectedStudent.preferred_location_3 ? 3 : null
+                  ) : null;
+                  
+                  return (
                   <div
                     key={company.id}
                     className={`ac-list-item ${selectedCompany?.id === company.id ? 'selected' : ''}`}
@@ -399,14 +507,49 @@ const AssignCompany = () => {
                       <Building2 size={18} />
                     </div>
                     <div className="ac-item-info">
-                      <h4>{company.company_name}</h4>
-                      <p>{company.city || 'Location not specified'} • {company.posted_internships || 0} internships</p>
+                      <h4>
+                        {company.company_name}
+                        {matchesPreference && (
+                          <span style={{
+                            marginLeft: '8px',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            background: '#DCFCE7',
+                            color: '#14a800',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            ✓ Matches preference {preferenceRank}
+                          </span>
+                        )}
+                      </h4>
+                      <p>
+                        📍 {company.city || 'Location not specified'} • 
+                        {company.posted_internships || 0} internships
+                      </p>
+                      {/* Show active interns count */}
+                      <p style={{ 
+                        fontSize: '13px', 
+                        color: '#14a800', 
+                        fontWeight: 600,
+                        marginTop: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <UserCheck size={14} />
+                        {company.active_interns_count || 0} student{(company.active_interns_count || 0) !== 1 ? 's' : ''} currently interning
+                      </p>
                     </div>
                     {selectedCompany?.id === company.id && (
                       <CheckCircle size={18} className="ac-check-icon" />
                     )}
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

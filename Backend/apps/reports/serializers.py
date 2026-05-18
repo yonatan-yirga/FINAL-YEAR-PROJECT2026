@@ -104,16 +104,20 @@ class ActiveInternSerializer(serializers.ModelSerializer):
     student_name      = serializers.CharField(source='student.get_full_name', read_only=True)
     university_id     = serializers.SerializerMethodField()
     internship_title  = serializers.CharField(source='internship.title',     read_only=True)
+    duration_months   = serializers.IntegerField(source='internship.duration_months', read_only=True)
     months_elapsed    = serializers.SerializerMethodField()
     reports_submitted = serializers.SerializerMethodField()
     has_final_report  = serializers.SerializerMethodField()
+    advisor_id        = serializers.IntegerField(source='advisor.id',        read_only=True)
+    advisor_name      = serializers.CharField(source='advisor.get_full_name', read_only=True)
 
     class Meta:
         model  = AdvisorAssignment
         fields = [
             'id', 'student_id', 'student_name', 'university_id',
-            'internship_title', 'months_elapsed', 'reports_submitted',
-            'has_final_report',
+            'internship_title', 'duration_months', 'months_elapsed', 
+            'reports_submitted', 'has_final_report',
+            'advisor_id', 'advisor_name',
         ]
 
     def get_university_id(self, obj):

@@ -900,7 +900,7 @@
 /* Table Actions */
 .ms-table-actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-end;
 }
 
@@ -918,11 +918,22 @@
   color: #6b7177;
 }
 
+.ms-table-action-btn-reports {
+  background: #14a800;
+  border-color: #14a800;
+  color: #ffffff;
+}
+
 .ms-table-action-btn:hover {
   background: #14a800;
   border-color: #14a800;
   color: #ffffff;
   transform: translateY(-1px);
+}
+
+.ms-table-action-btn-reports:hover {
+  background: #108a00;
+  border-color: #108a00;
 }
 
 /* Alert System - Upwork Colors */

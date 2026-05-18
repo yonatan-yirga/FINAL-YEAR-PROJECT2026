@@ -36,6 +36,9 @@ const Profile = () => {
     education: '',
     projects: '',
     certificates: '',
+    preferred_location_1: '',
+    preferred_location_2: '',
+    preferred_location_3: '',
   });
   const [cvFile, setCvFile] = useState(null);
   const [avatar, setAvatar] = useState(null);
@@ -69,6 +72,9 @@ const Profile = () => {
         education: p.education || '',
         projects: p.projects || '',
         certificates: p.certificates || '',
+        preferred_location_1: p.preferred_location_1 || '',
+        preferred_location_2: p.preferred_location_2 || '',
+        preferred_location_3: p.preferred_location_3 || '',
       });
     } else {
       setFeedback({ type: 'error', message: result.error });
@@ -413,6 +419,83 @@ const Profile = () => {
                       <option value="OTHER">Other</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Internship Location Preferences */}
+              <div className="profile-card">
+                <div className="profile-card-header">
+                  <h2 className="profile-card-title">
+                    <MapPin size={20} />
+                    Internship Location Preferences *
+                  </h2>
+                  <span className="profile-form-hint" style={{ fontSize: '13px', color: '#6B7280' }}>
+                    Select your 3 preferred locations for internship placement (Required)
+                  </span>
+                </div>
+                
+                <div className="profile-form-grid">
+                  <div className="profile-form-group">
+                    <label className="profile-form-label">
+                      First Choice Location *
+                    </label>
+                    <input
+                      type="text"
+                      name="preferred_location_1"
+                      value={formData.preferred_location_1}
+                      onChange={handleInputChange}
+                      className="profile-form-input"
+                      placeholder="e.g. Addis Ababa"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="profile-form-group">
+                    <label className="profile-form-label">
+                      Second Choice Location *
+                    </label>
+                    <input
+                      type="text"
+                      name="preferred_location_2"
+                      value={formData.preferred_location_2}
+                      onChange={handleInputChange}
+                      className="profile-form-input"
+                      placeholder="e.g. Dire Dawa"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="profile-form-group">
+                    <label className="profile-form-label">
+                      Third Choice Location *
+                    </label>
+                    <input
+                      type="text"
+                      name="preferred_location_3"
+                      value={formData.preferred_location_3}
+                      onChange={handleInputChange}
+                      className="profile-form-input"
+                      placeholder="e.g. Bahir Dar"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div style={{ 
+                  marginTop: '12px', 
+                  padding: '12px', 
+                  background: '#FEF3C7', 
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  color: '#92400E',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px'
+                }}>
+                  <AlertCircle size={16} style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <span>
+                    <strong>Required:</strong> You must provide 3 location preferences. Department Heads use these to assign you to companies in your preferred locations.
+                  </span>
                 </div>
               </div>
 

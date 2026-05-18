@@ -1,129 +1,27 @@
 /**
- * SystemOverview
- * UIL: system-wide statistics dashboard.
+ * SystemOverview - Premium Design with Charts
+ * UIL: system-wide statistics dashboard with beautiful visualizations
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import uilService from '../../services/uilService';
+import {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
+import {
+  Users, Briefcase, FileText, Award, TrendingUp, Activity,
+  UserCheck, Building2, GraduationCap, Building, CheckCircle,
+  XCircle, Clock, Zap, Target, ArrowRight
+} from 'lucide-react';
+import './SystemOverview.css';
 
-const ROLE_COLORS = {
-  STUDENT:         { bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
-  COMPANY:         { bg: '#F0FDF4', color: '#15803D', dot: '#22C55E' },
-  ADVISOR:         { bg: '#FFFBEB', color: '#B45309', dot: '#F59E0B' },
-  DEPARTMENT_HEAD: { bg: '#F5F3FF', color: '#6D28D9', dot: '#8B5CF6' },
-};
-
-/* ─── Metric Card ─────────────────────────────────────────────────────── */
-const Metric = ({ label, value, sub, accent }) => (
-  <div style={{
-    background: '#fff',
-    border: '1px solid #E5E7EB',
-    borderRadius: 12,
-    padding: '18px 20px',
-    position: 'relative',
-    overflow: 'hidden',
-    transition: 'box-shadow 0.15s ease',
-  }}
-    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.07)'}
-    onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
-  >
-    {accent && (
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0,
-        height: 3, background: accent, borderRadius: '12px 12px 0 0',
-      }} />
-    )}
-    <div style={{
-      fontSize: 11, fontWeight: 600,
-      color: '#9CA3AF',
-      textTransform: 'uppercase', letterSpacing: '0.08em',
-      marginBottom: 8,
-    }}>
-      {label}
-    </div>
-    <div style={{
-      fontSize: 28, fontWeight: 700,
-      color: '#111827', lineHeight: 1,
-      fontVariantNumeric: 'tabular-nums',
-    }}>
-      {value ?? '—'}
-    </div>
-    {sub && (
-      <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6, fontWeight: 500 }}>
-        {sub}
-      </div>
-    )}
-  </div>
-);
-
-/* ─── Section Label ───────────────────────────────────────────────────── */
-const SectionLabel = ({ children, top = 28 }) => (
-  <div style={{
-    fontSize: 11, fontWeight: 700,
-    color: '#6B7280',
-    textTransform: 'uppercase', letterSpacing: '0.09em',
-    marginTop: top, marginBottom: 12,
-    display: 'flex', alignItems: 'center', gap: 8,
-  }}>
-    <span style={{
-      display: 'inline-block', width: 16, height: 1.5,
-      background: '#D1D5DB', borderRadius: 2,
-    }} />
-    {children}
-  </div>
-);
-
-/* ─── Divider ─────────────────────────────────────────────────────────── */
-const Divider = ({ top = 28 }) => (
-  <div style={{
-    height: 1, background: '#F3F4F6',
-    marginTop: top, marginBottom: 0,
-  }} />
-);
-
-const grid2 = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0,1fr))', gap: 10 };
-const grid4 = { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0,1fr))', gap: 10 };
-
-/* ─── Quick Action Button ─────────────────────────────────────────────── */
-const QuickAction = ({ onClick, children }) => (
-  <button
-    onClick={onClick}
-    style={{
-      padding: '11px 16px',
-      background: '#fff',
-      border: '1px solid #E5E7EB',
-      borderRadius: 10,
-      color: '#374151',
-      fontSize: 13, fontWeight: 500,
-      cursor: 'pointer', textAlign: 'left',
-      display: 'flex', alignItems: 'center',
-      justifyContent: 'space-between',
-      transition: 'all 0.15s ease',
-      width: '100%',
-    }}
-    onMouseEnter={e => {
-      e.currentTarget.style.borderColor = '#6366F1';
-      e.currentTarget.style.color = '#6366F1';
-      e.currentTarget.style.background = '#F5F3FF';
-    }}
-    onMouseLeave={e => {
-      e.currentTarget.style.borderColor = '#E5E7EB';
-      e.currentTarget.style.color = '#374151';
-      e.currentTarget.style.background = '#fff';
-    }}
-  >
-    <span>{children}</span>
-    <span style={{ opacity: 0.5, fontSize: 14 }}>↗</span>
-  </button>
-);
-
-/* ─── Main Component ──────────────────────────────────────────────────── */
 const SystemOverview = () => {
-  const navigate  = useNavigate();
-  const [stats,   setStats]   = useState(null);
+  const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     uilService.getSystemStats()
@@ -131,229 +29,310 @@ const SystemOverview = () => {
         if (res.success) setStats(res.data);
         else setError(res.error || 'Failed to load system statistics.');
       })
-      .catch(() => setError('Failed to load system statistics.'))
+      .catch(() => setError('Failed to load dashboard statistics.'))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#F9FAFB' }}>
-      <Header title="System overview" subtitle="System-wide statistics and activity" />
-      <div style={{
-        padding: '80px', textAlign: 'center',
-        color: '#9CA3AF', fontSize: 14, fontWeight: 500,
-      }}>
-        <div style={{
-          display: 'inline-flex', gap: 6, alignItems: 'center',
-        }}>
-          <span style={{
-            width: 8, height: 8, borderRadius: '50%',
-            background: '#6366F1',
-            animation: 'pulse 1.2s ease-in-out infinite',
-          }} />
-          Loading statistics…
+  if (loading) {
+    return (
+      <div className="system-overview-premium">
+        <Header title="System Overview" subtitle="Comprehensive platform analytics" />
+        <div className="system-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading analytics...</p>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Prepare chart data
+  const userRoleData = stats ? [
+    { name: 'Students', value: stats.users?.students || 0, color: '#3b82f6' },
+    { name: 'Companies', value: stats.users?.companies || 0, color: '#f59e0b' },
+    { name: 'Advisors', value: stats.users?.advisors || 0, color: '#10b981' },
+    { name: 'Departments', value: stats.users?.department_heads || 0, color: '#8b5cf6' },
+  ] : [];
+
+  const internshipStatusData = stats ? [
+    { name: 'Open', value: stats.internships?.open || 0, color: '#10b981' },
+    { name: 'Filled', value: stats.internships?.filled || 0, color: '#3b82f6' },
+    { name: 'Closed', value: stats.internships?.closed || 0, color: '#6b7280' },
+  ] : [];
+
+  const applicationStatusData = stats ? [
+    { name: 'Pending', Applications: stats.applications?.pending || 0 },
+    { name: 'Accepted', Applications: stats.applications?.accepted || 0 },
+    { name: 'Rejected', Applications: stats.applications?.rejected || 0 },
+  ] : [];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F9FAFB', fontFamily: 'inherit' }}>
-      <Header title="System overview" subtitle="System-wide statistics and activity" />
+    <div className="system-overview-premium">
+      <Header title="System Overview" subtitle="Comprehensive platform analytics" />
 
-      <div style={{ maxWidth: 1060, margin: '0 auto', padding: '32px 24px' }}>
-
-        {/* Error Banner */}
+      <div className="system-content">
+        {/* Error Alert */}
         {error && (
-          <div style={{
-            background: '#FEF2F2',
-            border: '1px solid #FECACA',
-            borderRadius: 10,
-            padding: '12px 16px',
-            color: '#DC2626',
-            fontSize: 13, fontWeight: 500,
-            marginBottom: 24,
-            display: 'flex', alignItems: 'center', gap: 8,
-          }}>
-            <span>⚠</span> {error}
+          <div className="system-alert system-alert-error">
+            <Zap size={18} />
+            <span>{error}</span>
           </div>
         )}
 
-        {stats && <>
-
-          {/* ── Top KPIs ── */}
-          <div style={grid4}>
-            <Metric
-              label="Total users"
-              value={stats.users?.total}
-              sub={`+${stats.new_users_this_month ?? 0} this month`}
-              accent="linear-gradient(90deg, #6366F1, #8B5CF6)"
-            />
-            <Metric
-              label="Active internships"
-              value={stats.active_internships}
-              sub="Students currently placed"
-              accent="#22C55E"
-            />
-            <Metric
-              label="Open positions"
-              value={stats.internships?.open}
-              sub="Accepting applications"
-              accent="#F59E0B"
-            />
-            <Metric
-              label="Pending registrations"
-              value={stats.pending_registrations}
-              sub="Awaiting UIL approval"
-              accent="#EF4444"
-            />
-          </div>
-
-          {/* ── Users by role ── */}
-          <SectionLabel>Users by role</SectionLabel>
-          <div style={grid4}>
-            <Metric label="Students"   value={stats.users?.students} />
-            <Metric label="Companies"  value={stats.users?.companies} />
-            <Metric label="Advisors"   value={stats.users?.advisors} />
-            <Metric label="Dept heads" value={stats.users?.department_heads} />
-          </div>
-
-          <Divider top={28} />
-
-          {/* ── Two-column middle section ── */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)',
-            gap: 32, marginTop: 28, alignItems: 'start',
-          }}>
-
-            {/* Left column */}
-            <div>
-              <SectionLabel top={0}>Internships</SectionLabel>
-              <div style={grid2}>
-                <Metric label="Total posted" value={stats.internships?.total} />
-                <Metric label="Filled"       value={stats.internships?.filled} />
-                <Metric label="Closed"       value={stats.internships?.closed} />
-                <Metric label="Open"         value={stats.internships?.open} />
+        {stats && (
+          <>
+            {/* Top KPI Cards */}
+            <div className="system-kpi-grid">
+              <div className="system-kpi-card primary">
+                <div className="system-kpi-icon" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}>
+                  <Users size={22} strokeWidth={2.5} />
+                </div>
+                <div className="system-kpi-content">
+                  <div className="system-kpi-label">Total Users</div>
+                  <div className="system-kpi-value">{stats.users?.total || 0}</div>
+                  <div className="system-kpi-sub">
+                    <TrendingUp size={11} />
+                    +{stats.new_users_this_month || 0} this month
+                  </div>
+                </div>
               </div>
 
-              <SectionLabel>Applications</SectionLabel>
-              <div style={grid2}>
-                <Metric label="Total"    value={stats.applications?.total} />
-                <Metric label="Pending"  value={stats.applications?.pending} />
-                <Metric label="Accepted" value={stats.applications?.accepted} />
-                <Metric label="Rejected" value={stats.applications?.rejected} />
+              <div className="system-kpi-card success">
+                <div className="system-kpi-icon" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                  <Briefcase size={22} strokeWidth={2.5} />
+                </div>
+                <div className="system-kpi-content">
+                  <div className="system-kpi-label">Active Internships</div>
+                  <div className="system-kpi-value">{stats.active_internships || 0}</div>
+                  <div className="system-kpi-sub">Students currently placed</div>
+                </div>
+              </div>
+
+              <div className="system-kpi-card warning">
+                <div className="system-kpi-icon" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+                  <Target size={22} strokeWidth={2.5} />
+                </div>
+                <div className="system-kpi-content">
+                  <div className="system-kpi-label">Open Positions</div>
+                  <div className="system-kpi-value">{stats.internships?.open || 0}</div>
+                  <div className="system-kpi-sub">Accepting applications</div>
+                </div>
+              </div>
+
+              <div className="system-kpi-card danger">
+                <div className="system-kpi-icon" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>
+                  <Clock size={22} strokeWidth={2.5} />
+                </div>
+                <div className="system-kpi-content">
+                  <div className="system-kpi-label">Pending Registrations</div>
+                  <div className="system-kpi-value">{stats.pending_registrations || 0}</div>
+                  <div className="system-kpi-sub">Awaiting approval</div>
+                </div>
               </div>
             </div>
 
-            {/* Right column */}
-            <div>
-              <SectionLabel top={0}>Reports &amp; certificates</SectionLabel>
-              <div style={grid2}>
-                <Metric label="Monthly reports" value={stats.reports?.monthly_total} />
-                <Metric label="Final — done"    value={stats.reports?.final_completed} />
-                <Metric label="Final — pending" value={stats.reports?.final_pending} />
-                <Metric
-                  label="Certificates"
-                  value={stats.certificates?.issued}
-                  sub={`${stats.certificates?.generated ?? 0} PDFs generated`}
-                />
+            {/* Charts Section */}
+            <div className="system-charts-grid">
+              {/* User Distribution Pie Chart */}
+              <div className="system-chart-card">
+                <div className="system-chart-header">
+                  <div className="system-chart-title">
+                    <Users size={18} strokeWidth={2.5} />
+                    <h3>User Distribution by Role</h3>
+                  </div>
+                  <p>Platform user breakdown</p>
+                </div>
+                <div className="system-chart-body">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <PieChart>
+                      <Pie
+                        data={userRoleData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={85}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {userRoleData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="system-chart-legend">
+                    {userRoleData.map((item, idx) => (
+                      <div key={idx} className="legend-item">
+                        <span className="legend-dot" style={{ background: item.color }}></span>
+                        <span className="legend-label">{item.name}</span>
+                        <span className="legend-value">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <SectionLabel>Quick actions</SectionLabel>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <QuickAction onClick={() => navigate('/uil/pending-registrations')}>
-                  Review pending registrations ({stats.pending_registrations})
-                </QuickAction>
-                <QuickAction onClick={() => navigate('/uil/manage-users')}>
-                  Manage users ({stats.users?.total})
-                </QuickAction>
+              {/* Internship Status Pie Chart */}
+              <div className="system-chart-card">
+                <div className="system-chart-header">
+                  <div className="system-chart-title">
+                    <Briefcase size={18} strokeWidth={2.5} />
+                    <h3>Internship Status</h3>
+                  </div>
+                  <p>Current internship distribution</p>
+                </div>
+                <div className="system-chart-body">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <PieChart>
+                      <Pie
+                        data={internshipStatusData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={85}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {internshipStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="system-chart-legend">
+                    {internshipStatusData.map((item, idx) => (
+                      <div key={idx} className="legend-item">
+                        <span className="legend-dot" style={{ background: item.color }}></span>
+                        <span className="legend-label">{item.name}</span>
+                        <span className="legend-value">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Divider top={32} />
-
-          {/* ── Recently joined ── */}
-          {stats.recent_users?.length > 0 && (
-            <>
-              <SectionLabel top={28}>Recently joined</SectionLabel>
-              <div style={{
-                background: '#fff',
-                border: '1px solid #E5E7EB',
-                borderRadius: 12,
-                overflow: 'hidden',
-              }}>
-                {stats.recent_users.map((u, idx) => {
-                  const badge = ROLE_COLORS[u.role] || ROLE_COLORS.STUDENT;
-                  const roleLabel = u.role.replace('_', ' ')
-                    .toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-                  const isLast = idx === stats.recent_users.length - 1;
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        display: 'flex', alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '13px 20px',
-                        borderBottom: !isLast ? '1px solid #F3F4F6' : 'none',
-                        transition: 'background 0.1s ease',
+            {/* Application Status Bar Chart */}
+            <div className="system-chart-card-full">
+              <div className="system-chart-header">
+                <div className="system-chart-title">
+                  <FileText size={18} strokeWidth={2.5} />
+                  <h3>Application Status Overview</h3>
+                </div>
+                <p>Total applications: {stats.applications?.total || 0}</p>
+              </div>
+              <div className="system-chart-body">
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={applicationStatusData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="name" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '12px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      {/* Avatar + info */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{
-                          width: 32, height: 32, borderRadius: '50%',
-                          background: badge.bg,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 12, fontWeight: 700, color: badge.color,
-                          flexShrink: 0,
-                        }}>
-                          {u.email?.[0]?.toUpperCase() ?? '?'}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>
-                            {u.email}
-                          </div>
-                          {u.department && u.department !== '—' && (
-                            <div style={{ fontSize: 11, marginTop: 1, color: '#9CA3AF' }}>
-                              {u.department}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Badge + date */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{
-                          background: badge.bg, color: badge.color,
-                          borderRadius: 20, padding: '3px 10px',
-                          fontSize: 11, fontWeight: 600,
-                          display: 'inline-flex', alignItems: 'center', gap: 5,
-                        }}>
-                          <span style={{
-                            width: 5, height: 5, borderRadius: '50%',
-                            background: badge.dot, flexShrink: 0,
-                          }} />
-                          {roleLabel}
-                        </span>
-                        <span style={{
-                          fontSize: 11, minWidth: 76, textAlign: 'right',
-                          color: '#9CA3AF', fontWeight: 500,
-                          fontVariantNumeric: 'tabular-nums',
-                        }}>
-                          {u.created_at}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+                    />
+                    <Bar dataKey="Applications" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} />
+                    <defs>
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={1} />
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            </>
-          )}
+            </div>
 
-        </>}
+            {/* Stats Grid */}
+            <div className="system-stats-grid">
+              {/* Internships Stats */}
+              <div className="system-stats-card">
+                <div className="system-stats-header">
+                  <Briefcase size={16} strokeWidth={2.5} />
+                  <h4>Internships</h4>
+                </div>
+                <div className="system-stats-items">
+                  <div className="system-stat-item">
+                    <span className="stat-label">Total Posted</span>
+                    <span className="stat-value">{stats.internships?.total || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Filled</span>
+                    <span className="stat-value success">{stats.internships?.filled || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Open</span>
+                    <span className="stat-value warning">{stats.internships?.open || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Closed</span>
+                    <span className="stat-value muted">{stats.internships?.closed || 0}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Applications Stats */}
+              <div className="system-stats-card">
+                <div className="system-stats-header">
+                  <FileText size={16} strokeWidth={2.5} />
+                  <h4>Applications</h4>
+                </div>
+                <div className="system-stats-items">
+                  <div className="system-stat-item">
+                    <span className="stat-label">Total</span>
+                    <span className="stat-value">{stats.applications?.total || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Pending</span>
+                    <span className="stat-value warning">{stats.applications?.pending || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Accepted</span>
+                    <span className="stat-value success">{stats.applications?.accepted || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Rejected</span>
+                    <span className="stat-value danger">{stats.applications?.rejected || 0}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reports Stats */}
+              <div className="system-stats-card">
+                <div className="system-stats-header">
+                  <Activity size={16} strokeWidth={2.5} />
+                  <h4>Reports & Certificates</h4>
+                </div>
+                <div className="system-stats-items">
+                  <div className="system-stat-item">
+                    <span className="stat-label">Monthly Reports</span>
+                    <span className="stat-value">{stats.reports?.monthly_total || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Final Completed</span>
+                    <span className="stat-value success">{stats.reports?.final_completed || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Final Pending</span>
+                    <span className="stat-value warning">{stats.reports?.final_pending || 0}</span>
+                  </div>
+                  <div className="system-stat-item">
+                    <span className="stat-label">Certificates Issued</span>
+                    <span className="stat-value">{stats.certificates?.issued || 0}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </>
+        )}
       </div>
     </div>
   );

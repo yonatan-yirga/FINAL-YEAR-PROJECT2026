@@ -15,6 +15,7 @@ urlpatterns = [
     
     # Lists
     path('students/', DepartmentViewSet.as_view({'get': 'students'}), name='department-students'),
+    path('students/<int:pk>/detail/', DepartmentViewSet.as_view({'get': 'student_detail'}), name='department-student-detail'),
     path('advisors/', DepartmentViewSet.as_view({'get': 'advisors'}), name='department-advisors'),
     path('advisors/<int:pk>/students/', DepartmentViewSet.as_view({'get': 'advisor_students'}), name='department-advisor-students'),
     path('companies/', DepartmentViewSet.as_view({'get': 'companies'}), name='department-companies'),
@@ -23,6 +24,12 @@ urlpatterns = [
     path('unassigned-students/', DepartmentViewSet.as_view({'get': 'unassigned_students'}), name='department-unassigned-students'),
     path('assign-advisor/', DepartmentViewSet.as_view({'post': 'assign_advisor'}), name='department-assign-advisor'),
     path('add-advisor/', DepartmentViewSet.as_view({'post': 'add_advisor'}), name='department-add-advisor'),
+    path('bulk-add-advisors/', DepartmentViewSet.as_view({'post': 'bulk_add_advisors'}), name='department-bulk-add-advisors'),
+    
+    # Advisor Overload Resolution
+    path('advisors/overloaded/', DepartmentViewSet.as_view({'get': 'overloaded_advisors'}), name='department-overloaded-advisors'),
+    path('advisors/available/', DepartmentViewSet.as_view({'get': 'available_advisors'}), name='department-available-advisors'),
+    path('advisors/reassign/', DepartmentViewSet.as_view({'post': 'reassign_students'}), name='department-reassign-students'),
     
     # Company Assignment (Direct Placement)
     path('assign-company/', DepartmentViewSet.as_view({'post': 'assign_company'}), name='department-assign-company'),
@@ -56,4 +63,8 @@ urlpatterns = [
     path('escalations/create/', DepartmentViewSet.as_view({'post': 'create_escalation'}), name='department-create-escalation'),
     path('<int:pk>/escalations/resolve/', DepartmentViewSet.as_view({'post': 'resolve_escalation'}), name='department-resolve-escalation'),
     path('<int:pk>/escalations/escalate-to-uil/', DepartmentViewSet.as_view({'post': 'escalate_to_uil'}), name='department-escalate-to-uil'),
+    
+    # Missing Reports
+    path('missing-reports/', DepartmentViewSet.as_view({'get': 'missing_reports'}), name='department-missing-reports'),
+    path('missing-reports/send-reminder/', DepartmentViewSet.as_view({'post': 'send_report_reminder'}), name='department-send-report-reminder'),
 ]

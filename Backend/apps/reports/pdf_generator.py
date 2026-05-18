@@ -97,12 +97,6 @@ def _draw_dmu_logo(canvas, cx, cy, size):
     canvas.setFillColor(WHITE); canvas.circle(cx, cy, r*0.60, fill=1, stroke=0)
     canvas.setStrokeColor(GOLD); canvas.setLineWidth(0.8)
     canvas.circle(cx, cy, r*0.63, fill=0, stroke=1)
-    canvas.setFillColor(NAVY);  canvas.setFont(TITLE_FONT, size*0.21)
-    canvas.drawCentredString(cx, cy+size*0.04, 'DMU')
-    canvas.setStrokeColor(GOLD); canvas.setLineWidth(0.7)
-    canvas.line(cx-size*0.18, cy, cx+size*0.18, cy)
-    canvas.setFillColor(SLATE_MID); canvas.setFont(SANS_FONT, size*0.08)
-    canvas.drawCentredString(cx, cy-size*0.14, 'EST. 2011')
 
 class Letterhead(Flowable):
     def __init__(self, ref_no, academic_year, doc_date, width, logo_path=None):
@@ -129,10 +123,8 @@ class Letterhead(Flowable):
         xd = lx + logo_size + 6
         c.setStrokeColor(GOLD); c.setLineWidth(1.2); c.line(xd, 4, xd, h - 4)
         ref_box_x = w * 0.80; text_start = xd + 8
-        c.setFillColor(NAVY); c.setFont(TITLE_FONT, 11); c.drawString(text_start, h-16, 'DEBRE MARKOS UNIVERSITY')
         c.setFont(SANS_MED, 8); c.setFillColor(SLATE); c.drawString(text_start, h-30, 'Office of University Industry Linkage (UIL)')
-        c.setFont(SANS_FONT, 8); c.setFillColor(GOLD); c.drawString(text_start, h-44, 'Internship Management System')
-        c.setFont(ITALIC_FONT, 8); c.setFillColor(SLATE_MID); c.drawString(text_start, h-62, 'Official Evaluation Report')
+        c.setFont(ITALIC_FONT, 8); c.setFillColor(SLATE_MID); c.drawString(text_start, h-48, 'Official Evaluation Report')
         
         bw, bh = w - ref_box_x, h - 8
         c.setFillColor(LIGHT_BLUE); c.setStrokeColor(NAVY); c.setLineWidth(0.5); c.roundRect(ref_box_x, 4, bw, bh, 4, fill=1, stroke=1)
@@ -274,67 +266,104 @@ def generate_monthly_report_pdf(report):
     story = [
         Watermark(), 
         PageBorder(), 
-        Letterhead(f'DMU-IMS-MON-{report.id}', f'2023/2024', report.submitted_at.strftime('%Y-%m-%d'), content_w, logo_path), 
-        Spacer(1, 10),
+        Letterhead(f'DMU-IMS-MON-{report.id}', f'2023/2024', report.submitted_at.strftime('%B %d, %Y'), content_w, logo_path), 
+        Spacer(1, 12),
+        HRFlowable(width='100%', thickness=2, color=NAVY, spaceAfter=10),
         Paragraph(f'Monthly Progress Evaluation — Month {report.report_month}', S['doc_title']),
         Paragraph(f'Student: {student_name} \u00b7 Company: {company_name}', S['doc_subtitle']),
-        Spacer(1, 15)
+        Spacer(1, 18)
     ]
 
-    story.append(SectionHeader(f'Section 1 — Industry Performance Review', content_w))
-    story.append(Spacer(1, 10))
+    story.append(SectionHeader(f'Section 1 — Performance Overview', content_w))
+    story.append(Spacer(1, 12))
     
     perf_fg, perf_bg = PERF.get(report.performance_rating, (SLATE, LIGHT_BLUE))
     
-    stats = Table([[
-        Paragraph(f'{report.attendance_rate}%', S['stat_val']),
-        Paragraph(report.get_performance_rating_display(), ParagraphStyle('p', fontName=TITLE_FONT, fontSize=14, textColor=perf_fg, alignment=1))
-    ]], colWidths=[content_w/2, content_w/2])
+    # Enhanced stats table with clear labels and values
+    stat_label_style = ParagraphStyle('stat_lbl_custom', fontName=TITLE_FONT, fontSize=9, textColor=SLATE_MID, alignment=TA_CENTER, spaceAfter=6)
+    stat_value_style = ParagraphStyle('stat_val_custom', fontName=TITLE_FONT, fontSize=24, textColor=NAVY, alignment=TA_CENTER, leading=28)
+    perf_value_style = ParagraphStyle('perf_val_custom', fontName=TITLE_FONT, fontSize=20, textColor=perf_fg, alignment=TA_CENTER, leading=24)
+    
+    stats_data = [[
+        Table([
+            [Paragraph('ATTENDANCE RATE', stat_label_style)],
+            [Paragraph(f'{report.attendance_rate}%', stat_value_style)]
+        ], colWidths=[content_w/2 - 4]),
+        Table([
+            [Paragraph('PERFORMANCE RATING', stat_label_style)],
+            [Paragraph(report.get_performance_rating_display(), perf_value_style)]
+        ], colWidths=[content_w/2 - 4])
+    ]]
+    
+    stats = Table(stats_data, colWidths=[content_w/2, content_w/2])
     stats.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (0,0), LIGHT_BLUE),
         ('BACKGROUND', (1,0), (1,0), perf_bg),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOX', (0,0), (-1,-1), 0.5, RULE)
+        ('BOX', (0,0), (-1,-1), 1.5, NAVY),
+        ('INNERGRID', (0,0), (-1,-1), 0.8, RULE),
+        ('TOPPADDING', (0,0), (-1,-1), 18),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 18),
+        ('LEFTPADDING', (0,0), (-1,-1), 10),
+        ('RIGHTPADDING', (0,0), (-1,-1), 10)
     ]))
     story.append(stats)
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 16))
     
-    story.append(Paragraph('TASKS COMPLETED & MILESTONES:', S['label']))
+    story.append(Paragraph('TASKS COMPLETED & MILESTONES', S['label']))
+    story.append(Spacer(1, 6))
     story.append(_text_block(report.tasks_completed, S, content_w))
     
-    story.append(Spacer(1, 14))
-    story.append(SectionHeader('Section 2 — Scoring Breakdown', content_w))
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 18))
+    story.append(SectionHeader('Section 2 — Detailed Scoring Breakdown', content_w))
+    story.append(Spacer(1, 12))
+    
+    avg_score = (report.task_completion_score + report.skill_development_score + report.problem_solving_score + report.professionalism_score) / 4
     
     c_data = [
-        ['CRITERION', 'SCORE / 10'],
-        ['TASK COMPLETION', f'{report.task_completion_score} / 10'],
-        ['SKILL DEVELOPMENT', f'{report.skill_development_score} / 10'],
-        ['PROBLEM SOLVING', f'{report.problem_solving_score} / 10'],
-        ['PROFESSIONALISM', f'{report.professionalism_score} / 10'],
-        ['OVERALL AVG', f'{(report.task_completion_score + report.skill_development_score + report.problem_solving_score + report.professionalism_score)/4} / 10']
+        ['EVALUATION CRITERION', 'SCORE / 10'],
+        ['Task Completion', f'{report.task_completion_score} / 10'],
+        ['Skill Development', f'{report.skill_development_score} / 10'],
+        ['Problem Solving', f'{report.problem_solving_score} / 10'],
+        ['Professionalism', f'{report.professionalism_score} / 10'],
+        ['OVERALL AVERAGE', f'{avg_score:.1f} / 10']
     ]
-    ct = Table(c_data, colWidths=[content_w*0.7, content_w*0.3])
+    ct = Table(c_data, colWidths=[content_w*0.65, content_w*0.35])
     ct.setStyle(TableStyle([
         ('FONTNAME', (0,0), (-1,0), TITLE_FONT),
+        ('FONTSIZE', (0,0), (-1,-1), 10),
         ('BACKGROUND', (0,0), (-1,0), NAVY),
         ('TEXTCOLOR', (0,0), (-1,0), WHITE),
-        ('GRID', (0,0), (-1,-1), 0.5, RULE),
+        ('BACKGROUND', (0,5), (-1,5), GOLD_LIGHT),
+        ('FONTNAME', (0,5), (-1,5), TITLE_FONT),
+        ('TEXTCOLOR', (0,5), (-1,5), NAVY),
+        ('GRID', (0,0), (-1,-1), 0.8, RULE),
         ('ALIGN', (1,0), (1,-1), 'CENTER'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [WHITE, OFF_WHITE])
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0,1), (-1,4), [WHITE, OFF_WHITE]),
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('LEFTPADDING', (0,0), (-1,-1), 12),
+        ('RIGHTPADDING', (0,0), (-1,-1), 12)
     ]))
     story.append(ct)
     
     if report.comments:
-        story.append(Spacer(1, 14))
-        story.append(Paragraph('SUPERVISOR COMMENTS:', S['label']))
+        story.append(Spacer(1, 18))
+        story.append(SectionHeader('Section 3 — Supervisor Comments', content_w))
+        story.append(Spacer(1, 12))
         story.append(_text_block(report.comments, S, content_w))
 
-    story.append(Spacer(1, 40))
+    story.append(Spacer(1, 30))
+    story.append(HRFlowable(width='100%', thickness=1, color=RULE, spaceAfter=16))
     story.append(SignatureBlock([
-        (report.submitted_by.get_full_name() if report.submitted_by else company_name, 'Industry Supervisor', report.submitted_at.strftime('%Y-%m-%d')),
+        (report.submitted_by.get_full_name() if report.submitted_by else company_name, 'Industry Supervisor', report.submitted_at.strftime('%B %d, %Y')),
         ('_________________', 'Student Acknowledgment', '')
     ], content_w))
+    
+    story.append(Spacer(1, 20))
+    story.append(HRFlowable(width='100%', thickness=0.5, color=RULE, spaceAfter=8))
+    story.append(Paragraph(f'Debre Markos University · Office of University Industry Linkage · Document Ref: DMU-IMS-MON-{report.id}', S['footer']))
 
     doc.build(story)
     

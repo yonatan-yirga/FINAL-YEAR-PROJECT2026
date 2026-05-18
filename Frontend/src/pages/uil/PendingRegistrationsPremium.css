@@ -1,0 +1,449 @@
+/* 
+   PendingRegistrationsPremium.css
+   Redesigned for a high-end, futuristic UIL interface
+*/
+
+:root[data-theme='light'] {
+  --uil-bg: var(--bg-root);
+  --uil-card-bg: var(--bg-glass);
+  --uil-card-border: var(--border-subtle);
+  --uil-accent-primary: #4f46e5;
+  --uil-accent-secondary: #9333ea;
+  --uil-accent-success: var(--status-success);
+  --uil-accent-danger: var(--status-error);
+  --uil-accent-warning: var(--status-warning);
+  --uil-text-main: var(--text-main);
+  --uil-text-muted: var(--text-muted);
+  --uil-glass-blur: blur(20px);
+  --uil-mesh-1: rgba(79, 70, 229, 0.05);
+  --uil-mesh-2: rgba(147, 51, 234, 0.05);
+  --uil-mesh-3: rgba(5, 150, 105, 0.03);
+  --uil-shadow: var(--shadow-md);
+}
+
+:root[data-theme='dark'] {
+  --uil-bg: var(--bg-root);
+  --uil-card-bg: var(--bg-glass);
+  --uil-card-border: var(--border-subtle);
+  --uil-accent-primary: #6366f1;
+  --uil-accent-secondary: #a855f7;
+  --uil-accent-success: var(--status-success);
+  --uil-accent-danger: var(--status-error);
+  --uil-accent-warning: var(--status-warning);
+  --uil-text-main: var(--text-main);
+  --uil-text-muted: var(--text-muted);
+  --uil-glass-blur: blur(20px);
+  --uil-mesh-1: rgba(99, 102, 241, 0.1);
+  --uil-mesh-2: rgba(168, 85, 247, 0.1);
+  --uil-mesh-3: rgba(16, 185, 129, 0.05);
+  --uil-shadow: var(--shadow-lg);
+}
+
+.pending-registrations-premium {
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 10% 20%, var(--uil-mesh-1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, var(--uil-mesh-2) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, var(--uil-mesh-3) 0%, transparent 50%),
+    var(--uil-bg);
+  padding: 40px 5%;
+  color: var(--uil-text-main);
+  transition: background 0.5s ease, color 0.5s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Header Section */
+.premium-header {
+  margin-bottom: 48px;
+  position: relative;
+}
+
+.premium-header h1 {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 900;
+  color: var(--uil-text-main);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.premium-header p {
+  font-size: 1.1rem;
+  color: var(--uil-text-muted);
+  max-width: 600px;
+}
+
+/* Filter Bar */
+.premium-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 40px;
+  background: var(--uil-card-bg);
+  padding: 12px;
+  border-radius: 24px;
+  border: 1px solid var(--uil-card-border);
+  backdrop-filter: var(--uil-glass-blur);
+}
+
+.premium-tabs {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.premium-tab {
+  background: transparent;
+  border: none;
+  color: var(--uil-text-muted);
+  padding: 10px 20px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.premium-tab:hover {
+  color: var(--uil-text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.premium-tab.active {
+  background: var(--uil-accent-primary);
+  color: white;
+  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+}
+
+.tab-badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+}
+
+.premium-search {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.premium-search svg {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--uil-text-muted);
+}
+
+.premium-search input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--uil-card-border);
+  padding: 12px 16px 12px 48px;
+  border-radius: 16px;
+  color: var(--uil-text-main);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.premium-search input:focus {
+  border-color: var(--uil-accent-primary);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+/* Content */
+.premium-content {
+  background: var(--uil-card-bg);
+  border: 1px solid var(--uil-card-border);
+  border-radius: 24px;
+  backdrop-filter: var(--uil-glass-blur);
+  overflow: hidden;
+  box-shadow: var(--uil-shadow);
+}
+
+.premium-error-state {
+  text-align: center;
+  padding: 100px 40px;
+}
+
+.premium-error-state svg {
+  margin-bottom: 24px;
+}
+
+.premium-error-state h3 {
+  font-size: 1.75rem;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: var(--uil-text-main);
+}
+
+.premium-error-state p {
+  color: var(--uil-text-muted);
+  font-size: 1rem;
+  margin-bottom: 24px;
+}
+
+/* Empty State */
+.premium-empty {
+  text-align: center;
+  padding: 100px 40px;
+}
+
+.premium-empty svg {
+  margin-bottom: 24px;
+  opacity: 0.3;
+  color: var(--uil-text-muted);
+}
+
+.premium-empty h3 {
+  font-size: 1.75rem;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: var(--uil-text-main);
+}
+
+.premium-empty p {
+  color: var(--uil-text-muted);
+  font-size: 1rem;
+}
+
+/* Registrations Table */
+.registrations-table {
+  padding: 24px;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1.2fr 2.5fr 1.8fr 1.3fr 1.5fr;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--uil-text-muted);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.2fr 2.5fr 1.8fr 1.3fr 1.5fr;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.3s;
+  align-items: center;
+}
+
+.table-row:hover {
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateX(4px);
+}
+
+/* Type Badge */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.type-student { 
+  background: rgba(99, 102, 241, 0.1); 
+  color: #818cf8; 
+  border: 1px solid rgba(99, 102, 241, 0.2); 
+}
+
+.type-company { 
+  background: rgba(245, 158, 11, 0.1); 
+  color: #fbbf24; 
+  border: 1px solid rgba(245, 158, 11, 0.2); 
+}
+
+.type-advisor { 
+  background: rgba(16, 185, 129, 0.1); 
+  color: #34d399; 
+  border: 1px solid rgba(16, 185, 129, 0.2); 
+}
+
+.type-department { 
+  background: rgba(239, 68, 68, 0.1); 
+  color: #f87171; 
+  border: 1px solid rgba(239, 68, 68, 0.2); 
+}
+
+/* Registration Info */
+.registration-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.registration-avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--uil-accent-primary), var(--uil-accent-secondary));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.registration-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--uil-text-main);
+  margin-bottom: 2px;
+}
+
+.registration-email {
+  font-size: 0.85rem;
+  color: var(--uil-text-muted);
+}
+
+/* Department */
+.registration-department {
+  font-size: 0.9rem;
+  color: var(--uil-text-main);
+}
+
+/* Date */
+.registration-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--uil-text-muted);
+}
+
+.registration-date svg {
+  color: var(--uil-accent-primary);
+  opacity: 0.7;
+}
+
+/* Actions */
+.registration-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-view {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--uil-accent-primary);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.btn-view:hover {
+  background: var(--uil-accent-primary);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-approve {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--uil-accent-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.btn-approve:hover {
+  background: var(--uil-accent-success);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-reject {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--uil-accent-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btn-reject:hover {
+  background: var(--uil-accent-danger);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr 2fr 1.5fr 1fr 1.2fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .premium-controls {
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 24px;
+    padding: 16px;
+  }
+  
+  .premium-tabs {
+    overflow-x: auto;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .premium-search {
+    max-width: none;
+  }
+
+  .registrations-table {
+    overflow-x: auto;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .table-row:hover {
+    transform: none;
+  }
+
+  .registration-actions {
+    justify-content: flex-start;
+  }
+}

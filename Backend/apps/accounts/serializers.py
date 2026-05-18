@@ -114,8 +114,23 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
             'description', 'document', 'created_at', 'updated_at', 'website',
             'company_logo', 'company_seal', 'certificate_signature',
             'company_logo_url', 'company_seal_url', 'certificate_signature_url',
+            'supervisor_name', 'supervisor_email', 'supervisor_phone', 'supervisor_title',
         ]
         read_only_fields = ['user', 'user_email', 'created_at', 'updated_at']
+    
+    def validate(self, data):
+        """Validate supervisor fields are provided together"""
+        supervisor_fields = ['supervisor_name', 'supervisor_email', 'supervisor_phone', 'supervisor_title']
+        provided_fields = [field for field in supervisor_fields if data.get(field)]
+        
+        # If any supervisor field is provided, all must be provided
+        if provided_fields and len(provided_fields) < len(supervisor_fields):
+            missing = [field for field in supervisor_fields if not data.get(field)]
+            raise serializers.ValidationError({
+                'supervisor_fields': f'All supervisor fields are required. Missing: {", ".join(missing)}'
+            })
+        
+        return data
     
     def get_company_logo_url(self, obj):
         if obj.company_logo:
@@ -148,9 +163,9 @@ class AdvisorProfileSerializer(serializers.ModelSerializer):
         model = AdvisorProfile
         fields = [
             'user', 'user_email', 'full_name', 'phone_number',
-            'staff_id', 'document', 'created_at', 'updated_at'
+            'staff_id', 'document', 'advising_location', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['user', 'user_email', 'created_at', 'updated_at']
+        read_only_fields = ['user', 'user_email', 'staff_id', 'document', 'created_at', 'updated_at']
 
 
 class DepartmentHeadProfileSerializer(serializers.ModelSerializer):

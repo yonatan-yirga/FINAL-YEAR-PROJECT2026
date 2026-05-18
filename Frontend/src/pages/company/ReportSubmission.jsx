@@ -4,7 +4,8 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, TrendingUp, Award, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Users, TrendingUp, Award, CheckCircle, MessageSquare, GraduationCap } from 'lucide-react';
+
 import Header from '../../components/common/Header';
 import reportService from '../../services/reportService';
 
@@ -342,6 +343,46 @@ const ReportSubmission = () => {
                     <Users size={28} color={C.muted} strokeWidth={1.5} />
                   </div>
                   <p style={{ color: C.muted, fontSize: '13px', margin: 0 }}>Select a student to see their details.</p>
+                </div>
+              )}
+
+              {/* Advisor Card */}
+              {selectedIntern && selectedIntern.advisor_name && (
+                <div style={{ background: C.white, borderRadius: '12px', border: `1px solid ${C.border}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+                  <div style={{ padding: '14px 18px', background: '#3b82f6' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>University Advisor</div>
+                  </div>
+                  <div style={{ padding: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#EFF6FF', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <GraduationCap size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '15px', fontWeight: '700', color: C.text }}>{selectedIntern.advisor_name}</div>
+                        <div style={{ fontSize: '12px', color: C.muted }}>Faculty Member</div>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => navigate('/company/messages')}
+                      style={{ 
+                        width: '100%', padding: '10px', 
+                        background: '#EFF6FF', color: '#2563EB', 
+                        border: '1px solid #93C5FD', borderRadius: '8px', 
+                        fontSize: '13px', fontWeight: '700', 
+                        cursor: 'pointer', transition: 'all 0.2s',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = '#DBEAFE'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = '#EFF6FF'; }}
+                    >
+                      <MessageSquare size={16} />
+                      Message Advisor
+                    </button>
+                    <div style={{ fontSize: '11px', color: C.muted, marginTop: '8px', textAlign: 'center', fontStyle: 'italic' }}>
+                      Reports are automatically sent to this advisor.
+                    </div>
+                  </div>
                 </div>
               )}
 

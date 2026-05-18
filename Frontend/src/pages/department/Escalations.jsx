@@ -139,18 +139,20 @@ const Escalations = () => {
   };
 
   const getStats = () => {
+    // Ensure escalations is an array before filtering
+    const escalationsArray = Array.isArray(escalations) ? escalations : [];
     return {
-      open: escalations.filter(e => e.status === 'OPEN').length,
-      resolved: escalations.filter(e => e.status === 'RESOLVED').length,
-      escalatedToUIL: escalations.filter(e => e.status === 'ESCALATED_TO_UIL').length,
+      open: escalationsArray.filter(e => e.status === 'OPEN').length,
+      resolved: escalationsArray.filter(e => e.status === 'RESOLVED').length,
+      escalatedToUIL: escalationsArray.filter(e => e.status === 'ESCALATED_TO_UIL').length,
     };
   };
 
   const stats = getStats();
 
-  const filteredEscalations = escalations.filter(esc =>
-    esc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    esc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredEscalations = (Array.isArray(escalations) ? escalations : []).filter(esc =>
+    esc.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    esc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (esc.student_name && esc.student_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 

@@ -45,6 +45,9 @@ class DepartmentStudentSerializer(serializers.ModelSerializer):
     is_eligible = serializers.BooleanField(source='student_profile.is_eligible', read_only=True)
     year_of_study = serializers.IntegerField(source='student_profile.year_of_study', read_only=True)
     batch = serializers.CharField(source='student_profile.batch', read_only=True, allow_null=True)
+    preferred_location_1 = serializers.CharField(source='student_profile.preferred_location_1', read_only=True, allow_null=True)
+    preferred_location_2 = serializers.CharField(source='student_profile.preferred_location_2', read_only=True, allow_null=True)
+    preferred_location_3 = serializers.CharField(source='student_profile.preferred_location_3', read_only=True, allow_null=True)
     
     class Meta:
         model = User
@@ -62,6 +65,9 @@ class DepartmentStudentSerializer(serializers.ModelSerializer):
             'is_eligible',
             'year_of_study',
             'batch',
+            'preferred_location_1',
+            'preferred_location_2',
+            'preferred_location_3',
             'is_active',
             'created_at',
         ]
@@ -95,7 +101,7 @@ class DepartmentStudentSerializer(serializers.ModelSerializer):
         """
         Determine student's internship status
         - NOT_APPLIED: No applications
-        - APPLIED: Has pending applications
+        - APPLIED: Has applications but not yet active
         - ACTIVE: Has active internship
         - COMPLETED: Completed internship
         """
@@ -108,8 +114,8 @@ class DepartmentStudentSerializer(serializers.ModelSerializer):
         if obj.student_advisor_assignments.filter(is_active=False).exists():
             return 'COMPLETED'
         
-        # Check for pending applications
-        if obj.student_applications.filter(status='PENDING').exists():
+        # Check for any applications (PENDING, ACCEPTED, or REJECTED)
+        if obj.student_applications.exists():
             return 'APPLIED'
         
         return 'NOT_APPLIED'
@@ -153,6 +159,7 @@ class DepartmentAdvisorSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     staff_id = serializers.SerializerMethodField()
     phone_number = serializers.SerializerMethodField()
+    advising_location = serializers.SerializerMethodField()
     department_name = serializers.SerializerMethodField()
     total_assignments = serializers.IntegerField(source='assignments_count', read_only=True)
     active_students = serializers.IntegerField(source='active_count', read_only=True)
@@ -167,6 +174,7 @@ class DepartmentAdvisorSerializer(serializers.ModelSerializer):
             'full_name',
             'staff_id',
             'phone_number',
+            'advising_location',
             'department_name',
             'total_assignments',
             'active_students',
@@ -194,6 +202,13 @@ class DepartmentAdvisorSerializer(serializers.ModelSerializer):
         """Get phone number"""
         try:
             return obj.advisor_profile.phone_number
+        except Exception:
+            return None
+    
+    def get_advising_location(self, obj):
+        """Get advising location"""
+        try:
+            return obj.advisor_profile.advising_location
         except Exception:
             return None
     

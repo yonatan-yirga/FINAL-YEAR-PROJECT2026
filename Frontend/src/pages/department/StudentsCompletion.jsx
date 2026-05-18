@@ -63,13 +63,14 @@ const StudentsCompletion = () => {
 
   const alreadyCertified = (r) => !!certs[r.student_name];
 
-  const filtered = reports.filter(r =>
+  const reportsArray = Array.isArray(reports) ? reports : [];
+  const filtered = reportsArray.filter(r =>
     search.trim() === '' ||
     r.student_name?.toLowerCase().includes(search.toLowerCase()) ||
     r.company_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const pendingCount = reports.filter(r => !alreadyCertified(r)).length;
+  const pendingCount = reportsArray.filter(r => !alreadyCertified(r)).length;
 
   return (
     <div className="sc-page">

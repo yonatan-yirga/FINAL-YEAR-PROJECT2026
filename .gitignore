@@ -65,6 +65,10 @@ Frontend/dist/
 Frontend/build/
 Frontend/.vite/
 Frontend/.cache/
+Frontend/.vite-cache/
+
+# Kiro
+.kiro/
 
 # Testing
 .coverage

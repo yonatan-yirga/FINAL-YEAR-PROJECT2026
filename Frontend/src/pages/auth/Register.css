@@ -26,8 +26,34 @@
 
 .register-page {
   min-height: 100vh;
-  background: var(--upwork-bg);
+  background: var(--bg-root);
   padding: 60px 24px;
+  transition: var(--transition);
+  position: relative;
+}
+
+.register-theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-bright);
+  cursor: pointer;
+  transition: var(--transition);
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+}
+
+.register-theme-toggle:hover {
+  background: var(--border-subtle);
+  transform: translateY(-2px) rotate(15deg);
 }
 
 .register-container {
@@ -59,13 +85,13 @@
 .register-title {
   font-size: 36px;
   font-weight: 700;
-  color: var(--upwork-text-dark);
+  color: var(--text-bright);
   margin-bottom: 12px;
 }
 
 .register-subtitle {
   font-size: 15px;
-  color: var(--upwork-text-muted);
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -78,11 +104,11 @@
 
 /* Form Card */
 .register-card {
-  background: var(--upwork-white);
-  border-radius: var(--border-radius-lg);
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
   padding: 40px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--upwork-border);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-subtle);
 }
 
 /* Role Switcher */
@@ -101,10 +127,10 @@
 .register-role-tabs {
   display: flex;
   gap: 8px;
-  background: var(--upwork-bg);
+  background: var(--bg-root);
   padding: 4px;
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--upwork-border);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
 }
 
 .register-role-tab {
@@ -165,12 +191,12 @@
 .register-textarea {
   padding: 12px 14px;
   font-size: 14px;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--radius-md);
   outline: none;
-  background: var(--upwork-white);
-  border: 1px solid var(--upwork-border);
-  color: var(--upwork-text-dark);
-  transition: var(--transition-fast);
+  background: var(--bg-root);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  transition: var(--transition);
   font-family: inherit;
 }
 

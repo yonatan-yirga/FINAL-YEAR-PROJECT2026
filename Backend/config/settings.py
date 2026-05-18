@@ -101,6 +101,11 @@ DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, conn_health_checks=True)
 }
 
+# Force SSL for Supabase/production PostgreSQL connections
+if not DEBUG and 'sqlite' not in DATABASE_URL:
+    DATABASES['default']['OPTIONS'] = DATABASES['default'].get('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['sslmode'] = 'require'
+
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
 

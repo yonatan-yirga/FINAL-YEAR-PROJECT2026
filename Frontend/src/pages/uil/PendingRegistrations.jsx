@@ -1,14 +1,20 @@
 /**
- * Pending Registrations Page
- * Lists all pending registrations with filtering and actions
+ * Pending Registrations Page - PREMIUM REDESIGN
+ * Lists all pending registrations with card layout, animations, and high-end styling
  */
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Users, Building2, GraduationCap, School, 
+  Search, Eye, Check, X, Calendar, Mail, 
+  Inbox, Loader2, Filter
+} from 'lucide-react';
 import uilService from '../../services/uilService';
+import Header from '../../components/common/Header';
 import RegistrationDetailModal from '../../components/uil/RegistrationDetailModal';
 import ApprovalConfirmation from '../../components/uil/ApprovalConfirmation';
 import RejectionForm from '../../components/uil/RejectionForm';
-import './UIL.css';
+import './PendingRegistrationsPremium.css';
 
 const PendingRegistrations = () => {
   const [registrations, setRegistrations] = useState([]);
@@ -45,20 +51,23 @@ const PendingRegistrations = () => {
     fetchRegistrations();
   }, []);
 
-  // Filter by tab
+  // Filter logic
   useEffect(() => {
-    let filtered = registrations;
+    const registrationsArray = Array.isArray(registrations) ? registrations : [];
+    let filtered = registrationsArray;
     
     if (activeTab !== 'ALL') {
-      filtered = registrations.filter(reg => reg.request_type === activeTab);
+      filtered = registrationsArray.filter(reg => reg.request_type === activeTab);
     }
     
     if (searchTerm) {
+      const term = searchTerm.toLowerCase();
       filtered = filtered.filter(reg => 
-        reg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reg.student_full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reg.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        reg.advisor_full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        reg.email?.toLowerCase().includes(term) ||
+        reg.student_full_name?.toLowerCase().includes(term) ||
+        reg.company_name?.toLowerCase().includes(term) ||
+        reg.advisor_full_name?.toLowerCase().includes(term) ||
+        reg.department_name?.toLowerCase().includes(term)
       );
     }
     
@@ -83,189 +92,234 @@ const PendingRegistrations = () => {
   const handleApprovalSuccess = () => {
     setShowApprovalModal(false);
     setShowDetailModal(false);
-    fetchRegistrations(); // Refresh list
+    fetchRegistrations();
   };
 
   const handleRejectionSuccess = () => {
     setShowRejectionModal(false);
     setShowDetailModal(false);
-    fetchRegistrations(); // Refresh list
+    fetchRegistrations();
   };
 
   const tabs = [
-    { key: 'ALL', label: 'All Pending' },
-    { key: 'STUDENT', label: 'Students' },
-    { key: 'COMPANY', label: 'Companies' },
-    { key: 'ADVISOR', label: 'Advisors' },
-    { key: 'DEPARTMENT', label: 'Departments' },
+    { key: 'ALL', label: 'All', icon: <Users size={18} /> },
+    { key: 'STUDENT', label: 'Students', icon: <GraduationCap size={18} /> },
+    { key: 'COMPANY', label: 'Companies', icon: <Building2 size={18} /> },
+    { key: 'ADVISOR', label: 'Advisors', icon: <Users size={18} /> },
+    { key: 'DEPARTMENT', label: 'Departments', icon: <School size={18} /> },
   ];
 
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'STUDENT': return <GraduationCap size={20} />;
+      case 'COMPANY': return <Building2 size={20} />;
+      case 'ADVISOR': return <Users size={20} />;
+      case 'DEPARTMENT': return <School size={20} />;
+      default: return <Users size={20} />;
+    }
+  };
+
   return (
-    <div className="pending-registrations-page">
-      {/* Header */}
-      <div className="page-header">
-        <h1>Pending Registrations</h1>
-        <p>Review and approve user registration requests</p>
-      </div>
+    <div className="pending-registrations-premium">
+      <Header 
+        title="Pending Registrations" 
+        subtitle="Awaiting review and approval. Ensure all documents are valid before granting system access." 
+      />
 
-      {/* Tabs */}
-      <div className="tabs-container">
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            className={`tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            {tab.label}
-            {tab.key !== 'ALL' && (
-              <span className="tab-count">
-                {registrations.filter(r => r.request_type === tab.key).length}
+      {/* Controls */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="premium-controls"
+      >
+        <div className="premium-tabs">
+          {tabs.map(tab => (
+            <button
+              key={tab.key}
+              className={`premium-tab ${activeTab === tab.key ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.icon}
+              {tab.label}
+              <span className="tab-badge">
+                {tab.key === 'ALL' 
+                  ? registrations.length 
+                  : registrations.filter(r => r.request_type === tab.key).length}
               </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Search */}
-      <div className="search-bar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          type="text"
-          placeholder="Search by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div className="alert alert-error">
-          {error}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Loading */}
-      {loading && (
-        <div className="loading-container">
-          <div className="spinner-large"></div>
-          <p>Loading registrations...</p>
+        <div className="premium-search">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Search by name, email, or department..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      )}
+      </motion.div>
 
-      {/* Table */}
-      {!loading && (
-        <div className="table-container">
-          {filteredRegistrations.length === 0 ? (
-            <div className="empty-state">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3>No Pending Registrations</h3>
-              <p>There are no pending registrations at the moment.</p>
+      {/* Content */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="premium-content"
+      >
+        {loading ? (
+          <div className="premium-loading">
+            <div className="loader-glow"></div>
+            <p>Scanning registry for pending nodes...</p>
+          </div>
+        ) : error ? (
+          <div className="premium-error-state">
+            <X size={48} color="var(--uil-accent-danger)" />
+            <h3>Connection Error</h3>
+            <p>{error}</p>
+            <button onClick={fetchRegistrations} className="premium-btn btn-approve">Retry Connection</button>
+          </div>
+        ) : filteredRegistrations.length === 0 ? (
+          <div className="premium-empty">
+            <Inbox size={80} strokeWidth={1} />
+            <h3>Queue is Clear</h3>
+            <p>All registration requests have been processed.</p>
+          </div>
+        ) : (
+          <div className="registrations-table">
+            {/* Table Header */}
+            <div className="table-header">
+              <div>Type</div>
+              <div>Name / Email</div>
+              <div>Department</div>
+              <div>Submitted</div>
+              <div>Actions</div>
             </div>
-          ) : (
-            <table className="registrations-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Type</th>
-                  <th>Department</th>
-                  <th>Submitted</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRegistrations.map((registration) => (
-                  <tr key={registration.id}>
-                    <td className="name-cell">
-                      {registration.student_full_name ||
-                       registration.company_name ||
-                       registration.advisor_full_name ||
-                       registration.department_name ||
-                       'N/A'}
-                    </td>
-                    <td>{registration.email}</td>
-                    <td>
-                      {registration.request_type === 'COMPANY' && registration.target_department_names?.length > 0
-                        ? registration.target_department_names.join(', ')
-                        : registration.department_name}
-                    </td>
-                    <td className="date-cell">
-                      {new Date(registration.submitted_at).toLocaleDateString()}
-                    </td>
-                    <td className="actions-cell">
-                      <button
-                        onClick={() => handleView(registration)}
-                        className="btn-icon btn-view"
-                        title="View Details"
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleApproveClick(registration)}
-                        className="btn-icon btn-approve"
-                        title="Approve"
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleRejectClick(registration)}
-                        className="btn-icon btn-reject"
-                        title="Reject"
-                      >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
 
-      {/* Modals */}
-      {showDetailModal && selectedRegistration && (
-        <RegistrationDetailModal
-          registration={selectedRegistration}
-          onClose={() => setShowDetailModal(false)}
-          onApprove={() => {
-            setShowDetailModal(false);
-            handleApproveClick(selectedRegistration);
-          }}
-          onReject={() => {
-            setShowDetailModal(false);
-            handleRejectClick(selectedRegistration);
-          }}
-        />
-      )}
+            {/* Table Rows */}
+            <AnimatePresence mode="popLayout">
+              {filteredRegistrations.map((reg, idx) => (
+                <motion.div
+                  key={reg.id}
+                  layout
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3, delay: idx * 0.02 }}
+                  className="table-row"
+                >
+                  {/* Type Badge */}
+                  <div>
+                    <span className={`type-badge type-${reg.request_type.toLowerCase()}`}>
+                      {getTypeIcon(reg.request_type)}
+                      <span>{reg.request_type}</span>
+                    </span>
+                  </div>
 
-      {showApprovalModal && selectedRegistration && (
-        <ApprovalConfirmation
-          registration={selectedRegistration}
-          onConfirm={handleApprovalSuccess}
-          onCancel={() => setShowApprovalModal(false)}
-        />
-      )}
+                  {/* Name & Email */}
+                  <div className="registration-info">
+                    <div className="registration-avatar">
+                      {(reg.student_full_name ||
+                        reg.company_name ||
+                        reg.advisor_full_name ||
+                        reg.department_name ||
+                        'A').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="registration-name">
+                        {reg.student_full_name ||
+                         reg.company_name ||
+                         reg.advisor_full_name ||
+                         reg.department_name ||
+                         'Anonymous Node'}
+                      </div>
+                      <div className="registration-email">{reg.email}</div>
+                    </div>
+                  </div>
 
-      {showRejectionModal && selectedRegistration && (
-        <RejectionForm
-          registration={selectedRegistration}
-          onSubmit={handleRejectionSuccess}
-          onCancel={() => setShowRejectionModal(false)}
-        />
-      )}
+                  {/* Department */}
+                  <div className="registration-department">
+                    {reg.request_type === 'COMPANY' && reg.target_department_names?.length > 0
+                      ? reg.target_department_names.join(', ')
+                      : reg.department_name || 'General Access'}
+                  </div>
+
+                  {/* Submitted Date */}
+                  <div className="registration-date">
+                    <Calendar size={14} />
+                    {new Date(reg.submitted_at).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="registration-actions">
+                    <button 
+                      onClick={() => handleView(reg)}
+                      className="action-btn btn-view"
+                      title="View Details"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button 
+                      onClick={() => handleApproveClick(reg)}
+                      className="action-btn btn-approve"
+                      title="Approve"
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button 
+                      onClick={() => handleRejectClick(reg)}
+                      className="action-btn btn-reject"
+                      title="Reject"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Modals - These remain the same but will benefit from the premium background */}
+      <AnimatePresence>
+        {showDetailModal && selectedRegistration && (
+          <RegistrationDetailModal
+            registration={selectedRegistration}
+            onClose={() => setShowDetailModal(false)}
+            onApprove={() => {
+              setShowDetailModal(false);
+              handleApproveClick(selectedRegistration);
+            }}
+            onReject={() => {
+              setShowDetailModal(false);
+              handleRejectClick(selectedRegistration);
+            }}
+          />
+        )}
+
+        {showApprovalModal && selectedRegistration && (
+          <ApprovalConfirmation
+            registration={selectedRegistration}
+            onConfirm={handleApprovalSuccess}
+            onCancel={() => setShowApprovalModal(false)}
+          />
+        )}
+
+        {showRejectionModal && selectedRegistration && (
+          <RejectionForm
+            registration={selectedRegistration}
+            onSubmit={handleRejectionSuccess}
+            onCancel={() => setShowRejectionModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

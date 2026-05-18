@@ -6,11 +6,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { CheckCircle } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+import { CheckCircle, Moon, Sun } from 'lucide-react';
 import registrationService from '../../services/registrationService';
 import oauthService from '../../services/oauthService';
 import FileUpload from '../../components/forms/FileUpload';
-import dmuLogo from '../../assets/logodmu.jpg';
+import dmuLogo from '../../assets/Debre_Markos_University.png';
 import './Register.css';
 
 // Validation logic (Retained exactly for stability)
@@ -33,6 +34,9 @@ const getValidationSchema = (role) => {
       student_gender: Yup.string().required('Gender required'),
       student_university_id: Yup.string().required('ID required'),
       student_skills: Yup.string().required('Skills required').test('min-skills', '2+ skills required', (val) => val && val.split(',').filter(s => s.trim()).length >= 2),
+      preferred_location_1: Yup.string().required('First choice location required'),
+      preferred_location_2: Yup.string().required('Second choice location required'),
+      preferred_location_3: Yup.string().required('Third choice location required'),
     }),
     COMPANY: Yup.object().shape({
       ...baseSchema,
@@ -50,6 +54,7 @@ const getValidationSchema = (role) => {
       advisor_full_name: Yup.string().required('Name required'),
       advisor_phone: Yup.string().required('Phone required'),
       advisor_staff_id: Yup.string().required('Staff ID required'),
+      advising_location: Yup.string().required('Location required'),
     }),
     DEPARTMENT: Yup.object().shape({
       ...baseSchema,
@@ -63,6 +68,7 @@ const getValidationSchema = (role) => {
 
 const Register = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo');
   const action = searchParams.get('action');
@@ -94,16 +100,32 @@ const Register = () => {
   const getInitialValues = (role) => {
     const base = { request_type: role, email: '', department: '' };
     const roleValues = {
-      STUDENT: { student_full_name: '', student_phone: '', student_dob: '', student_gender: '', student_university_id: '', student_skills: '', student_batch: '', student_year_of_study: '' },
+      STUDENT: { 
+        student_full_name: '', 
+        student_phone: '', 
+        student_dob: '', 
+        student_gender: '', 
+        student_university_id: '', 
+        student_skills: '', 
+        student_batch: '', 
+        student_year_of_study: '',
+        preferred_location_1: '',
+        preferred_location_2: '',
+        preferred_location_3: ''
+      },
       COMPANY: { target_departments: [], company_name: '', company_phone: '', company_address: '', company_city: '', company_contact_person: '', company_contact_title: '', company_description: '' },
-      ADVISOR: { advisor_full_name: '', advisor_phone: '', advisor_staff_id: '' },
+      ADVISOR: { advisor_full_name: '', advisor_phone: '', advisor_staff_id: '', advising_location: '' },
       DEPARTMENT: { department_name: '', department_head_name: '', department_phone: '' },
     };
     return { ...base, ...roleValues[role] };
   };
 
   const handleSubmit = async (values, { resetForm }) => {
-    if (!uploadedFile) { setSubmitError('Document upload failed (missing file)'); return; }
+    // Document is required for all registration requests
+    if (!uploadedFile) { 
+      setSubmitError('Document upload failed (missing file)'); 
+      return; 
+    }
     setIsSubmitting(true); setSubmitError(''); setUploadProgress(0);
     try {
       const formData = new FormData();
@@ -113,7 +135,9 @@ const Register = () => {
           else formData.append(key, values[key]);
         }
       });
-      formData.append('document', uploadedFile);
+      if (uploadedFile) {
+        formData.append('document', uploadedFile);
+      }
       const result = await registrationService.register(formData, setUploadProgress);
       if (result.success) { setSubmitSuccess(true); resetForm(); setUploadedFile(null); }
       else setSubmitError(result.error);
@@ -164,11 +188,20 @@ const Register = () => {
 
   return (
     <div className="register-page">
+      {/* Theme Toggle */}
+      <button 
+        onClick={toggleTheme} 
+        className="register-theme-toggle"
+        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
       <div className="register-container">
         
         <div className="register-header">
           <div className="register-logo">
-            <img src={dmuLogo} alt="DMU Logo" className="register-logo-img" />
+            <img src={dmuLogo} alt="Internship Management Logo" className="register-logo-img" />
           </div>
           <h1 className="register-title">Create Account</h1>
           <p className="register-subtitle">
@@ -246,53 +279,16 @@ const Register = () => {
                    </div>
                 </div>
 
-                {/* General Information */}
-                <div className="register-grid">
-                  <div className="register-field">
-                    <label className="register-label">
-                      {values.request_type === 'COMPANY' ? 'Target Departments' : 'Department'}
-                    </label>
-                    {values.request_type === 'COMPANY' ? (
-                      <div className="register-dept-tags">
-                        {departments.map(d => (
-                          <div
-                            key={d.id} onClick={() => {
-                              const arr = Array.isArray(values.target_departments) ? values.target_departments : [];
-                              setFieldValue('target_departments', arr.includes(d.id) ? arr.filter(i => i !== d.id) : [...arr, d.id]);
-                            }}
-                            className={`register-dept-tag ${values.target_departments?.includes(d.id) ? 'selected' : ''}`}
-                          >
-                            {values.target_departments?.includes(d.id) ? '✓ ' : '+ '}{d.name}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Field as="select" name="department" className="register-select">
-                        <option value="">Select Department</option>
-                        {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                      </Field>
-                    )}
-                    <ErrorMessage name={values.request_type === 'COMPANY' ? 'target_departments' : 'department'} component="div" className="register-error" />
-                  </div>
-
-                  <div className="register-field">
-                    <label className="register-label">Email</label>
-                    <Field name="email" placeholder="identifier@university.edu" className="register-input" />
-                    <ErrorMessage name="email" component="div" className="register-error" />
-                  </div>
-                </div>
-
-                <div className="register-divider" />
-
                 {/* Role Specifics */}
                 <div>
-                  {values.request_type === 'STUDENT' && <StudentFields errors={errors} touched={touched} />}
-                  {values.request_type === 'COMPANY' && <CompanyFields errors={errors} touched={touched} />}
-                  {values.request_type === 'DEPARTMENT' && <DepartmentFields errors={errors} touched={touched} />}
+                  {values.request_type === 'STUDENT' && <StudentFields errors={errors} touched={touched} departments={departments} values={values} setFieldValue={setFieldValue} />}
+                  {values.request_type === 'COMPANY' && <CompanyFields errors={errors} touched={touched} departments={departments} values={values} setFieldValue={setFieldValue} />}
+                  {values.request_type === 'DEPARTMENT' && <DepartmentFields errors={errors} touched={touched} departments={departments} values={values} setFieldValue={setFieldValue} />}
                 </div>
 
+                {/* Document Upload - Required for all registration requests */}
                 <div style={{ marginTop: 32 }}>
-                   <FileUpload onFileSelect={setUploadedFile} onFileRemove={() => setUploadedFile(null)} error={!uploadedFile && touched.document ? 'Registration document required' : null} />
+                  <FileUpload onFileSelect={setUploadedFile} onFileRemove={() => setUploadedFile(null)} error={!uploadedFile && touched.document ? 'Registration document required' : null} />
                 </div>
 
                 {submitError && <div className="register-alert">{submitError}</div>}
@@ -322,10 +318,23 @@ const Input = ({ label, ...props }) => (
   </div>
 );
 
-const StudentFields = () => (
+const StudentFields = ({ departments, values, setFieldValue }) => (
   <div className="register-grid-full">
     <Input name="student_full_name" label="Full Name" />
     <Input name="student_phone" label="Phone Number" placeholder="+251..." />
+    <div className="register-field">
+      <label className="register-label">Department</label>
+      <Field as="select" name="department" className="register-select">
+        <option value="">Select Department</option>
+        {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+      </Field>
+      <ErrorMessage name="department" component="div" className="register-error" />
+    </div>
+    <div className="register-field">
+      <label className="register-label">Email</label>
+      <Field name="email" placeholder="student@university.edu" className="register-input" />
+      <ErrorMessage name="email" component="div" className="register-error" />
+    </div>
     <Input name="student_dob" label="Date of Birth" type="date" />
     <div className="register-field">
       <label className="register-label">Gender</label>
@@ -367,6 +376,53 @@ const StudentFields = () => (
       </Field>
       <ErrorMessage name="student_year_of_study" component="div" className="register-error" />
     </div>
+    
+    {/* Internship Location Preferences */}
+    <div className="register-field-full" style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E2E8F0' }}>
+      <label className="register-label" style={{ fontSize: '16px', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+        📍 Internship Location Preferences *
+      </label>
+      <span className="register-field-hint" style={{ display: 'block', marginBottom: '16px' }}>
+        Select your 3 preferred locations for internship placement (Required)
+      </span>
+    </div>
+    
+    <div className="register-field">
+      <label className="register-label">
+        First Choice Location *
+      </label>
+      <Field 
+        name="preferred_location_1" 
+        placeholder="e.g. Addis Ababa" 
+        className="register-input" 
+      />
+      <ErrorMessage name="preferred_location_1" component="div" className="register-error" />
+    </div>
+    
+    <div className="register-field">
+      <label className="register-label">
+        Second Choice Location *
+      </label>
+      <Field 
+        name="preferred_location_2" 
+        placeholder="e.g. Dire Dawa" 
+        className="register-input" 
+      />
+      <ErrorMessage name="preferred_location_2" component="div" className="register-error" />
+    </div>
+    
+    <div className="register-field">
+      <label className="register-label">
+        Third Choice Location *
+      </label>
+      <Field 
+        name="preferred_location_3" 
+        placeholder="e.g. Bahir Dar" 
+        className="register-input" 
+      />
+      <ErrorMessage name="preferred_location_3" component="div" className="register-error" />
+    </div>
+    
     <div className="register-field register-field-full">
       <label className="register-label">Skills</label>
       <Field as="textarea" name="student_skills" rows="3" placeholder="Python, Django, React..." className="register-textarea" />
@@ -375,14 +431,42 @@ const StudentFields = () => (
   </div>
 );
 
-const CompanyFields = () => (
+const CompanyFields = ({ departments, values, setFieldValue }) => (
   <div className="register-grid-full">
     <Input name="company_name" label="Company Name" />
     <Input name="company_phone" label="Phone Number" />
+    <div className="register-field register-field-full">
+      <label className="register-label">Email</label>
+      <Field name="email" placeholder="company@example.com" className="register-input" />
+      <ErrorMessage name="email" component="div" className="register-error" />
+    </div>
     <div className="register-field-full"><Input name="company_address" label="Address" /></div>
     <Input name="company_city" label="City" />
     <Input name="company_contact_person" label="Contact Person" />
     <Input name="company_contact_title" label="Job Title" />
+    
+    <div className="register-field register-field-full">
+      <label className="register-label">Target Departments *</label>
+      <span className="register-field-hint" style={{ display: 'block', marginBottom: '8px' }}>
+        Select target departments you recruit interns from (Select at least one)
+      </span>
+      <div className="register-dept-tags">
+        {departments.map(d => (
+          <div
+            key={d.id}
+            onClick={() => {
+              const arr = Array.isArray(values.target_departments) ? values.target_departments : [];
+              setFieldValue('target_departments', arr.includes(d.id) ? arr.filter(i => i !== d.id) : [...arr, d.id]);
+            }}
+            className={`register-dept-tag ${values.target_departments?.includes(d.id) ? 'selected' : ''}`}
+          >
+            {values.target_departments?.includes(d.id) ? '✓ ' : '+ '}{d.name}
+          </div>
+        ))}
+      </div>
+      <ErrorMessage name="target_departments" component="div" className="register-error" />
+    </div>
+
     <div className="register-field register-field-full">
       <label className="register-label">Description</label>
       <Field as="textarea" name="company_description" rows="4" className="register-textarea" />
@@ -391,19 +475,35 @@ const CompanyFields = () => (
   </div>
 );
 
-const AdvisorFields = () => (
-  <div className="register-grid-full">
-    <Input name="advisor_full_name" label="Advisor Name" />
-    <Input name="advisor_phone" label="Phone Number" />
-    <div className="register-field-full"><Input name="advisor_staff_id" label="Staff ID" /></div>
-  </div>
-);
 
-const DepartmentFields = () => (
+
+const DepartmentFields = ({ departments, values, setFieldValue }) => (
   <div className="register-grid-full">
-    <div className="register-field-full"><Input name="department_name" label="Department Name" /></div>
-    <Input name="department_head_name" label="Department Head" />
+    <Input name="department_head_name" label="Department Head Name" />
     <Input name="department_phone" label="Phone Number" />
+    <div className="register-field">
+      <label className="register-label">Department</label>
+      <Field
+        as="select"
+        name="department"
+        className="register-select"
+        onChange={(e) => {
+          const deptId = e.target.value;
+          setFieldValue('department', deptId);
+          const dept = departments.find(d => String(d.id) === String(deptId));
+          setFieldValue('department_name', dept ? dept.name : '');
+        }}
+      >
+        <option value="">Select Department</option>
+        {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+      </Field>
+      <ErrorMessage name="department" component="div" className="register-error" />
+    </div>
+    <div className="register-field">
+      <label className="register-label">Email</label>
+      <Field name="email" placeholder="depthead@university.edu" className="register-input" />
+      <ErrorMessage name="email" component="div" className="register-error" />
+    </div>
   </div>
 );
 

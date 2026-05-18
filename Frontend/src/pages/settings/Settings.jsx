@@ -9,7 +9,8 @@ import authService from '../../services/authService';
 import {
   User, Lock, Bell, Globe, Moon, Sun, Shield, Mail,
   Phone, MapPin, Building2, Save, AlertTriangle, CheckCircle,
-  Eye, EyeOff, RefreshCw, FileText
+  Eye, EyeOff, RefreshCw, FileText, UserCog, ShieldCheck, 
+  BellRing, Palette, Sparkles, CreditCard, Headphones
 } from 'lucide-react';
 import './Settings.css';
 
@@ -21,6 +22,7 @@ const Settings = () => {
   const [error, setError] = useState('');
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [isProfileHidden, setIsProfileHidden] = useState(false);
   
   // Get user info from localStorage
   const user = authService.getUser();
@@ -35,6 +37,10 @@ const Settings = () => {
     address: '',
     website: '',
     description: '',
+    supervisor_name: '',
+    supervisor_email: '',
+    supervisor_phone: '',
+    supervisor_title: '',
   });
 
   // Password form
@@ -60,21 +66,33 @@ const Settings = () => {
   useEffect(() => {
     // Fetch profile on mount
     const fetchProfile = async () => {
-      setLoading(true);
-      const res = await authService.getProfile();
-      if (res.success) {
-        const { user, profile } = res.data;
-        setProfileForm({
-          full_name: user.full_name || '',
-          email: user.email || '',
-          phone_number: profile.phone_number || '',
-          city: profile.city || '',
-          address: profile.address || '',
-          website: profile.website || '',
-          description: profile.description || '',
-        });
+      try {
+        setLoading(true);
+        const res = await authService.getProfile();
+        if (res.success && res.data) {
+          const { user: userData, profile } = res.data;
+          const isComp = userData?.role === 'COMPANY';
+          const p = profile || {};
+          setProfileForm({
+            full_name: isComp ? (p.contact_person_name || '') : (userData?.full_name || ''),
+            email: userData?.email || '',
+            phone_number: p.phone_number || '',
+            city: p.city || '',
+            address: p.address || '',
+            website: p.website || '',
+            description: p.description || '',
+            contact_person_title: p.contact_person_title || '',
+            supervisor_name: p.supervisor_name || '',
+            supervisor_email: p.supervisor_email || '',
+            supervisor_phone: p.supervisor_phone || '',
+            supervisor_title: p.supervisor_title || '',
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchProfile();
@@ -91,20 +109,62 @@ const Settings = () => {
     setSuccess('');
 
     try {
-      const res = await authService.updateProfile(profileForm);
+      const dataToSave = { ...profileForm };
+      
+      // Validate supervisor fields for company users
+      if (isCompany) {
+        const missingFields = [];
+        if (!dataToSave.supervisor_name?.trim()) missingFields.push('Supervisor Full Name');
+        if (!dataToSave.supervisor_title?.trim()) missingFields.push('Supervisor Title/Position');
+        if (!dataToSave.supervisor_email?.trim()) missingFields.push('Supervisor Email');
+        if (!dataToSave.supervisor_phone?.trim()) missingFields.push('Supervisor Phone');
+        
+        if (missingFields.length > 0) {
+          setError(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+          setLoading(false);
+          return;
+        }
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(dataToSave.supervisor_email)) {
+          setError('Please enter a valid supervisor email address');
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Always remove email - it's read-only in the backend
+      delete dataToSave.email;
+      
+      if (isCompany) {
+        // For companies, map full_name to contact_person_name
+        dataToSave.contact_person_name = profileForm.full_name;
+        delete dataToSave.full_name;
+      }
+
+      console.log('Sending profile update:', dataToSave);
+      const res = await authService.updateProfile(dataToSave);
+      console.log('Profile update response:', res);
       
       if (res.success) {
         setSuccess('Profile updated successfully!');
-        // Update local user info if needed
+        // Update local user info
         const existingUser = JSON.parse(localStorage.getItem('user') || '{}');
         const updatedUser = { ...existingUser, ...res.data.user };
         localStorage.setItem('user', JSON.stringify(updatedUser));
         
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(res.error || 'Failed to update profile.');
+        // Display detailed error message
+        const errorMsg = typeof res.error === 'object' 
+          ? JSON.stringify(res.error) 
+          : (res.error || 'Failed to update profile.');
+        console.error('Profile update error:', errorMsg);
+        setError(errorMsg);
       }
     } catch (err) {
+      console.error('Profile update exception:', err);
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -186,11 +246,13 @@ const Settings = () => {
     }
   };
 
+  const profileTabLabel = isCompany ? 'Company Information' : 'Profile Information';
+
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: User },
-    { id: 'security', label: 'Security', icon: Lock },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'preferences', label: 'Preferences', icon: Globe },
+    { id: 'profile', label: profileTabLabel, icon: UserCog, color: '#14a800' },
+    { id: 'security', label: 'Security', icon: ShieldCheck, color: '#3b82f6' },
+    { id: 'notifications', label: 'Notifications', icon: BellRing, color: '#f59e0b' },
+    { id: 'preferences', label: 'Appearance', icon: Palette, color: '#8b5cf6' },
   ];
 
   return (
@@ -232,8 +294,11 @@ const Settings = () => {
                     key={tab.id}
                     className={`settings-tab ${activeTab === tab.id ? 'active' : ''}`}
                     onClick={() => setActiveTab(tab.id)}
+                    style={{ '--tab-color': tab.color }}
                   >
-                    <IconComponent size={18} />
+                    <div className="settings-tab-icon">
+                      <IconComponent size={18} />
+                    </div>
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -247,114 +312,279 @@ const Settings = () => {
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="settings-section">
-                <div className="settings-section-header">
-                  <User size={20} />
-                  <div>
-                    <h2>Profile Information</h2>
-                    <p>Update your personal information and contact details</p>
+                <div className="settings-section-header premium">
+                  <div className="settings-header-icon-wrapper" style={{ background: 'rgba(20, 168, 0, 0.1)', color: '#14a800' }}>
+                    <UserCog size={24} />
                   </div>
+                  <div>
+                    <h2>{profileTabLabel}</h2>
+                    <p>{isCompany ? 'Manage company and supervisor information' : 'Update your personal information'}</p>
+                  </div>
+                  <Sparkles className="premium-sparkle" size={20} color="#f59e0b" />
                 </div>
 
                 <form onSubmit={handleProfileUpdate} className="settings-form">
-                  <div className="settings-form-row">
-                    <div className="settings-form-group">
-                      <label>
-                        <User size={14} />
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        value={profileForm.full_name}
-                        onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-
-                    <div className="settings-form-group">
-                      <label>
-                        <Mail size={14} />
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        value={profileForm.email}
-                        onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                        placeholder="your.email@example.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="settings-form-row">
-                    <div className="settings-form-group">
-                      <label>
-                        <Phone size={14} />
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        value={profileForm.phone_number}
-                        onChange={(e) => setProfileForm({ ...profileForm, phone_number: e.target.value })}
-                        placeholder="+1 (555) 000-0000"
-                      />
-                    </div>
-
-                    <div className="settings-form-group">
-                      <label>
-                        <MapPin size={14} />
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        value={profileForm.city}
-                        onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
-                        placeholder="Your city"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="settings-form-group">
-                    <label>
-                      <Building2 size={14} />
-                      Address
-                    </label>
-                    <textarea
-                      value={profileForm.address}
-                      onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
-                      placeholder="Enter your full address"
-                      rows="3"
-                    />
-                  </div>
-
-                  {isCompany && (
+                  {!isCompany && (
                     <>
-                      <div className="settings-form-group">
-                        <label>
-                          <Globe size={14} />
-                          Website
-                        </label>
-                        <input
-                          type="url"
-                          value={profileForm.website}
-                          onChange={(e) => setProfileForm({ ...profileForm, website: e.target.value })}
-                          placeholder="https://www.yourcompany.com"
-                        />
+                      <div className="settings-form-row">
+                        <div className="settings-form-group">
+                          <label>
+                            <User size={14} />
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            value={profileForm.full_name}
+                            onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                            placeholder="Enter your full name"
+                          />
+                        </div>
+
+                        <div className="settings-form-group">
+                          <label>
+                            <Mail size={14} />
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            value={profileForm.email}
+                            onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                            placeholder="your.email@example.com"
+                          />
+                        </div>
                       </div>
+
+                      <div className="settings-form-row">
+                        <div className="settings-form-group">
+                          <label>
+                            <Phone size={14} />
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            value={profileForm.phone_number}
+                            onChange={(e) => setProfileForm({ ...profileForm, phone_number: e.target.value })}
+                            placeholder="+1 (555) 000-0000"
+                          />
+                        </div>
+
+                        <div className="settings-form-group">
+                          <label>
+                            <MapPin size={14} />
+                            City
+                          </label>
+                          <input
+                            type="text"
+                            value={profileForm.city}
+                            onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
+                            placeholder="Your city"
+                          />
+                        </div>
+                      </div>
+
                       <div className="settings-form-group">
                         <label>
-                          <FileText size={14} />
-                          Company Description
+                          <Building2 size={14} />
+                          Address
                         </label>
                         <textarea
-                          value={profileForm.description}
-                          onChange={(e) => setProfileForm({ ...profileForm, description: e.target.value })}
-                          placeholder="Tell us about your company..."
-                          rows="4"
+                          value={profileForm.address}
+                          onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                          placeholder="Enter your full address"
+                          rows="3"
                         />
                       </div>
                     </>
                   )}
 
-                  <div className="settings-form-actions">
+                  {isCompany && (
+                    <>
+                      <div style={{ marginTop: '32px', borderTop: '2px solid var(--border-subtle)', paddingTop: '32px' }}>
+                        <div className="settings-section-header">
+                          <Building2 size={20} />
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <div>
+                              <h2>Company Contact Information</h2>
+                              <p>Manage how students and advisors contact your organization</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setIsProfileHidden(!isProfileHidden)}
+                              style={{
+                                padding: '8px 16px',
+                                background: isProfileHidden ? 'var(--bg-root)' : '#14a800',
+                                color: isProfileHidden ? 'var(--text-bright)' : '#ffffff',
+                                border: '1px solid var(--border-subtle)',
+                                borderRadius: '8px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}
+                            >
+                              {isProfileHidden ? <Eye size={16} /> : <EyeOff size={16} />}
+                              {isProfileHidden ? 'View Profile' : 'Hide Profile'}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="settings-form">
+                          <div className="settings-form-row">
+                            <div className="settings-form-group">
+                              <label>
+                                <Mail size={14} />
+                                Email Address
+                              </label>
+                              <input
+                                type="email"
+                                value={profileForm.email}
+                                onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                                placeholder="two306702@gmail.com"
+                              />
+                            </div>
+
+                            <div className="settings-form-group">
+                              <label>
+                                <Globe size={14} />
+                                Website URL
+                              </label>
+                              <input
+                                type="url"
+                                value={profileForm.website}
+                                onChange={(e) => setProfileForm({ ...profileForm, website: e.target.value })}
+                                placeholder="https://www.company.com"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="settings-form-row">
+                            <div className="settings-form-group">
+                              <label>
+                                <Phone size={14} />
+                                Phone Number
+                              </label>
+                              <input
+                                type="tel"
+                                value={profileForm.phone_number}
+                                onChange={(e) => setProfileForm({ ...profileForm, phone_number: e.target.value })}
+                                placeholder="0987654359"
+                              />
+                            </div>
+
+                            <div className="settings-form-group">
+                              <label>
+                                <MapPin size={14} />
+                                Office Address
+                              </label>
+                              <input
+                                type="text"
+                                value={profileForm.address}
+                                onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                                placeholder="Enter office address"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Supervisor Information Section */}
+                      <div style={{ marginTop: '32px', borderTop: '2px solid var(--border-subtle)', paddingTop: '32px' }}>
+                        <div className="settings-section-header premium">
+                          <div className="settings-header-icon-wrapper" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
+                            <UserCog size={24} />
+                          </div>
+                          <div>
+                            <h2>Internship Supervisor Information</h2>
+                            <p>Supervisor details for student-advisor communication and monthly reports</p>
+                          </div>
+                          <Sparkles className="premium-sparkle" size={20} color="#8b5cf6" />
+                        </div>
+
+                        <div className="settings-info-box" style={{ marginBottom: '24px', background: 'rgba(139, 92, 246, 0.05)', borderColor: '#8b5cf6' }}>
+                          <Shield size={16} color="#8b5cf6" />
+                          <div>
+                            <strong>Why provide supervisor information? <span style={{ color: '#ef4444' }}>(Required)</span></strong>
+                            <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                              <li>Enables direct communication between supervisor and student's academic advisor</li>
+                              <li>Allows supervisor to send monthly progress reports to advisors</li>
+                              <li>Facilitates better coordination for student internship oversight</li>
+                              <li>Advisors will be notified when supervisor updates are made</li>
+                            </ul>
+                            <p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
+                              <strong>Note:</strong> All supervisor fields are required to ensure proper communication channels.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="settings-form">
+                          <div className="settings-form-row">
+                            <div className="settings-form-group">
+                              <label>
+                                <User size={14} />
+                                Supervisor Full Name <span style={{ color: '#ef4444' }}>*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={profileForm.supervisor_name}
+                                onChange={(e) => setProfileForm({ ...profileForm, supervisor_name: e.target.value })}
+                                placeholder="Enter supervisor's full name"
+                                required
+                              />
+                            </div>
+
+                            <div className="settings-form-group">
+                              <label>
+                                <Building2 size={14} />
+                                Supervisor Title/Position <span style={{ color: '#ef4444' }}>*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={profileForm.supervisor_title}
+                                onChange={(e) => setProfileForm({ ...profileForm, supervisor_title: e.target.value })}
+                                placeholder="e.g., Senior Developer, HR Manager"
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div className="settings-form-row">
+                            <div className="settings-form-group">
+                              <label>
+                                <Mail size={14} />
+                                Supervisor Email <span style={{ color: '#ef4444' }}>*</span>
+                              </label>
+                              <input
+                                type="email"
+                                value={profileForm.supervisor_email}
+                                onChange={(e) => setProfileForm({ ...profileForm, supervisor_email: e.target.value })}
+                                placeholder="supervisor@company.com"
+                                required
+                              />
+                            </div>
+
+                            <div className="settings-form-group">
+                              <label>
+                                <Phone size={14} />
+                                Supervisor Phone <span style={{ color: '#ef4444' }}>*</span>
+                              </label>
+                              <input
+                                type="tel"
+                                value={profileForm.supervisor_phone}
+                                onChange={(e) => setProfileForm({ ...profileForm, supervisor_phone: e.target.value })}
+                                placeholder="+251 912 345 678"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  
+                  <div className="settings-form-actions" style={{ marginTop: '32px', borderTop: '2px solid var(--border-subtle)', paddingTop: '24px' }}>
                     <button type="submit" className="settings-btn-primary" disabled={loading}>
                       {loading ? (
                         <>
@@ -376,8 +606,10 @@ const Settings = () => {
             {/* Security Tab */}
             {activeTab === 'security' && (
               <div className="settings-section">
-                <div className="settings-section-header">
-                  <Lock size={20} />
+                <div className="settings-section-header premium">
+                  <div className="settings-header-icon-wrapper" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                    <ShieldCheck size={24} />
+                  </div>
                   <div>
                     <h2>Security Settings</h2>
                     <p>Manage your password and account security</p>
@@ -476,8 +708,10 @@ const Settings = () => {
             {/* Notifications Tab */}
             {activeTab === 'notifications' && (
               <div className="settings-section">
-                <div className="settings-section-header">
-                  <Bell size={20} />
+                <div className="settings-section-header premium">
+                  <div className="settings-header-icon-wrapper" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                    <BellRing size={24} />
+                  </div>
                   <div>
                     <h2>Notification Preferences</h2>
                     <p>Choose what notifications you want to receive</p>
@@ -586,8 +820,10 @@ const Settings = () => {
             {/* Preferences Tab */}
             {activeTab === 'preferences' && (
               <div className="settings-section">
-                <div className="settings-section-header">
-                  <Globe size={20} />
+                <div className="settings-section-header premium">
+                  <div className="settings-header-icon-wrapper" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
+                    <Palette size={24} />
+                  </div>
                   <div>
                     <h2>Display Preferences</h2>
                     <p>Customize your experience</p>

@@ -200,10 +200,12 @@ const DepartmentCycles = () => {
   };
 
   const getStats = () => {
+    // Ensure cycles is an array before filtering
+    const cyclesArray = Array.isArray(cycles) ? cycles : [];
     return {
-      total: cycles.length,
-      active: cycles.filter(c => c.is_active).length,
-      closed: cycles.filter(c => !c.is_active).length,
+      total: cyclesArray.length,
+      active: cyclesArray.filter(c => c.is_active).length,
+      closed: cyclesArray.filter(c => !c.is_active).length,
     };
   };
 

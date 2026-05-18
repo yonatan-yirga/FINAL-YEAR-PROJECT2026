@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GraduationCap, Award, Key } from 'lucide-react';
+import brandLogo from '../../assets/Debre_Markos_University.png';
 
 const VerifyLanding = () => {
   const navigate = useNavigate();
@@ -66,14 +67,13 @@ const VerifyLanding = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
-            width: '40px', height: '40px', background: T.gold, borderRadius: '12px',
+            width: '40px', height: '40px', overflow: 'hidden',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
-            <GraduationCap size={24} color={T.navy} strokeWidth={2.5} />
+            <img src={brandLogo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div>
             <div style={{ color: T.white, fontWeight: 800, fontSize: '16px', letterSpacing: '0.5px' }}>
-              DMU LINKAGE
             </div>
             <div style={{ color: T.muted, fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
               Verify

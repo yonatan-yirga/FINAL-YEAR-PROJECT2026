@@ -205,6 +205,14 @@ const MyStudents = () => {
                 <span>Completed</span>
                 <span className="ms-filter-count">{statistics?.completed_students || 0}</span>
               </button>
+              
+              <button
+                className="ms-filter-btn ms-reports-btn"
+                onClick={() => navigate('/advisor/reports')}
+              >
+                <MessageSquare size={16} />
+                <span>Monthly Reports</span>
+              </button>
             </div>
           </div>
 
@@ -330,7 +338,6 @@ const MyStudents = () => {
                       <th>Start Date</th>
                       <th>Duration</th>
                       <th>Status</th>
-                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -404,33 +411,6 @@ const MyStudents = () => {
                             >
                               <StatusIcon size={12} />
                               <span>{statusInfo.label}</span>
-                            </div>
-                          </td>
-                          
-                          {/* Actions */}
-                          <td>
-                            <div className="ms-table-actions">
-                              <button 
-                                className="ms-table-action-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/advisor/students/${student.id}`);
-                                }}
-                                title="View Details"
-                              >
-                                <Eye size={16} />
-                              </button>
-                              
-                              <button 
-                                className="ms-table-action-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate('/advisor/reports');
-                                }}
-                                title="View Reports"
-                              >
-                                <MessageSquare size={16} />
-                              </button>
                             </div>
                           </td>
                         </tr>

@@ -7,8 +7,9 @@ from . import views
 app_name = 'internships'
 
 urlpatterns = [
-    # Public endpoint (no authentication required)
+    # Public endpoints (no authentication required)
     path('public/', views.public_internships_list, name='public-internships'),
+    path('public/<int:pk>/', views.public_internship_detail, name='public-internship-detail'),
     
     # List and create
     path('', views.InternshipListView.as_view(), name='internship-list'),

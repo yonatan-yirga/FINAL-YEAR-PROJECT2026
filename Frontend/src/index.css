@@ -15,38 +15,38 @@
   --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
 }
 
-/* ── Light Mode (Platinum & Gunmetal) ── */
+/* ── Light Mode (Pure White & Slate) ── */
 :root[data-theme='light'] {
-  --bg-root: #D8D5DB;           /* Platinum - Dominant background */
-  --bg-surface: #ffffff;
-  --bg-glass: rgba(216, 213, 219, 0.7);
-  --text-bright: #2D3142;       /* Gunmetal - Primary text */
-  --text-main: #2D3142;         /* Gunmetal - Main text */
-  --text-muted: #ADACB5;        /* French Gray - Muted text */
-  --border-subtle: #ADACB5;     /* French Gray - Borders */
-  --accent-navy: #2D3142;       /* Gunmetal - Primary accent */
-  --accent-gold: #8B8A94;       /* Darker French Gray for secondary accent */
+  --bg-root: #ffffff;           /* Pure White background */
+  --bg-surface: #f8fafc;        /* Very light slate */
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --text-bright: #0f172a;       /* Dark slate - Primary text */
+  --text-main: #1e293b;         /* Slate - Main text */
+  --text-muted: #64748b;        /* Muted slate */
+  --border-subtle: #e2e8f0;     /* Light border */
+  --accent-navy: #0f172a;       /* Dark slate accent */
+  --accent-gold: #94a3b8;       /* Slate accent */
   --status-success: #10b981;
   --status-error: #ef4444;
   --status-warning: #f59e0b;
-  --header-bg: rgba(216, 213, 219, 0.9);
+  --header-bg: rgba(255, 255, 255, 0.95);
 }
 
-/* ── Dark Mode (Inverted Gunmetal) ── */
+/* ── Dark Mode (Pure Black & Deep Slate) ── */
 :root[data-theme='dark'] {
-  --bg-root: #2D3142;           /* Gunmetal - Dark background */
-  --bg-surface: #3a3d52;        /* Lighter Gunmetal */
-  --bg-glass: rgba(45, 49, 66, 0.8);
-  --text-bright: #D8D5DB;       /* Platinum - Bright text */
-  --text-main: #D8D5DB;         /* Platinum - Main text */
-  --text-muted: #ADACB5;        /* French Gray - Muted text */
-  --border-subtle: #4a4d62;     /* Darker border */
-  --accent-navy: #D8D5DB;       /* Platinum - Primary accent */
-  --accent-gold: #ADACB5;       /* French Gray - Secondary accent */
+  --bg-root: #000000;           /* Pure Black background */
+  --bg-surface: #111111;        /* Deep black surface */
+  --bg-glass: rgba(0, 0, 0, 0.85);
+  --text-bright: #ffffff;       /* Pure White text */
+  --text-main: #f1f5f9;         /* Off-white text */
+  --text-muted: #94a3b8;        /* Muted slate text */
+  --border-subtle: #222222;     /* Very dark border */
+  --accent-navy: #ffffff;       /* White accent */
+  --accent-gold: #475569;       /* Slate accent */
   --status-success: #059669;
   --status-error: #dc2626;
   --status-warning: #d97706;
-  --header-bg: rgba(45, 49, 66, 0.9);
+  --header-bg: rgba(0, 0, 0, 0.95);
 }
 
 /* Global Reset & Base */

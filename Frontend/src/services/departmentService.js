@@ -39,6 +39,23 @@ const departmentService = {
   },
 
   /**
+   * Get student detail
+   * GET /api/departments/students/:id/detail/
+   * @param {number} studentId - Student ID
+   */
+  getStudentDetail: async (studentId) => {
+    try {
+      const response = await apiService.get(`/departments/students/${studentId}/detail/`);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to fetch student details',
+      };
+    }
+  },
+
+  /**
    * Get all advisors in department
    * GET /api/departments/advisors/
    * @param {Object} params - Query parameters (search)
@@ -405,6 +422,79 @@ const departmentService = {
       return {
         success: false,
         error: error.response?.data?.error || 'Failed to register advisor',
+      };
+    }
+  },
+
+  /**
+   * Register multiple advisors from Excel
+   * POST /api/departments/bulk-add-advisors/
+   * @param {File} file - Excel file
+   */
+  bulkAddAdvisors: async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await apiService.post('/departments/bulk-add-advisors/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || error.response?.data?.details || 'Failed to bulk register advisors',
+        details: error.response?.data?.errors || []
+      };
+    }
+  },
+
+  /**
+   * Get overloaded advisors (exceeding max_students limit)
+   * GET /api/departments/advisors/overloaded/
+   */
+  getOverloadedAdvisors: async () => {
+    try {
+      const response = await apiService.get('/departments/advisors/overloaded/');
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to fetch overloaded advisors',
+      };
+    }
+  },
+
+  /**
+   * Get available advisors (not at capacity)
+   * GET /api/departments/advisors/available/
+   */
+  getAvailableAdvisors: async () => {
+    try {
+      const response = await apiService.get('/departments/advisors/available/');
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to fetch available advisors',
+      };
+    }
+  },
+
+  /**
+   * Reassign students from one advisor to another
+   * POST /api/departments/advisors/reassign/
+   * @param {Object} data - { from_advisor_id, to_advisor_id, assignment_ids }
+   */
+  reassignStudents: async (data) => {
+    try {
+      const response = await apiService.post('/departments/advisors/reassign/', data);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || 'Failed to reassign students',
       };
     }
   },

@@ -11,6 +11,7 @@ import {
   Users, CheckCircle, AlertCircle, Shield, Search
 } from 'lucide-react';
 import './Companies.css';
+import './ModernPremium.css';
 
 const Companies = () => {
   const [companies, setCompanies] = useState([]);
@@ -66,11 +67,13 @@ const Companies = () => {
   };
 
   const getStats = () => {
+    // Ensure companies is an array before filtering/reducing
+    const companiesArray = Array.isArray(companies) ? companies : [];
     return {
-      total: companies.length,
-      totalInternships: companies.reduce((sum, c) => sum + c.posted_internships, 0),
-      activeInterns: companies.reduce((sum, c) => sum + c.active_interns, 0),
-      completed: companies.reduce((sum, c) => sum + c.completed_interns, 0),
+      total: companiesArray.length,
+      totalInternships: companiesArray.reduce((sum, c) => sum + (c.posted_internships || 0), 0),
+      activeInterns: companiesArray.reduce((sum, c) => sum + (c.active_interns || 0), 0),
+      completed: companiesArray.reduce((sum, c) => sum + (c.completed_interns || 0), 0),
     };
   };
 
@@ -113,7 +116,7 @@ const Companies = () => {
       label: 'Authority Status',
       sortable: true,
       render: (val) => (
-        <span className={`comp-status-badge ${val ? 'blacklisted' : 'compliant'}`}>
+        <span className={`premium-badge ${val ? 'error' : 'success'}`}>
           {val ? (
             <>
               <AlertCircle size={12} />
@@ -134,7 +137,14 @@ const Companies = () => {
       render: (_, row) => (
         <button 
           onClick={(e) => { e.stopPropagation(); handleToggleBlacklist(row); }}
-          className={`comp-action-btn ${row.is_blacklisted ? 'remove' : 'blacklist'}`}
+          className={`premium-btn ${row.is_blacklisted ? 'premium-btn-primary' : 'premium-btn-secondary'}`}
+          style={{ 
+            padding: '8px 14px',
+            fontSize: '12px',
+            background: row.is_blacklisted ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            color: 'white',
+            border: 'none'
+          }}
         >
           {row.is_blacklisted ? (
             <>
@@ -153,22 +163,23 @@ const Companies = () => {
   ];
 
   return (
-    <div className="comp-page">
+    <div className="premium-page">
       <Header
         title="Company Management"
         subtitle="View all registered companies and their activity"
       />
 
-      <div className="comp-content">
+      <div className="premium-content">
         
         {/* Error Alert */}
         {error && (
-          <div className="comp-alert comp-alert-error">
+          <div className="premium-alert error">
             <AlertTriangle size={18} />
             <span>{error}</span>
             <button 
-              className="comp-retry-btn"
+              className="premium-btn-primary"
               onClick={fetchCompanies}
+              style={{ marginLeft: 'auto', padding: '8px 16px' }}
             >
               <RefreshCw size={14} />
               Retry
@@ -177,62 +188,62 @@ const Companies = () => {
         )}
 
         {/* Statistics Dashboard */}
-        <div className="comp-stats-grid">
-          <div className="comp-stat-card comp-stat-primary">
-            <div className="comp-stat-icon comp-icon-green">
-              <Building2 size={18} />
+        <div className="premium-stats-grid">
+          <div className="premium-stat-card primary">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <Building2 size={20} />
+              </div>
+              <div className="premium-stat-trend">
+                <TrendingUp size={14} />
+              </div>
             </div>
-            <div className="comp-stat-body">
-              <span className="comp-stat-label">Total Companies</span>
-              <span className="comp-stat-value">{stats.total}</span>
-            </div>
-            <div className="comp-stat-trend">
-              <TrendingUp size={14} />
-            </div>
+            <div className="premium-stat-value">{stats.total}</div>
+            <div className="premium-stat-label">Total Companies</div>
           </div>
 
-          <div className="comp-stat-card">
-            <div className="comp-stat-icon comp-icon-blue">
-              <Briefcase size={18} />
+          <div className="premium-stat-card success">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <Briefcase size={20} />
+              </div>
             </div>
-            <div className="comp-stat-body">
-              <span className="comp-stat-label">Total Internships</span>
-              <span className="comp-stat-value">{stats.totalInternships}</span>
-            </div>
+            <div className="premium-stat-value">{stats.totalInternships}</div>
+            <div className="premium-stat-label">Total Internships</div>
           </div>
 
-          <div className="comp-stat-card">
-            <div className="comp-stat-icon comp-icon-yellow">
-              <Users size={18} />
+          <div className="premium-stat-card warning">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <Users size={20} />
+              </div>
             </div>
-            <div className="comp-stat-body">
-              <span className="comp-stat-label">Active Interns</span>
-              <span className="comp-stat-value">{stats.activeInterns}</span>
-            </div>
+            <div className="premium-stat-value">{stats.activeInterns}</div>
+            <div className="premium-stat-label">Active Interns</div>
           </div>
 
-          <div className="comp-stat-card">
-            <div className="comp-stat-icon comp-icon-purple">
-              <CheckCircle size={18} />
+          <div className="premium-stat-card purple">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <CheckCircle size={20} />
+              </div>
             </div>
-            <div className="comp-stat-body">
-              <span className="comp-stat-label">Completed</span>
-              <span className="comp-stat-value">{stats.completed}</span>
-            </div>
+            <div className="premium-stat-value">{stats.completed}</div>
+            <div className="premium-stat-label">Completed</div>
           </div>
         </div>
 
         {/* Filter and Actions Bar */}
-        <div className="comp-filter-container">
-          <div className="comp-filter-header">
-            <h3 className="comp-filter-title">
-              <Building2 size={16} />
+        <div className="premium-filter-container">
+          <div className="premium-filter-header">
+            <h3 className="premium-filter-title">
+              <Building2 size={18} />
               Company Directory
             </h3>
-            <div className="comp-filter-actions">
+            <div className="premium-filter-actions">
               <button 
                 onClick={fetchCompanies} 
-                className="comp-refresh-btn"
+                className="premium-btn premium-btn-secondary"
                 disabled={loading}
               >
                 <RefreshCw size={14} className={loading ? 'spinning' : ''} />
@@ -241,9 +252,9 @@ const Companies = () => {
             </div>
           </div>
 
-          <div className="comp-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-            <div className="comp-search-wrapper" style={{ position: 'relative', flex: 1 }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+          <div className="premium-search-row">
+            <div className="premium-search-wrapper">
+              <Search size={18} className="premium-search-icon" />
               <input
                 type="text"
                 placeholder="Search companies by name or contact person..."
@@ -253,19 +264,13 @@ const Companies = () => {
                   if (window.compTimeout) clearTimeout(window.compTimeout);
                   window.compTimeout = setTimeout(() => setSearch(e.target.value), 400);
                 }}
-                style={{
-                  width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
-                  border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
-                }}
+                className="premium-search-input"
               />
             </div>
             <select
               value={ordering}
               onChange={(e) => setOrdering(e.target.value)}
-              style={{
-                padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
-                outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
-              }}
+              className="premium-select"
             >
               <option value="company_name">Name (A-Z)</option>
               <option value="-company_name">Name (Z-A)</option>
@@ -278,7 +283,7 @@ const Companies = () => {
 
 
         {/* Data Table */}
-        <div className="comp-table-container">
+        <div className="premium-table-container">
           <DataTable
             columns={columns}
             data={companies}

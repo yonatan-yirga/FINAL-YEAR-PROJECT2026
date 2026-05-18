@@ -221,6 +221,8 @@ class UILDashboardStatsView(APIView):
     def get(self, request):
         """Return dashboard statistics for UIL"""
         try:
+            from apps.accounts.models import User
+            
             today = timezone.now().date()
             week_ago = today - timedelta(days=7)
             
@@ -262,6 +264,27 @@ class UILDashboardStatsView(APIView):
                         request_type='DEPARTMENT'
                     ).count(),
                 },
+                
+                # Total users by role (approved and active)
+                'total_students': User.objects.filter(
+                    role='STUDENT',
+                    is_active=True
+                ).count(),
+                
+                'total_companies': User.objects.filter(
+                    role='COMPANY',
+                    is_active=True
+                ).count(),
+                
+                'total_advisors': User.objects.filter(
+                    role='ADVISOR',
+                    is_active=True
+                ).count(),
+                
+                'total_departments': User.objects.filter(
+                    role='DEPARTMENT_HEAD',
+                    is_active=True
+                ).count(),
             }
             
             recent_registrations = RegistrationRequest.objects.all().order_by(

@@ -64,7 +64,7 @@ class RegistrationRequestSerializer(serializers.ModelSerializer):
             'company_name', 'company_phone', 'company_address', 'company_city',
             'company_contact_person', 'company_contact_title', 'company_description',
             # Advisor fields
-            'advisor_full_name', 'advisor_phone', 'advisor_staff_id',
+            'advisor_full_name', 'advisor_phone', 'advisor_staff_id', 'advising_location',
             # Department fields
             'department_head_name', 'department_phone',
         ]

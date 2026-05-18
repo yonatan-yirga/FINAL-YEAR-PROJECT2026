@@ -100,6 +100,7 @@ class RegistrationRequest(models.Model):
     advisor_full_name = models.CharField(max_length=255, null=True, blank=True)
     advisor_phone = models.CharField(max_length=20, null=True, blank=True)
     advisor_staff_id = models.CharField(max_length=50, null=True, blank=True)
+    advising_location = models.TextField(null=True, blank=True)
     
     # Department-specific fields
     department_name = models.CharField(max_length=255, null=True, blank=True)
@@ -201,6 +202,7 @@ class RegistrationRequest(models.Model):
                 full_name=self.advisor_full_name,
                 phone_number=self.advisor_phone,
                 staff_id=self.advisor_staff_id,
+                advising_location=self.advising_location,
                 document=self.document
             )
         

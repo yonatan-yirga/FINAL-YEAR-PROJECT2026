@@ -77,10 +77,12 @@ const StudentsValidation = () => {
   };
 
   const getStats = () => {
+    // Ensure students is an array before filtering
+    const studentsArray = Array.isArray(students) ? students : [];
     return {
-      total: students.length,
-      validated: students.filter(s => s.is_eligible).length,
-      pending: students.filter(s => !s.is_eligible).length,
+      total: studentsArray.length,
+      validated: studentsArray.filter(s => s.is_eligible).length,
+      pending: studentsArray.filter(s => !s.is_eligible).length,
     };
   };
 

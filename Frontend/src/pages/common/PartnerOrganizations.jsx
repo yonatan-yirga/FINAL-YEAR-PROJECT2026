@@ -3,10 +3,11 @@
  * Shows all partner companies in the system
  */
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import partnerService from '../../services/partnerService';
 import apiService from '../../services/api';
-import { Building2, MapPin, Briefcase, Users, TrendingUp, Search, ExternalLink, RefreshCw, Clock, Calendar } from 'lucide-react';
+import { Building2, MapPin, Briefcase, Users, TrendingUp, Search, ExternalLink, RefreshCw, Clock, Calendar, Filter, X, SlidersHorizontal } from 'lucide-react';
 
 
 // Add CSS for spin animation and responsive styles
@@ -43,6 +44,9 @@ const PartnerOrganizations = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [skillFilter, setSkillFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   useEffect(() => {
@@ -56,19 +60,47 @@ const PartnerOrganizations = () => {
   }, []);
 
   useEffect(() => {
-    // Filter partners based on search query
-    if (searchQuery.trim() === '') {
-      setFilteredPartners(partners);
-    } else {
+    // Filter partners based on all criteria
+    let filtered = partners;
+
+    // Search by company name or description
+    if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
-      const filtered = partners.filter(partner =>
+      filtered = filtered.filter(partner =>
         partner.company_name.toLowerCase().includes(query) ||
-        partner.city.toLowerCase().includes(query) ||
         partner.description.toLowerCase().includes(query)
       );
-      setFilteredPartners(filtered);
     }
-  }, [searchQuery, partners]);
+
+    // Filter by location
+    if (locationFilter.trim() !== '') {
+      const location = locationFilter.toLowerCase();
+      filtered = filtered.filter(partner =>
+        partner.city.toLowerCase().includes(location)
+      );
+    }
+
+    // Filter by skills (would need to check internships)
+    if (skillFilter.trim() !== '') {
+      // This is a placeholder - you'd need to fetch internships and check their skills
+      // For now, we'll just filter by company name/description containing the skill
+      const skill = skillFilter.toLowerCase();
+      filtered = filtered.filter(partner =>
+        partner.company_name.toLowerCase().includes(skill) ||
+        partner.description.toLowerCase().includes(skill)
+      );
+    }
+
+    setFilteredPartners(filtered);
+  }, [searchQuery, locationFilter, skillFilter, partners]);
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setLocationFilter('');
+    setSkillFilter('');
+  };
+
+  const hasActiveFilters = searchQuery || locationFilter || skillFilter;
 
   const loadData = async () => {
     setLoading(true);
@@ -149,81 +181,326 @@ const PartnerOrganizations = () => {
           </div>
         )}
 
-        {/* Search Bar and Refresh */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: windowWidth <= 640 ? 'column' : 'row',
-          alignItems: windowWidth <= 640 ? 'stretch' : 'center',
-          gap: 12, 
-          marginBottom: 24 
-        }}>
-          <div style={{ position: 'relative', flex: 1, maxWidth: windowWidth <= 640 ? '100%' : 500 }}>
-            <Search
-              size={18}
+        {/* Search Bar and Filters */}
+        <div style={{ marginBottom: 24 }}>
+          {/* Main Search Row */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: windowWidth <= 640 ? 'column' : 'row',
+            alignItems: windowWidth <= 640 ? 'stretch' : 'center',
+            gap: 12, 
+            marginBottom: showFilters ? 16 : 0
+          }}>
+            {/* Search Input */}
+            <div style={{ position: 'relative', flex: 1, maxWidth: windowWidth <= 640 ? '100%' : 500 }}>
+              <Search
+                size={18}
+                style={{
+                  position: 'absolute',
+                  left: 14,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#5e6d55'
+                }}
+              />
+              <input
+                type="text" 
+                placeholder="Search companies by name or description..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px 11px 44px',
+                  border: '1px solid #d5e0d5',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'all 0.2s',
+                  background: '#fff'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#14a800';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(20, 168, 0, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#d5e0d5';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+            
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
               style={{
-                position: 'absolute',
-                left: 14,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#5e6d55'
-              }}
-            />
-            <input
-              type="text" 
-              placeholder="Search companies..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '11px 14px 11px 44px',
-                border: '1px solid #d5e0d5',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '11px 18px',
+                background: showFilters ? '#14a800' : '#fff',
+                color: showFilters ? '#fff' : '#14a800',
+                border: '1px solid #14a800',
                 borderRadius: 10,
                 fontSize: 14,
-                outline: 'none',
+                fontWeight: 600,
+                cursor: 'pointer',
                 transition: 'all 0.2s',
-                background: '#fff'
+                width: windowWidth <= 640 ? '100%' : 'auto'
               }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#14a800';
-                e.target.style.boxShadow = '0 0 0 3px rgba(20, 168, 0, 0.1)';
+            >
+              <SlidersHorizontal size={16} />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+              {hasActiveFilters && !showFilters && (
+                <span style={{
+                  background: '#fff',
+                  color: '#14a800',
+                  borderRadius: '50%',
+                  width: 20,
+                  height: 20,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 11,
+                  fontWeight: 700
+                }}>
+                  {[searchQuery, locationFilter, skillFilter].filter(Boolean).length}
+                </span>
+              )}
+            </button>
+
+            {/* Refresh Button */}
+            <button
+              onClick={loadData}
+              disabled={loading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '11px 18px',
+                background: loading ? '#f1f5f9' : '#14a800',
+                color: loading ? '#5e6d55' : '#fff',
+                border: 'none',
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                width: windowWidth <= 640 ? '100%' : 'auto'
               }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#d5e0d5';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
+              onMouseEnter={(e) => !loading && (e.target.style.background = '#108900')}
+              onMouseLeave={(e) => !loading && (e.target.style.background = '#14a800')}
+            >
+              <RefreshCw 
+                size={16} 
+                style={{ 
+                  animation: loading ? 'spin 1s linear infinite' : 'none' 
+                }} 
+              />
+              {loading ? 'Refreshing...' : 'Refresh'}
+            </button>
           </div>
-          
-          <button
-            onClick={loadData}
-            disabled={loading}
-            style={{
+
+          {/* Advanced Filters Panel */}
+          {showFilters && (
+            <div style={{
+              background: '#f8f9fa',
+              border: '1px solid #d5e0d5',
+              borderRadius: 12,
+              padding: 20,
+              display: 'grid',
+              gridTemplateColumns: windowWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: 16
+            }}>
+              {/* Location Filter */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: '#001e00',
+                  marginBottom: 8
+                }}>
+                  <MapPin size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+                  Location
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., Addis Ababa"
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d5e0d5',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    background: '#fff'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#14a800';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(20, 168, 0, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d5e0d5';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              {/* Skill Filter */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: '#001e00',
+                  marginBottom: 8
+                }}>
+                  <TrendingUp size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+                  Skills / Keywords
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., JavaScript, Python"
+                  value={skillFilter}
+                  onChange={(e) => setSkillFilter(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d5e0d5',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    background: '#fff'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#14a800';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(20, 168, 0, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#d5e0d5';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              </div>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button
+                    onClick={clearFilters}
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#fff',
+                      color: '#dc2626',
+                      border: '1px solid #dc2626',
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = '#dc2626';
+                      e.target.style.color = '#fff';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = '#fff';
+                      e.target.style.color = '#dc2626';
+                    }}
+                  >
+                    <X size={16} />
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && !showFilters && (
+            <div style={{
+              marginTop: 12,
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              flexWrap: 'wrap',
               gap: 8,
-              padding: '11px 18px',
-              background: loading ? '#f1f5f9' : '#14a800',
-              color: loading ? '#5e6d55' : '#fff',
-              border: 'none',
-              borderRadius: 10,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s',
-              width: windowWidth <= 640 ? '100%' : 'auto'
-            }}
-            onMouseEnter={(e) => !loading && (e.target.style.background = '#108900')}
-            onMouseLeave={(e) => !loading && (e.target.style.background = '#14a800')}
-          >
-            <RefreshCw 
-              size={16} 
-              style={{ 
-                animation: loading ? 'spin 1s linear infinite' : 'none' 
-              }} 
-            />
-            {loading ? 'Refreshing...' : 'Refresh'}
-          </button>
+              alignItems: 'center'
+            }}>
+              <span style={{ fontSize: 13, color: '#5e6d55', fontWeight: 500 }}>
+                Active filters:
+              </span>
+              {searchQuery && (
+                <span style={{
+                  padding: '4px 10px',
+                  background: '#14a800',
+                  color: '#fff',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}>
+                  Search: {searchQuery}
+                  <X 
+                    size={14} 
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSearchQuery('')}
+                  />
+                </span>
+              )}
+              {locationFilter && (
+                <span style={{
+                  padding: '4px 10px',
+                  background: '#14a800',
+                  color: '#fff',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}>
+                  Location: {locationFilter}
+                  <X 
+                    size={14} 
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setLocationFilter('')}
+                  />
+                </span>
+              )}
+              {skillFilter && (
+                <span style={{
+                  padding: '4px 10px',
+                  background: '#14a800',
+                  color: '#fff',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}>
+                  Skills: {skillFilter}
+                  <X 
+                    size={14} 
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSkillFilter('')}
+                  />
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
 
@@ -337,7 +614,6 @@ const PartnerCard = ({ partner }) => {
         borderRadius: 16,
         padding: '20px',
         transition: 'all 0.2s ease',
-        cursor: 'pointer',
         transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
         boxShadow: isHovered ? '0 6px 16px rgba(0,0,0,0.08)' : '0 1px 3px rgba(0,0,0,0.04)',
         display: 'flex',
@@ -499,14 +775,33 @@ const PartnerCard = ({ partner }) => {
         }}>
           {internships.length === 0 ? (
             <div style={{
-              padding: 16,
+              padding: 24,
               textAlign: 'center',
-              color: '#5e6d55',
-              fontSize: 13,
               background: '#f8f9fa',
-              borderRadius: 8
+              borderRadius: 12,
+              border: '1px dashed #d5e0d5'
             }}>
-              No positions posted yet
+              <Briefcase size={32} color="#5e6d55" style={{ marginBottom: 12 }} />
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#001e00', marginBottom: 6 }}>
+                No Active Positions
+              </div>
+              <div style={{ fontSize: 13, color: '#5e6d55', marginBottom: 16 }}>
+                This company hasn't posted any internships yet
+              </div>
+              <div style={{ 
+                fontSize: 12, 
+                color: '#5e6d55', 
+                padding: 12, 
+                background: '#fff', 
+                borderRadius: 8,
+                textAlign: 'left'
+              }}>
+                <div style={{ fontWeight: 600, marginBottom: 8 }}>💡 What to expect:</div>
+                <div style={{ marginBottom: 4 }}>• Position title and description</div>
+                <div style={{ marginBottom: 4 }}>• Duration and location details</div>
+                <div style={{ marginBottom: 4 }}>• Required skills and qualifications</div>
+                <div>• Application deadline and slots available</div>
+              </div>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -522,6 +817,9 @@ const PartnerCard = ({ partner }) => {
 };
 
 const InternshipItem = ({ internship }) => {
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+  
   const getStatusColor = (status) => {
     switch (status) {
       case 'OPEN': return { bg: '#d4f4dd', color: '#14a800', text: 'Open' };
@@ -533,22 +831,34 @@ const InternshipItem = ({ internship }) => {
 
   const statusConfig = getStatusColor(internship.status);
 
+  const handleClick = () => {
+    // Navigate to student internship detail page
+    navigate(`/student/internships/${internship.id}`);
+  };
+
   return (
-    <div style={{
-      padding: 14,
-      background: '#f8f9fa',
-      borderRadius: 12,
-      border: '1px solid #e4e5e7',
-      transition: 'all 0.2s'
-    }}>
+    <div 
+      style={{
+        padding: 14,
+        background: isHovered ? '#fff' : '#f8f9fa',
+        borderRadius: 12,
+        border: `1px solid ${isHovered ? '#14a800' : '#e4e5e7'}`,
+        transition: 'all 0.2s',
+        cursor: 'pointer'
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
         <h5 style={{
           fontSize: 14,
           fontWeight: 600,
-          color: '#001e00',
+          color: isHovered ? '#14a800' : '#001e00',
           margin: 0,
           lineHeight: 1.4,
-          flex: 1
+          flex: 1,
+          transition: 'color 0.2s'
         }}>
           {internship.title}
         </h5>
@@ -592,6 +902,23 @@ const InternshipItem = ({ internship }) => {
           {internship.application_count} {internship.application_count === 1 ? 'application' : 'applications'} received
         </div>
       )}
+      
+      <div style={{ 
+        marginTop: 10, 
+        paddingTop: 10, 
+        borderTop: '1px solid #e4e5e7',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        gap: 6,
+        fontSize: 12,
+        fontWeight: 600,
+        color: isHovered ? '#14a800' : '#5e6d55',
+        transition: 'color 0.2s'
+      }}>
+        <span>View Details</span>
+        <ExternalLink size={12} />
+      </div>
     </div>
   );
 };

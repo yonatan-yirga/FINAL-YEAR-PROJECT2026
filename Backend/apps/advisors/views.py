@@ -309,3 +309,96 @@ class AdvisorStatisticsView(APIView):
                 {'error': 'Failed to fetch statistics'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class CompanyStudentAdvisorsView(APIView):
+    """
+    Get advisors for students assigned to current company
+    GET /api/advisors/company-student-advisors/
+    
+    Permission: IsAuthenticated (Company role)
+    
+    Returns list of students with their advisor information for the company's internships
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """Get advisors for company's students"""
+        try:
+            user = request.user
+            
+            # Verify user is a company
+            if user.role != 'COMPANY':
+                return Response(
+                    {'error': 'This endpoint is only accessible to company users.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Get all internships posted by this company
+            from apps.internships.models import Internship
+            from apps.applications.models import Application
+            
+            company_internships = Internship.objects.filter(company=user)
+            
+            # Get all accepted applications for these internships
+            accepted_applications = Application.objects.filter(
+                internship__in=company_internships,
+                status='ACCEPTED'
+            ).select_related('student', 'internship')
+            
+            # Get advisor assignments for these applications
+            advisor_assignments = AdvisorAssignment.objects.filter(
+                application__in=accepted_applications,
+                is_active=True
+            ).select_related(
+                'student',
+                'student__student_profile',
+                'advisor',
+                'advisor__advisor_profile',
+                'internship'
+            )
+            
+            # Build response data
+            students_with_advisors = []
+            for assignment in advisor_assignments:
+                student = assignment.student
+                advisor = assignment.advisor
+                internship = assignment.internship
+                
+                # Get student profile
+                student_profile = getattr(student, 'student_profile', None)
+                advisor_profile = getattr(advisor, 'advisor_profile', None)
+                
+                student_data = {
+                    'student_id': student.id,
+                    'student_name': student_profile.full_name if student_profile else student.email,
+                    'student_email': student.email,
+                    'student_phone': student_profile.phone_number if student_profile else None,
+                    'student_university_id': student_profile.university_id if student_profile else None,
+                    'internship_id': internship.id,
+                    'internship_title': internship.title,
+                    'assignment_id': assignment.id,
+                    'assigned_at': assignment.assigned_at,
+                    'advisor': {
+                        'id': advisor.id,
+                        'name': advisor_profile.full_name if advisor_profile else advisor.email,
+                        'email': advisor.email,
+                        'phone': advisor_profile.phone_number if advisor_profile else None,
+                        'staff_id': advisor_profile.staff_id if advisor_profile else None,
+                        'department': advisor.department.name if advisor.department else None,
+                    }
+                }
+                
+                students_with_advisors.append(student_data)
+            
+            return Response({
+                'count': len(students_with_advisors),
+                'students': students_with_advisors
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            logger.error(f'Error fetching company student advisors: {str(e)}')
+            return Response(
+                {'error': f'Failed to fetch student advisors: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

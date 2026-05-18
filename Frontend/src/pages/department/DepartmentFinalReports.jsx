@@ -202,18 +202,19 @@ const DepartmentFinalReports = () => {
     );
   };
 
-  const filtered = reports.filter(r =>
+  const filtered = (Array.isArray(reports) ? reports : []).filter(r =>
     search.trim() === '' ||
     r.student_name?.toLowerCase().includes(search.toLowerCase()) ||
     r.company_name?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const reportsArray = Array.isArray(reports) ? reports : [];
   const stats = {
-    total:    reports.length,
-    pending:  reports.filter(r => r.status === 'PENDING_ADVISOR').length,
-    ready:    reports.filter(r => r.status === 'SUBMITTED_TO_DEPARTMENT').length,
-    approved: reports.filter(r => r.status === 'APPROVED_BY_DEPARTMENT').length,
-    done:     reports.filter(r => ['CERTIFICATE_ISSUED', 'COMPLETED'].includes(r.status)).length,
+    total:    reportsArray.length,
+    pending:  reportsArray.filter(r => r.status === 'PENDING_ADVISOR').length,
+    ready:    reportsArray.filter(r => r.status === 'SUBMITTED_TO_DEPARTMENT').length,
+    approved: reportsArray.filter(r => r.status === 'APPROVED_BY_DEPARTMENT').length,
+    done:     reportsArray.filter(r => ['CERTIFICATE_ISSUED', 'COMPLETED'].includes(r.status)).length,
   };
 
   // ── Detail slide-in panel ──────────────────────────────────────────────────

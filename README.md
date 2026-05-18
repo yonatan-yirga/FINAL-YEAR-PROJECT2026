@@ -260,7 +260,9 @@ Frontend will run on: `http://localhost:5173`
 - `FAQ.md` - Frequently asked questions
 
 ### Developer Guides
-- `DEPLOYMENT_GUIDE.md` - Deployment instructions
+- `DEPLOYMENT_GUIDE.md` - 
+
+ instructions
 - `API_DOCUMENTATION.md` - API reference
 - `CONTRIBUTING.md` - Contribution guidelines
 

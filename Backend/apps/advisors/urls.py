@@ -10,6 +10,7 @@ from .views import (
     CreateFeedbackView,
     MarkStudentCompletedView,
     AdvisorStatisticsView,
+    CompanyStudentAdvisorsView,
 )
 
 app_name = 'advisors'
@@ -30,4 +31,7 @@ urlpatterns = [
     
     # Mark Completed
     path('students/<int:pk>/complete/', MarkStudentCompletedView.as_view(), name='mark-completed'),
+    
+    # Company-Advisor Communication
+    path('company-student-advisors/', CompanyStudentAdvisorsView.as_view(), name='company-student-advisors'),
 ]

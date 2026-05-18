@@ -1,33 +1,26 @@
 /**
- * UIL Dashboard
+ * UIL Dashboard - Premium Modern Design
  * Oversight for system registration and user verification.
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import uilService from '../../services/uilService';
 import Header from '../../components/common/Header';
-import { 
-  WelcomeBanner, 
-  StatCard, 
-  NavCard, 
-  NotifSidebar, 
-  Skel, 
-  Pill,
-  G, T, getMediaUrl 
-} from '../Dashboards';
-import { 
-  ClipboardList, Calendar, CheckCircle, XCircle, 
+import {
+  ClipboardList, CheckCircle, XCircle,
   GraduationCap, Building2, UserCheck, Building,
-  Users, BarChart3, Eye, Lock, AlertTriangle
+  Users, Eye, AlertTriangle,
+  Shield, Sparkles, ArrowRight, Clock, Zap, TrendingUp
 } from 'lucide-react';
+import './UILDashboard.css';
 
 const UILDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [stats, setStats]   = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     uilService.getDashboardStats().then(r => {
@@ -41,158 +34,255 @@ const UILDashboard = () => {
   const name = user?.full_name || 'UIL Administrator';
 
   return (
-    <div className="db-root">
-      <style>{G}</style>
-      <Header title="UIL Dashboard" subtitle="University Industry Linkage Management" />
-      <div className="db-body">
+    <div className="uil-dashboard-premium">
+      <Header title="UIL Dashboard" subtitle="System Oversight & Verification" />
 
-        {/* ── Main column ── */}
-        <div>
-          <WelcomeBanner 
-            name={name} 
-            role="UIL Officer"
-            tagline="Review registration requests, verify users, and monitor student-industry engagement." 
-          />
-
-          {error && (
-            <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 12, padding: '14px 18px', color: '#B91C1C', fontSize: 13, marginBottom: 24 }}>
-              {error}
-            </div>
-          )}
-
-          {/* Stats Bar */}
-          <p className="db-section-title">Statistics</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 28 }}>
-            {loading ? <Skel cols={4} h={110} /> : <>
-              <StatCard label="Pending Review"  value={pending} accent={pending > 0 ? '#B91C1C' : T.green} icon={ClipboardList} sub={pending > 0 ? 'Action required' : 'Queue cleared'} />
-              <StatCard label="Today"           value={stats?.pending_today}       accent={T.gold}  icon={Calendar} />
-              <StatCard label="Weekly Approved" value={stats?.approved_this_week} accent={T.green} icon={CheckCircle} />
-              <StatCard label="Weekly Rejected" value={stats?.rejected_this_week} accent={T.red}   icon={XCircle} />
-            </>}
+      <div className="uil-content">
+        {/* Welcome Banner */}
+        <div className="uil-welcome-banner">
+          <div className="uil-welcome-icon">
+            <Shield size={28} strokeWidth={2.5} />
           </div>
+          <div className="uil-welcome-text">
+            <div className="uil-welcome-subtitle">UIL OFFICER</div>
+            <h1 className="uil-welcome-title">Welcome back, {name}</h1>
+            <p className="uil-welcome-desc">Review registration requests, verify users, and monitor student-industry engagement.</p>
+          </div>
+          <Sparkles className="uil-sparkle" size={20} />
+        </div>
 
-          {/* Type Distribution */}
-          {!loading && stats?.by_type && (
+        {/* Error Alert */}
+        {error && (
+          <div className="uil-alert uil-alert-error">
+            <AlertTriangle size={20} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Stats Grid */}
+        <div className="uil-section-header">
+          <h2>Overview Statistics</h2>
+          <p>Real-time platform metrics and activity</p>
+        </div>
+
+        <div className="uil-stats-grid">
+          {loading ? (
             <>
-              <p className="db-section-title">User Registration Status (Pending)</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 28 }}>
-                {[
-                  { label: 'Students',    value: stats.by_type.students,    accent: T.navy,  icon: GraduationCap },
-                  { label: 'Companies',   value: stats.by_type.companies,   accent: T.gold,  icon: Building2 },
-                  { label: 'Advisors',    value: stats.by_type.advisors,    accent: T.green, icon: UserCheck },
-                  { label: 'Departments', value: stats.by_type.departments, accent: T.blue,  icon: Building },
-                ].map(({ label, value, accent, icon }) => (
-                  <StatCard key={label} label={label} value={value ?? 0} accent={accent} icon={icon} />
-                ))}
-              </div>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="uil-stat-skeleton"></div>
+              ))}
             </>
-          )}
-
-          {/* Navigation Modules */}
-          <p className="db-section-title">Quick Actions</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 28 }}>
-            <NavCard primary icon={ClipboardList} label="Pending Registrations" badge={pending} sub="Verify and approve registrations" onClick={() => navigate('/uil/pending-registrations')} />
-            <NavCard icon={Users} label="User Management" sub="Manage all approved platform users"    onClick={() => navigate('/uil/manage-users')} />
-            <NavCard icon={BarChart3} label="System Overview"  sub="Real-time system-wide statistics"     onClick={() => navigate('/uil/system-overview')} />
-          </div>
-
-          {/* Recent Registrations Table */}
-          {!loading && stats?.recent_activity?.length > 0 && (
+          ) : (
             <>
-              <p className="db-section-title">Recent Activity</p>
-              <div className="db-card" style={{ marginBottom: 28 }}>
-                {stats.recent_activity.slice(0, 8).map((item, i) => (
-                  <div key={item.id || i} className="db-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 800, background: 'var(--bg-root)', color: 'var(--accent-navy)', border: '1px solid var(--border-subtle)' }}>
-                        {item.request_type}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-bright)' }}>{item.email}</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{item.submitted_at ? new Date(item.submitted_at).toLocaleDateString() : '—'}</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                       <Pill s={item.status} />
-                       <button onClick={() => navigate('/uil/pending-registrations')} style={{ background: 'none', border: 'none', color: 'var(--accent-navy)', fontSize: 16, cursor: 'pointer', padding: 4 }}>
-                         <Eye size={18} />
-                       </button>
-                    </div>
-                  </div>
-                ))}
-                <div style={{ padding: '12px 18px' }}>
-                  <button onClick={() => navigate('/uil/pending-registrations')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-navy)', fontSize: 13, fontWeight: 700 }}>View all activity ↗</button>
+              <div className={`uil-stat-card ${pending > 0 ? 'urgent' : 'success'}`}>
+                <div className="uil-stat-icon" style={{ background: pending > 0 ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                  <ClipboardList size={22} strokeWidth={2.5} />
+                </div>
+                <div className="uil-stat-body">
+                  <div className="uil-stat-label">Pending Review</div>
+                  <div className="uil-stat-value">{pending}</div>
+                  <div className="uil-stat-sub">{pending > 0 ? 'Action required' : 'Queue cleared'}</div>
+                </div>
+              </div>
+
+              <div className="uil-stat-card">
+                <div className="uil-stat-icon" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+                  <Zap size={22} strokeWidth={2.5} />
+                </div>
+                <div className="uil-stat-body">
+                  <div className="uil-stat-label">Today</div>
+                  <div className="uil-stat-value">{stats?.pending_today || 0}</div>
+                  <div className="uil-stat-sub">New registrations</div>
+                </div>
+              </div>
+
+              <div className="uil-stat-card">
+                <div className="uil-stat-icon" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                  <CheckCircle size={22} strokeWidth={2.5} />
+                </div>
+                <div className="uil-stat-body">
+                  <div className="uil-stat-label">Weekly Approved</div>
+                  <div className="uil-stat-value">{stats?.approved_this_week || 0}</div>
+                  <div className="uil-stat-sub">This week</div>
+                </div>
+              </div>
+
+              <div className="uil-stat-card">
+                <div className="uil-stat-icon" style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}>
+                  <XCircle size={22} strokeWidth={2.5} />
+                </div>
+                <div className="uil-stat-body">
+                  <div className="uil-stat-label">Weekly Rejected</div>
+                  <div className="uil-stat-value">{stats?.rejected_this_week || 0}</div>
+                  <div className="uil-stat-sub">This week</div>
                 </div>
               </div>
             </>
           )}
         </div>
 
-        {/* ── Sidebar ── */}
-        <div className="db-sidebar">
-          <NotifSidebar />
+        {/* User Type Distribution */}
+        {!loading && stats && (
+          <>
+            <div className="uil-section-header">
+              <h2>Platform Users by Role</h2>
+              <p>Total registered users across all roles</p>
+            </div>
 
-          {pending > 0 && (
-            <div className="db-sb-section" style={{ border: 'none', background: 'var(--bg-root)', borderLeft: '4px solid var(--accent-red)' }}>
-               <div className="db-sb-head" style={{ color: 'var(--accent-red)', paddingLeft: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
-                 <AlertTriangle size={16} />
-                 Alert
-               </div>
-              <div style={{ padding: '16px 18px' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-bright)', marginBottom: 6 }}>{pending} Registration Waiting</div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 16 }}>Users require verification to access the platform.</div>
-                <button 
-                  onClick={() => navigate('/uil/pending-registrations')} 
-                  style={{ 
-                    width: '100%', 
-                    padding: '10px', 
-                    background: 'var(--accent-navy)', 
-                    color: '#fff', 
-                    border: 'none', 
-                    borderRadius: 10, 
-                    fontSize: 12, 
-                    fontWeight: 700, 
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
+            <div className="uil-type-grid-compact">
+              <div className="uil-type-card-compact">
+                <div className="uil-type-icon-compact" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}>
+                  <GraduationCap size={20} strokeWidth={2.5} />
+                </div>
+                <div className="uil-type-info">
+                  <div className="uil-type-value-compact">{stats.total_students || 0}</div>
+                  <div className="uil-type-label-compact">Students</div>
+                </div>
+              </div>
+
+              <div className="uil-type-card-compact">
+                <div className="uil-type-icon-compact" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}>
+                  <Building2 size={20} strokeWidth={2.5} />
+                </div>
+                <div className="uil-type-info">
+                  <div className="uil-type-value-compact">{stats.total_companies || 0}</div>
+                  <div className="uil-type-label-compact">Companies</div>
+                </div>
+              </div>
+
+              <div className="uil-type-card-compact">
+                <div className="uil-type-icon-compact" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                  <UserCheck size={20} strokeWidth={2.5} />
+                </div>
+                <div className="uil-type-info">
+                  <div className="uil-type-value-compact">{stats.total_advisors || 0}</div>
+                  <div className="uil-type-label-compact">Advisors</div>
+                </div>
+              </div>
+
+              <div className="uil-type-card-compact">
+                <div className="uil-type-icon-compact" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }}>
+                  <Building size={20} strokeWidth={2.5} />
+                </div>
+                <div className="uil-type-info">
+                  <div className="uil-type-value-compact">{stats.total_departments || 0}</div>
+                  <div className="uil-type-label-compact">Departments</div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Quick Actions */}
+        <div className="uil-section-header">
+          <h2>Quick Actions</h2>
+          <p>Navigate to key management areas</p>
+        </div>
+
+        <div className="uil-actions-grid">
+          <div className="uil-action-card primary" onClick={() => navigate('/uil/pending-registrations')}>
+            <div className="uil-action-icon">
+              <ClipboardList size={24} strokeWidth={2.5} />
+            </div>
+            <div className="uil-action-body">
+              <h3>Pending Registrations</h3>
+              <p>Verify and approve user registrations</p>
+            </div>
+            {pending > 0 && <div className="uil-action-badge">{pending}</div>}
+            <ArrowRight className="uil-action-arrow" size={20} />
+          </div>
+
+          <div className="uil-action-card" onClick={() => navigate('/uil/manage-users')}>
+            <div className="uil-action-icon">
+              <Users size={24} strokeWidth={2.5} />
+            </div>
+            <div className="uil-action-body">
+              <h3>User Management</h3>
+              <p>Manage all approved platform users</p>
+            </div>
+            <ArrowRight className="uil-action-arrow" size={20} />
+          </div>
+
+          <div className="uil-action-card" onClick={() => navigate('/uil/system-overview')}>
+            <div className="uil-action-icon">
+              <TrendingUp size={24} strokeWidth={2.5} />
+            </div>
+            <div className="uil-action-body">
+              <h3>System Overview</h3>
+              <p>Real-time system-wide statistics</p>
+            </div>
+            <ArrowRight className="uil-action-arrow" size={20} />
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        {!loading && stats?.recent_activity?.length > 0 && (
+          <>
+            <div className="uil-section-header">
+              <h2>Recent Activity</h2>
+              <p>Latest registration requests</p>
+            </div>
+
+            <div className="uil-activity-card">
+              {stats.recent_activity.slice(0, 8).map((item, i) => (
+                <div key={item.id || i} className="uil-activity-item">
+                  <div className="uil-activity-left">
+                    <div className={`uil-activity-type ${item.request_type.toLowerCase()}`}>
+                      {item.request_type}
+                    </div>
+                    <div className="uil-activity-info">
+                      <div className="uil-activity-email">{item.email}</div>
+                      <div className="uil-activity-date">
+                        <Clock size={12} />
+                        {item.submitted_at ? new Date(item.submitted_at).toLocaleDateString() : '—'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="uil-activity-right">
+                    <div className={`uil-status-badge ${item.status.toLowerCase()}`}>
+                      {item.status}
+                    </div>
+                    <button
+                      className="uil-view-btn"
+                      onClick={() => navigate('/uil/pending-registrations')}
+                    >
+                      <Eye size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <div className="uil-activity-footer">
+                <button
+                  className="uil-view-all-btn"
+                  onClick={() => navigate('/uil/pending-registrations')}
                 >
-                  View Registrations →
+                  View all activity
+                  <ArrowRight size={16} />
                 </button>
               </div>
             </div>
-          )}
+          </>
+        )}
 
-          <div className="db-sb-section" style={{ border: 'none', background: 'transparent' }}>
-            <div className="db-sb-head" style={{ border: 'none', paddingLeft: 0 }}>System Management</div>
-            <div style={{ display: 'grid', gap: 8 }}>
-              {[
-                { icon: ClipboardList, label: 'Pending Registrations', path: '/uil/pending-registrations' },
-                { icon: Users, label: 'User Management',       path: '/uil/manage-users' },
-                { icon: BarChart3, label: 'System Overview',      path: '/uil/system-overview' },
-                { icon: Lock, label: 'Change Password',      path: '/settings/change-password' },
-              ].map(({ icon: IconComponent, label, path }) => (
-                <div 
-                  key={label} 
-                  className="db-row" 
-                  style={{ 
-                    cursor: 'pointer', 
-                    border: '1px solid var(--border-subtle)', 
-                    borderRadius: 12, 
-                    background: 'var(--bg-surface)',
-                    padding: '12px 14px'
-                  }} 
-                  onClick={() => navigate(path)}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <IconComponent size={16} />
-                    <span style={{ fontSize: 13, color: 'var(--text-main)', fontWeight: 600 }}>{label}</span>
-                  </div>
-                  <span style={{ fontSize: 10, opacity: 0.3 }}>→</span>
-                </div>
-              ))}
+        {/* Alert Banner */}
+        {pending > 0 && (
+          <div className="uil-alert-banner">
+            <div className="uil-alert-icon">
+              <AlertTriangle size={22} strokeWidth={2.5} />
             </div>
+            <div className="uil-alert-content">
+              <h3>{pending} Registration{pending > 1 ? 's' : ''} Waiting</h3>
+              <p>Users require verification to access the platform.</p>
+            </div>
+            <button
+              className="uil-alert-btn"
+              onClick={() => navigate('/uil/pending-registrations')}
+            >
+              Review Now
+              <ArrowRight size={16} />
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

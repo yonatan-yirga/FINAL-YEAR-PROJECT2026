@@ -203,6 +203,66 @@ const uilService = {
   },
 
   /**
+   * Update a department
+   */
+  updateDepartment: async (id, deptData) => {
+    try {
+      const response = await apiService.patch(`/departments/${id}/manage/`, deptData);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || error.response?.data?.detail || 'Failed to update department',
+      };
+    }
+  },
+
+  /**
+   * Delete a user
+   */
+  deleteUser: async (id) => {
+    try {
+      await apiService.delete(`/auth/admin/users/${id}/`);
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || error.response?.data?.detail || 'Failed to delete user',
+      };
+    }
+  },
+
+  /**
+   * Update a user
+   */
+  updateUser: async (id, userData) => {
+    try {
+      const response = await apiService.patch(`/auth/admin/users/${id}/`, userData);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || error.response?.data?.detail || 'Failed to update user',
+      };
+    }
+  },
+
+  /**
+   * Create a new user (admin/uil created)
+   */
+  createUser: async (userData) => {
+    try {
+      const response = await apiService.post('/auth/admin/users/', userData);
+      return { success: true, data: response };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.response?.data?.error || error.response?.data?.detail || 'Failed to create user',
+      };
+    }
+  },
+
+  /**
    * Get system-wide statistics for UIL overview
    * GET /api/auth/system-stats/
    */

@@ -879,10 +879,10 @@ class ValidateResetTokenView(APIView):
 
 class AdminUserListView(ListAPIView):
     """
-    List all users with search and filter (Admin only)
+    List all users with search and filter (Admin & UIL)
     GET /api/auth/admin/users/
     """
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdmin | IsUIL]
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = [
@@ -931,29 +931,143 @@ class AdminUserListView(ListAPIView):
             
         try:
             with transaction.atomic():
+                dept_id = request.data.get('department')
                 user = User.objects.create_user(
                     email=email,
                     password=password,
                     role=role,
-                    is_approved=True
+                    is_approved=True,
+                    is_active=True,
+                    department_id=dept_id
                 )
                 
+                # Create Profile based on role
+                full_name = request.data.get('full_name', '')
+                if role == 'STUDENT':
+                    StudentProfile.objects.create(
+                        user=user, 
+                        full_name=full_name,
+                        university_id=f"MANUAL-{user.id}", # Placeholder
+                        date_of_birth="2000-01-01", # Placeholder
+                        gender="MALE" # Placeholder
+                    )
+                elif role == 'COMPANY':
+                    CompanyProfile.objects.create(
+                        user=user,
+                        company_name=full_name or email,
+                        city="Addis Ababa", # Placeholder
+                        address="N/A" # Placeholder
+                    )
+                elif role == 'ADVISOR':
+                    AdvisorProfile.objects.create(
+                        user=user,
+                        full_name=full_name,
+                        staff_id=f"STAFF-{user.id}" # Placeholder
+                    )
+                elif role == 'DEPARTMENT_HEAD':
+                    DepartmentHeadProfile.objects.create(
+                        user=user,
+                        full_name=full_name
+                    )
+                
+                # Send welcome email with login credentials
+                self._send_welcome_email(user, email, password, full_name, role)
+                
                 return Response(
-                    {'message': f'User {email} created successfully.', 'user': UserSerializer(user).data},
+                    {'message': f'User {email} created successfully. Welcome email sent.', 'user': UserSerializer(user).data},
                     status=status.HTTP_201_CREATED
                 )
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def _send_welcome_email(self, user, email, password, full_name, role):
+        """Send welcome email with login credentials to newly created user"""
+        try:
+            # Get frontend URL
+            try:
+                frontend_url = django_settings.CORS_ALLOWED_ORIGINS[0]
+            except (AttributeError, IndexError):
+                frontend_url = 'http://localhost:5173'
+            
+            login_url = f'{frontend_url}/login'
+            
+            # Get role display name
+            role_names = {
+                'STUDENT': 'Student',
+                'COMPANY': 'Company',
+                'ADVISOR': 'Advisor',
+                'DEPARTMENT_HEAD': 'Department Head',
+                'ADMIN': 'Administrator',
+                'UIL': 'UIL Officer'
+            }
+            role_display = role_names.get(role, role)
+            
+            # Get department name if available
+            dept_name = user.department.name if user.department else 'Not assigned'
+            
+            # Compose email
+            subject = 'Welcome to DMU Internship Management System'
+            message = f'''Hello {full_name or 'User'},
+
+Welcome to the DMU Internship Management System!
+
+Your account has been successfully created by the system administrator. Below are your login credentials:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LOGIN CREDENTIALS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Email:      {email}
+Password:   {password}
+Role:       {role_display}
+Department: {dept_name}
+
+Login URL:  {login_url}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IMPORTANT SECURITY INSTRUCTIONS:
+1. Keep your password secure and do not share it with anyone
+2. We recommend changing your password after your first login
+3. To change your password: Login → Settings → Change Password
+4. If you did not expect this account, please contact support immediately
+
+GETTING STARTED:
+1. Visit the login page using the URL above
+2. Enter your email and password
+3. Complete your profile information
+4. Start using the system
+
+If you have any questions or need assistance, please contact the system administrator.
+
+Best regards,
+DMU Internship Management System
+'''
+            
+            # Send email
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=django_settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=True,  # Don't fail user creation if email fails
+            )
+            
+        except Exception as e:
+            # Log error but don't fail the user creation
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send welcome email to {email}: {e}")
 
 
 
 class AdminUserDetailView(APIView):
     """
-    Update or Delete a user (Admin only)
+    Update or Delete a user (Admin & UIL)
     PATCH /api/auth/admin/users/<id>/
     DELETE /api/auth/admin/users/<id>/
     """
-    permission_classes = [IsAuthenticated, IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdmin | IsUIL]
 
     def patch(self, request, pk):
         try:
@@ -962,13 +1076,31 @@ class AdminUserDetailView(APIView):
             if user.role == 'ADMIN' and user.is_superuser and request.user != user:
                  return Response({'error': 'Cannot edit the superadmin.'}, status=status.HTTP_400_BAD_REQUEST)
                  
-            # Only allow updating role, is_approved
+            # Only allow updating role, is_approved, and name
             if 'role' in request.data:
                 user.role = request.data['role']
             if 'is_approved' in request.data:
                 user.is_approved = request.data['is_approved']
+            if 'department' in request.data:
+                user.department_id = request.data['department']
             if 'password' in request.data and request.data['password']:
                 user.set_password(request.data['password'])
+            
+            # Update Profile Name if provided
+            if 'full_name' in request.data:
+                fn = request.data['full_name']
+                if user.role == 'STUDENT' and hasattr(user, 'student_profile'):
+                    user.student_profile.full_name = fn
+                    user.student_profile.save()
+                elif user.role == 'COMPANY' and hasattr(user, 'company_profile'):
+                    user.company_profile.company_name = fn
+                    user.company_profile.save()
+                elif user.role == 'ADVISOR' and hasattr(user, 'advisor_profile'):
+                    user.advisor_profile.full_name = fn
+                    user.advisor_profile.save()
+                elif user.role == 'DEPARTMENT_HEAD' and hasattr(user, 'department_head_profile'):
+                    user.department_head_profile.full_name = fn
+                    user.department_head_profile.save()
                 
             user.save()
             return Response({'message': 'User updated successfully.'}, status=status.HTTP_200_OK)

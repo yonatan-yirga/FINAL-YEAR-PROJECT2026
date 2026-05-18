@@ -110,7 +110,7 @@ const publicService = {
         
         if (!companiesMap.has(companyName)) {
           companiesMap.set(companyName, {
-            id: internship.id || `comp-${index}`, 
+            id: internship.company, // Use actual company ID, not internship ID
             name: companyName,
             logo: internship.company_logo || '🏢', 
             description: internship.company_description || `Leading company offering quality internship opportunities in ${internship.location || 'various locations'}.`,

@@ -12,6 +12,7 @@ import {
   BarChart3, CheckCircle, UserPlus, Search
 } from 'lucide-react';
 import './Advisors.css';
+import './ModernPremium.css';
 
 const Advisors = () => {
   const navigate = useNavigate();
@@ -90,12 +91,14 @@ const Advisors = () => {
   };
 
   const getStats = () => {
+    // Ensure filteredAdvisors is an array before filtering/reducing
+    const advisorsArray = Array.isArray(filteredAdvisors) ? filteredAdvisors : [];
     return {
-      total: filteredAdvisors.length,
-      activeStudents: filteredAdvisors.reduce((sum, a) => sum + (a.active_students || 0), 0),
-      completed: filteredAdvisors.reduce((sum, a) => sum + (a.completed_students || 0), 0),
-      avgWorkload: filteredAdvisors.length > 0
-        ? Math.round(filteredAdvisors.reduce((sum, a) => sum + (a.active_students || 0), 0) / filteredAdvisors.length)
+      total: advisorsArray.length,
+      activeStudents: advisorsArray.reduce((sum, a) => sum + (a.active_students || 0), 0),
+      completed: advisorsArray.reduce((sum, a) => sum + (a.completed_students || 0), 0),
+      avgWorkload: advisorsArray.length > 0
+        ? Math.round(advisorsArray.reduce((sum, a) => sum + (a.active_students || 0), 0) / advisorsArray.length)
         : 0,
     };
   };
@@ -174,22 +177,23 @@ const Advisors = () => {
   ];
 
   return (
-    <div className="adv-page">
+    <div className="premium-page">
       <Header
         title="Advisor Management"
         subtitle="Monitor advisor workload and assignments"
       />
 
-      <div className="adv-content">
+      <div className="premium-content">
         
         {/* Error Alert */}
         {error && (
-          <div className="adv-alert adv-alert-error">
+          <div className="premium-alert error">
             <AlertTriangle size={18} />
             <span>{error}</span>
             <button 
-              className="adv-retry-btn"
+              className="premium-btn-primary"
               onClick={fetchAdvisors}
+              style={{ marginLeft: 'auto', padding: '8px 16px' }}
             >
               <RefreshCw size={14} />
               Retry
@@ -198,69 +202,81 @@ const Advisors = () => {
         )}
 
         {/* Statistics Dashboard */}
-        <div className="adv-stats-grid">
-          <div className="adv-stat-card adv-stat-primary">
-            <div className="adv-stat-icon adv-icon-green">
-              <Users size={18} />
+        <div className="premium-stats-grid">
+          <div className="premium-stat-card primary">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <Users size={20} />
+              </div>
+              <div className="premium-stat-trend">
+                <TrendingUp size={14} />
+              </div>
             </div>
-            <div className="adv-stat-body">
-              <span className="adv-stat-label">Total Advisors</span>
-              <span className="adv-stat-value">{stats.total}</span>
-            </div>
-            <div className="adv-stat-trend">
-              <TrendingUp size={14} />
-            </div>
+            <div className="premium-stat-value">{stats.total}</div>
+            <div className="premium-stat-label">Total Advisors</div>
           </div>
 
-          <div className="adv-stat-card">
-            <div className="adv-stat-icon adv-icon-blue">
-              <UserCheck size={18} />
+          <div className="premium-stat-card success">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <UserCheck size={20} />
+              </div>
             </div>
-            <div className="adv-stat-body">
-              <span className="adv-stat-label">Active Students</span>
-              <span className="adv-stat-value">{stats.activeStudents}</span>
-            </div>
+            <div className="premium-stat-value">{stats.activeStudents}</div>
+            <div className="premium-stat-label">Active Students</div>
           </div>
 
-          <div className="adv-stat-card">
-            <div className="adv-stat-icon adv-icon-purple">
-              <CheckCircle size={18} />
+          <div className="premium-stat-card purple">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <CheckCircle size={20} />
+              </div>
             </div>
-            <div className="adv-stat-body">
-              <span className="adv-stat-label">Completed</span>
-              <span className="adv-stat-value">{stats.completed}</span>
-            </div>
+            <div className="premium-stat-value">{stats.completed}</div>
+            <div className="premium-stat-label">Completed</div>
           </div>
 
-          <div className="adv-stat-card">
-            <div className="adv-stat-icon adv-icon-yellow">
-              <BarChart3 size={18} />
+          <div className="premium-stat-card warning">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <BarChart3 size={20} />
+              </div>
             </div>
-            <div className="adv-stat-body">
-              <span className="adv-stat-label">Avg. Workload</span>
-              <span className="adv-stat-value">{stats.avgWorkload}</span>
-            </div>
+            <div className="premium-stat-value">{stats.avgWorkload}</div>
+            <div className="premium-stat-label">Avg. Workload</div>
           </div>
         </div>
 
         {/* Filter and Actions Bar */}
-        <div className="adv-filter-container">
-          <div className="adv-filter-header">
-            <h3 className="adv-filter-title">
-              <Users size={16} />
+        <div className="premium-filter-container">
+          <div className="premium-filter-header">
+            <h3 className="premium-filter-title">
+              <Users size={18} />
               Advisor Directory
             </h3>
-            <div className="adv-filter-actions">
+            <div className="premium-filter-actions">
+              <button 
+                onClick={() => navigate('/department/advisor-overload')}
+                className="premium-btn premium-btn-secondary"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: 'white',
+                  border: 'none'
+                }}
+              >
+                <AlertTriangle size={14} />
+                Resolve Overload
+              </button>
               <button 
                 onClick={() => navigate('/department/add-advisor')}
-                className="adv-add-btn"
+                className="premium-btn premium-btn-primary"
               >
                 <UserPlus size={14} />
                 Add Advisor
               </button>
               <button 
                 onClick={fetchAdvisors} 
-                className="adv-refresh-btn"
+                className="premium-btn premium-btn-secondary"
                 disabled={loading}
               >
                 <RefreshCw size={14} className={loading ? 'spinning' : ''} />
@@ -269,27 +285,21 @@ const Advisors = () => {
             </div>
           </div>
 
-          <div className="adv-search-sort-row" style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-            <div className="adv-search-wrapper" style={{ position: 'relative', flex: 1 }}>
-              <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+          <div className="premium-search-row">
+            <div className="premium-search-wrapper">
+              <Search size={18} className="premium-search-icon" />
               <input
                 type="text"
                 placeholder="Search advisors by name, staff ID, or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: '100%', padding: '10px 12px 10px 38px', borderRadius: 8,
-                  border: '1px solid #E2E8F0', outline: 'none', fontSize: 14
-                }}
+                className="premium-search-input"
               />
             </div>
             <select
               value={sortDirection === 'desc' ? `-${sortBy}` : sortBy}
               onChange={(e) => handleSortChange(e.target.value)}
-              style={{
-                padding: '10px 12px', borderRadius: 8, border: '1px solid #E2E8F0',
-                outline: 'none', fontSize: 14, minWidth: 160, background: 'white'
-              }}
+              className="premium-select"
             >
               <option value="full_name">Name (A-Z)</option>
               <option value="-full_name">Name (Z-A)</option>
@@ -302,7 +312,7 @@ const Advisors = () => {
 
 
         {/* Data Table */}
-        <div className="adv-table-container">
+        <div className="premium-table-container">
           <DataTable
             columns={columns}
             data={sortedAdvisors}

@@ -11,6 +11,7 @@ import {
   CheckCircle, Send, Filter, TrendingUp
 } from 'lucide-react';
 import './Reports.css';
+import './ModernPremium.css';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -51,16 +52,16 @@ const Reports = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      PENDING_ADVISOR: { label: 'Pending Advisor', icon: Clock, className: 'rep-status-pending' },
-      SUBMITTED_TO_DEPARTMENT: { label: 'Submitted', icon: Send, className: 'rep-status-submitted' },
-      COMPLETED: { label: 'Completed', icon: CheckCircle, className: 'rep-status-completed' },
+      PENDING_ADVISOR: { label: 'Pending Advisor', icon: Clock, className: 'warning' },
+      SUBMITTED_TO_DEPARTMENT: { label: 'Submitted', icon: Send, className: 'info' },
+      COMPLETED: { label: 'Completed', icon: CheckCircle, className: 'purple' },
     };
 
     const config = statusConfig[status] || statusConfig.PENDING_ADVISOR;
     const IconComponent = config.icon;
 
     return (
-      <span className={`rep-status-badge ${config.className}`}>
+      <span className={`premium-badge ${config.className}`}>
         <IconComponent size={12} />
         {config.label}
       </span>
@@ -68,11 +69,13 @@ const Reports = () => {
   };
 
   const getStats = () => {
+    // Ensure reports is an array before filtering
+    const reportsArray = Array.isArray(reports) ? reports : [];
     return {
-      total: reports.length,
-      pending: reports.filter((r) => r.status === 'PENDING_ADVISOR').length,
-      submitted: reports.filter((r) => r.status === 'SUBMITTED_TO_DEPARTMENT').length,
-      completed: reports.filter((r) => r.status === 'COMPLETED').length,
+      total: reportsArray.length,
+      pending: reportsArray.filter((r) => r.status === 'PENDING_ADVISOR').length,
+      submitted: reportsArray.filter((r) => r.status === 'SUBMITTED_TO_DEPARTMENT').length,
+      completed: reportsArray.filter((r) => r.status === 'COMPLETED').length,
     };
   };
 
@@ -121,7 +124,13 @@ const Reports = () => {
             handleDownloadReport(row);
           }}
           disabled={!value}
-          className={`rep-download-btn ${!value ? 'disabled' : ''}`}
+          className={`premium-btn ${!value ? 'premium-btn-secondary' : 'premium-btn-primary'}`}
+          style={{ 
+            padding: '8px 14px',
+            fontSize: '12px',
+            opacity: !value ? 0.5 : 1,
+            cursor: !value ? 'not-allowed' : 'pointer'
+          }}
         >
           <Download size={12} />
           Download
@@ -131,22 +140,23 @@ const Reports = () => {
   ];
 
   return (
-    <div className="rep-page">
+    <div className="premium-page">
       <Header
         title="Final Reports"
         subtitle="View and download internship completion reports"
       />
 
-      <div className="rep-content">
+      <div className="premium-content">
         
         {/* Error Alert */}
         {error && (
-          <div className="rep-alert rep-alert-error">
+          <div className="premium-alert error">
             <AlertTriangle size={18} />
             <span>{error}</span>
             <button 
-              className="rep-retry-btn"
+              className="premium-btn-primary"
               onClick={fetchReports}
+              style={{ marginLeft: 'auto', padding: '8px 16px' }}
             >
               <RefreshCw size={14} />
               Retry
@@ -155,62 +165,62 @@ const Reports = () => {
         )}
 
         {/* Statistics Dashboard */}
-        <div className="rep-stats-grid">
-          <div className="rep-stat-card rep-stat-primary">
-            <div className="rep-stat-icon rep-icon-green">
-              <FileText size={18} />
+        <div className="premium-stats-grid">
+          <div className="premium-stat-card primary">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <FileText size={20} />
+              </div>
+              <div className="premium-stat-trend">
+                <TrendingUp size={14} />
+              </div>
             </div>
-            <div className="rep-stat-body">
-              <span className="rep-stat-label">Total Reports</span>
-              <span className="rep-stat-value">{stats.total}</span>
-            </div>
-            <div className="rep-stat-trend">
-              <TrendingUp size={14} />
-            </div>
+            <div className="premium-stat-value">{stats.total}</div>
+            <div className="premium-stat-label">Total Reports</div>
           </div>
 
-          <div className="rep-stat-card">
-            <div className="rep-stat-icon rep-icon-yellow">
-              <Clock size={18} />
+          <div className="premium-stat-card warning">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <Clock size={20} />
+              </div>
             </div>
-            <div className="rep-stat-body">
-              <span className="rep-stat-label">Pending Advisor</span>
-              <span className="rep-stat-value">{stats.pending}</span>
-            </div>
+            <div className="premium-stat-value">{stats.pending}</div>
+            <div className="premium-stat-label">Pending Advisor</div>
           </div>
 
-          <div className="rep-stat-card">
-            <div className="rep-stat-icon rep-icon-blue">
-              <Send size={18} />
+          <div className="premium-stat-card success">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <Send size={20} />
+              </div>
             </div>
-            <div className="rep-stat-body">
-              <span className="rep-stat-label">Submitted</span>
-              <span className="rep-stat-value">{stats.submitted}</span>
-            </div>
+            <div className="premium-stat-value">{stats.submitted}</div>
+            <div className="premium-stat-label">Submitted</div>
           </div>
 
-          <div className="rep-stat-card">
-            <div className="rep-stat-icon rep-icon-purple">
-              <CheckCircle size={18} />
+          <div className="premium-stat-card purple">
+            <div className="premium-stat-header">
+              <div className="premium-stat-icon">
+                <CheckCircle size={20} />
+              </div>
             </div>
-            <div className="rep-stat-body">
-              <span className="rep-stat-label">Completed</span>
-              <span className="rep-stat-value">{stats.completed}</span>
-            </div>
+            <div className="premium-stat-value">{stats.completed}</div>
+            <div className="premium-stat-label">Completed</div>
           </div>
         </div>
 
         {/* Filter and Actions Bar */}
-        <div className="rep-filter-container">
-          <div className="rep-filter-header">
-            <h3 className="rep-filter-title">
-              <Filter size={16} />
-              Filter & Search
+        <div className="premium-filter-container">
+          <div className="premium-filter-header">
+            <h3 className="premium-filter-title">
+              <Filter size={18} />
+              Filter Reports
             </h3>
-            <div className="rep-filter-actions">
+            <div className="premium-filter-actions">
               <button 
                 onClick={fetchReports} 
-                className="rep-refresh-btn"
+                className="premium-btn premium-btn-secondary"
                 disabled={loading}
               >
                 <RefreshCw size={14} className={loading ? 'spinning' : ''} />
@@ -219,47 +229,47 @@ const Reports = () => {
             </div>
           </div>
 
-          <div className="rep-filter-bar">
+          <div className="premium-filter-pills">
             <button
-              className={`rep-filter-btn ${statusFilter === 'all' ? 'active' : ''}`}
+              className={`premium-filter-pill ${statusFilter === 'all' ? 'active' : ''}`}
               onClick={() => setStatusFilter('all')}
             >
               <FileText size={14} />
-              <span className="rep-filter-label">All Reports</span>
-              <span className="rep-filter-count">{stats.total}</span>
+              All Reports
+              <span className="premium-filter-count">{stats.total}</span>
             </button>
 
             <button
-              className={`rep-filter-btn ${statusFilter === 'pending_advisor' ? 'active' : ''}`}
+              className={`premium-filter-pill ${statusFilter === 'pending_advisor' ? 'active' : ''}`}
               onClick={() => setStatusFilter('pending_advisor')}
             >
               <Clock size={14} />
-              <span className="rep-filter-label">Pending Advisor</span>
-              <span className="rep-filter-count">{stats.pending}</span>
+              Pending Advisor
+              <span className="premium-filter-count">{stats.pending}</span>
             </button>
 
             <button
-              className={`rep-filter-btn ${statusFilter === 'submitted_to_department' ? 'active' : ''}`}
+              className={`premium-filter-pill ${statusFilter === 'submitted_to_department' ? 'active' : ''}`}
               onClick={() => setStatusFilter('submitted_to_department')}
             >
               <Send size={14} />
-              <span className="rep-filter-label">Submitted</span>
-              <span className="rep-filter-count">{stats.submitted}</span>
+              Submitted
+              <span className="premium-filter-count">{stats.submitted}</span>
             </button>
 
             <button
-              className={`rep-filter-btn ${statusFilter === 'completed' ? 'active' : ''}`}
+              className={`premium-filter-pill ${statusFilter === 'completed' ? 'active' : ''}`}
               onClick={() => setStatusFilter('completed')}
             >
               <CheckCircle size={14} />
-              <span className="rep-filter-label">Completed</span>
-              <span className="rep-filter-count">{stats.completed}</span>
+              Completed
+              <span className="premium-filter-count">{stats.completed}</span>
             </button>
           </div>
         </div>
 
         {/* Data Table */}
-        <div className="rep-table-container">
+        <div className="premium-table-container">
           <DataTable
             columns={columns}
             data={reports}

@@ -104,6 +104,8 @@ const AdvisorReports = () => {
   // Filter students based on search
   const filteredStudents = students.filter(student =>
     student.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.student_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.university_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.internship_title?.toLowerCase().includes(searchTerm.toLowerCase())
   );

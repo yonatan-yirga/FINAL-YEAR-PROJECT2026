@@ -6,15 +6,15 @@
 :root {
   --upwork-green: #14a800;
   --upwork-green-hover: #108a00;
-  --upwork-green-light: #e8f5e9;
-  --upwork-border: #e4e5e7;
-  --upwork-border-dark: #d5e0d5;
-  --upwork-text-dark: #1f2d3d;
-  --upwork-text-muted: #6b7177;
-  --upwork-bg: #f7f8f9;
-  --upwork-white: #ffffff;
+  --upwork-green-light: rgba(20, 168, 0, 0.1);
+  --upwork-border: var(--border-subtle);
+  --upwork-border-dark: var(--border-main);
+  --upwork-text-dark: var(--text-bright);
+  --upwork-text-muted: var(--text-muted);
+  --upwork-bg: var(--bg-root);
+  --upwork-white: var(--bg-surface);
   --upwork-gold: #f59e0b;
-  --upwork-gold-light: #fef3c7;
+  --upwork-gold-light: rgba(245, 158, 11, 0.1);
   
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -718,10 +718,11 @@
 /* Department Grouping Styles */
 .admin-department-group {
   margin-bottom: 32px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-subtle);
 }
 
 .admin-department-header {

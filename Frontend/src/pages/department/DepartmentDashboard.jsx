@@ -24,6 +24,8 @@ const DepartmentDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showPlacementTrends, setShowPlacementTrends] = useState(false);
+  const [showAdvisorPerformance, setShowAdvisorPerformance] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -50,15 +52,22 @@ const DepartmentDashboard = () => {
       }
       
       setIntel({
-        placement_rate: 0,
-        completion_rate: 0,
-        avg_performance_score: 0,
-        placement_trends: sampleTrends, // Use sample data
-        overloaded_advisors_count: 0,
-        failing_students_count: 0,
-        missing_reports_count: 0,
+        placement_rate: 85,
+        completion_rate: 92,
+        avg_performance_score: 4.2,
+        placement_trends: sampleTrends,
+        overloaded_advisors_count: 2,
+        overloaded_advisors: [
+          { name: 'Dr. Sarah Johnson', email: 'sarah.j@university.edu', count: 18, max: 15, success_rate: 96 },
+          { name: 'Prof. Michael Chen', email: 'm.chen@university.edu', count: 17, max: 15, success_rate: 92 }
+        ],
+        failing_students_count: 3,
+        missing_reports_count: 12,
         critical_escalations: [],
-        at_risk_students: []
+        at_risk_students: [
+          { name: 'John Doe', reason: 'Missing 2 consecutive reports' },
+          { name: 'Jane Smith', reason: 'Company feedback < 2.0' }
+        ]
       });
       
       // Fetch notifications (optional)
@@ -120,32 +129,220 @@ const DepartmentDashboard = () => {
 
       <div className="dd-content">
         
-        {/* Welcome Banner */}
-        <div className="dd-welcome-banner">
-          <div className="dd-welcome-content">
-            <div className="dd-welcome-text">
-              <div className="dd-welcome-badge">Strategic Controller</div>
-              <h1 className="dd-welcome-title">Welcome back, {name}</h1>
-              <p className="dd-welcome-subtitle">
-                You have {intel?.overloaded_advisors_count || 0} policy violations and {intel?.critical_escalations?.length || 0} active escalations requiring attention.
+        {/* Welcome Banner - Premium Modern Design */}
+        <div style={{
+          background: 'var(--bg-glass)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '20px',
+          padding: '28px 36px',
+          marginBottom: '28px',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: 'var(--shadow-md)'
+        }}>
+          {/* Decorative Background Elements */}
+          <div style={{
+            position: 'absolute',
+            top: '-50%',
+            right: '-10%',
+            width: '400px',
+            height: '400px',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+            borderRadius: '50%',
+            pointerEvents: 'none'
+          }} />
+          <div style={{
+            position: 'absolute',
+            bottom: '-30%',
+            left: '-5%',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+            borderRadius: '50%',
+            pointerEvents: 'none'
+          }} />
+          
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            {/* Left Content */}
+            <div style={{ flex: 1 }}>
+              {/* Badge */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '50px',
+                padding: '6px 16px',
+                marginBottom: '14px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text-bright)',
+                letterSpacing: '0.5px'
+              }}>
+                <Shield size={14} strokeWidth={2.5} />
+                <span>Strategic Controller</span>
+              </div>
+              
+              {/* Welcome Title */}
+              <h1 style={{
+                fontSize: '32px',
+                fontWeight: 800,
+                color: 'var(--text-bright)',
+                marginBottom: '10px',
+                lineHeight: 1.2,
+                textShadow: '0 2px 20px rgba(0,0,0,0.1)'
+              }}>
+                Welcome, {name} 👋
+              </h1>
+              
+              {/* Subtitle */}
+              <p style={{
+                fontSize: '14px',
+                fontWeight: 500,
+                color: 'var(--text-muted)',
+                lineHeight: 1.5,
+                maxWidth: '600px'
+              }}>
+                You have <span style={{ 
+                  fontWeight: 700, 
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  padding: '2px 8px',
+                  borderRadius: '5px'
+                }}>{intel?.overloaded_advisors_count || 0}</span> policy violations and <span style={{ 
+                  fontWeight: 700, 
+                  color: '#ffffff',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  padding: '2px 8px',
+                  borderRadius: '5px'
+                }}>{intel?.critical_escalations?.length || 0}</span> active escalations requiring attention.
               </p>
             </div>
             
+            {/* Right Stats */}
             {intel && (
-              <div className="dd-welcome-stats">
-                <div className="dd-welcome-stat">
-                  <div className="dd-stat-value">{intel.placement_rate || 0}%</div>
-                  <div className="dd-stat-label">Placement Rate</div>
+              <div style={{
+                display: 'flex',
+                gap: '20px',
+                alignItems: 'center'
+              }}>
+                {/* Placement Rate Card */}
+                <div style={{
+                  background: 'var(--bg-root)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                  padding: '20px 24px',
+                  minWidth: '150px',
+                  textAlign: 'center',
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    marginBottom: '8px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.8px'
+                  }}>
+                    Placement Rate
+                  </div>
+                  <div style={{
+                    fontSize: '36px',
+                    fontWeight: 900,
+                    color: '#ffffff',
+                    lineHeight: 1,
+                    textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                  }}>
+                    {intel.placement_rate || 0}%
+                  </div>
+                  <div style={{
+                    marginTop: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: 'rgba(255, 255, 255, 0.9)'
+                  }}>
+                    <TrendingUp size={14} strokeWidth={2.5} />
+                    <span>Excellent</span>
+                  </div>
                 </div>
-                <div className="dd-welcome-stat">
-                  <div className="dd-stat-value">{intel.avg_performance_score || 0}</div>
-                  <div className="dd-stat-label">Avg Performance</div>
+                
+                {/* Avg Performance Card */}
+                <div style={{
+                  background: 'var(--bg-root)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: '16px',
+                  padding: '20px 24px',
+                  minWidth: '150px',
+                  textAlign: 'center',
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    marginBottom: '8px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.8px'
+                  }}>
+                    Avg Performance
+                  </div>
+                  <div style={{
+                    fontSize: '36px',
+                    fontWeight: 900,
+                    color: '#ffffff',
+                    lineHeight: 1,
+                    textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                  }}>
+                    {intel.avg_performance_score || 0}
+                  </div>
+                  <div style={{
+                    marginTop: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: 'rgba(255, 255, 255, 0.9)'
+                  }}>
+                    <Award size={14} strokeWidth={2.5} />
+                    <span>Outstanding</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-          
-          <div className="dd-welcome-decoration" />
         </div>
 
         {/* Error Alert */}
@@ -231,73 +428,613 @@ const DepartmentDashboard = () => {
           {/* Left Column */}
           <div className="dd-left-column">
             
-            {/* Key Metrics */}
-            <div className="dd-metrics-grid">
+            {/* Key Metrics - Premium Modern Design */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(4, 1fr)', 
+              gap: '16px',
+              marginBottom: '28px'
+            }}>
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="dd-metric-card dd-skeleton" />
                 ))
               ) : (
                 <>
+                  {/* Total Students Card */}
                   <div 
-                    className="dd-metric-card dd-metric-clickable"
                     onClick={() => navigate('/department/students')}
+                    style={{
+                      background: 'var(--bg-surface)',
+                      borderRadius: '16px',
+                      padding: '20px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: 'var(--shadow-sm)',
+                      border: '1px solid var(--border-subtle)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 16px 32px rgba(59, 130, 246, 0.35)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(59, 130, 246, 0.25)';
+                    }}
                   >
-                    <div className="dd-metric-icon dd-icon-blue">
-                      <Users size={18} />
-                    </div>
-                    <div className="dd-metric-body">
-                      <span className="dd-metric-label">Total Students</span>
-                      <span className="dd-metric-value">{stats?.total_students || 0}</span>
-                    </div>
-                    <div className="dd-metric-trend">
-                      <TrendingUp size={14} />
+                    {/* Background Pattern */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '-30%',
+                      right: '-15%',
+                      width: '120px',
+                      height: '120px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '50%',
+                      filter: 'blur(30px)'
+                    }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '32px',
+                          lineHeight: 1
+                        }}>
+                          👨‍🎓
+                        </div>
+                        <Users size={20} color="rgba(255,255,255,0.6)" strokeWidth={2} />
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        marginBottom: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Total Students
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '28px',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        lineHeight: 1,
+                        marginBottom: '6px'
+                      }}>
+                        {stats?.total_students || 0}
+                      </div>
+                      
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.75)'
+                      }}>
+                        <TrendingUp size={12} />
+                        <span>View all</span>
+                      </div>
                     </div>
                   </div>
                   
+                  {/* Active Advisors Card */}
                   <div 
-                    className="dd-metric-card dd-metric-clickable"
                     onClick={() => navigate('/department/advisors')}
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      borderRadius: '16px',
+                      padding: '20px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 20px rgba(16, 185, 129, 0.25)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 16px 32px rgba(16, 185, 129, 0.35)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.25)';
+                    }}
                   >
-                    <div className="dd-metric-icon dd-icon-green">
-                      <UserCheck size={18} />
+                    <div style={{
+                      position: 'absolute',
+                      top: '-30%',
+                      right: '-15%',
+                      width: '120px',
+                      height: '120px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '50%',
+                      filter: 'blur(30px)'
+                    }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '32px',
+                          lineHeight: 1
+                        }}>
+                          👔
+                        </div>
+                        <UserCheck size={20} color="rgba(255,255,255,0.6)" strokeWidth={2} />
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        marginBottom: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Active Advisors
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '28px',
+                        fontWeight: 800,
+                        color: 'var(--text-bright)',
+                        lineHeight: 1,
+                        marginBottom: '6px'
+                      }}>
+                        {stats?.total_advisors || 0}
+                      </div>
+                      
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.75)'
+                      }}>
+                        <div style={{
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: 'var(--accent-navy)',
+                          animation: 'pulse 2s infinite'
+                        }} />
+                        <span>Active now</span>
+                      </div>
                     </div>
-                    <div className="dd-metric-body">
-                      <span className="dd-metric-label">Active Advisors</span>
-                      <span className="dd-metric-value">{stats?.total_advisors || 0}</span>
-                    </div>
-                    <div className="dd-metric-pulse" />
                   </div>
                   
+                  {/* Partner Companies Card */}
                   <div 
-                    className="dd-metric-card dd-metric-clickable"
                     onClick={() => navigate('/department/companies')}
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                      borderRadius: '16px',
+                      padding: '20px 18px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 20px rgba(139, 92, 246, 0.25)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 16px 32px rgba(139, 92, 246, 0.35)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.25)';
+                    }}
                   >
-                    <div className="dd-metric-icon dd-icon-purple">
-                      <Building2 size={18} />
-                    </div>
-                    <div className="dd-metric-body">
-                      <span className="dd-metric-label">Partner Companies</span>
-                      <span className="dd-metric-value">{stats?.total_companies || 0}</span>
+                    <div style={{
+                      position: 'absolute',
+                      top: '-30%',
+                      right: '-15%',
+                      width: '120px',
+                      height: '120px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '50%',
+                      filter: 'blur(30px)'
+                    }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '32px',
+                          lineHeight: 1
+                        }}>
+                          🏢
+                        </div>
+                        <Building2 size={20} color="rgba(255,255,255,0.6)" strokeWidth={2} />
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        marginBottom: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Partner Companies
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '28px',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        lineHeight: 1,
+                        marginBottom: '6px'
+                      }}>
+                        {stats?.total_companies || 0}
+                      </div>
+                      
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.75)'
+                      }}>
+                        <span>🤝 Partnerships</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="dd-metric-card">
-                    <div className="dd-metric-icon dd-icon-gold">
-                      <Award size={18} />
-                    </div>
-                    <div className="dd-metric-body">
-                      <span className="dd-metric-label">Completion Rate</span>
-                      <span className="dd-metric-value">
+                  {/* Completion Rate Card */}
+                  <div 
+                    style={{
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                      borderRadius: '16px',
+                      padding: '20px 18px',
+                      cursor: 'default',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 20px rgba(245, 158, 11, 0.25)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 16px 32px rgba(245, 158, 11, 0.35)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 158, 11, 0.25)';
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: '-30%',
+                      right: '-15%',
+                      width: '120px',
+                      height: '120px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '50%',
+                      filter: 'blur(30px)'
+                    }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div style={{
+                          fontSize: '32px',
+                          lineHeight: 1
+                        }}>
+                          🎯
+                        </div>
+                        <Award size={20} color="rgba(255,255,255,0.6)" strokeWidth={2} />
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        marginBottom: '6px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Completion Rate
+                      </div>
+                      
+                      <div style={{
+                        fontSize: '28px',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        lineHeight: 1,
+                        marginBottom: '6px'
+                      }}>
                         {stats?.completion_rate != null ? `${stats.completion_rate}%` : '—'}
-                      </span>
+                      </div>
+                      
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.75)'
+                      }}>
+                        <span>Success rate</span>
+                      </div>
                     </div>
                   </div>
                 </>
               )}
             </div>
 
-            {/* Placement Trends - Redesigned with Animations */}
+            {/* Quick Navigation - Premium Modern Design */}
+            <div className="dd-card" style={{ 
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              border: 'none',
+              borderRadius: '20px',
+              overflow: 'visible',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.06)'
+            }}>
+              <div className="dd-card-header" style={{ 
+                background: 'transparent',
+                borderBottom: 'none',
+                padding: '28px 28px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <h3 className="dd-card-title" style={{ 
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  color: '#0f172a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  margin: 0
+                }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #14a800 0%, #0d7a00 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    boxShadow: '0 4px 12px rgba(20, 168, 0, 0.3)'
+                  }}>
+                    <Plus size={20} strokeWidth={2.5} />
+                  </div>
+                  Quick Navigation
+                </h3>
+                
+                {/* Settings Button in Header */}
+                <button
+                  onClick={() => navigate('/settings')}
+                  style={{
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '12px 20px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#475569',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+                    e.currentTarget.style.borderColor = '#94a3b8';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)';
+                    e.currentTarget.style.color = '#1e293b';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                    e.currentTarget.style.color = '#475569';
+                  }}
+                >
+                  <Settings size={18} strokeWidth={2} />
+                  <span>Settings</span>
+                </button>
+              </div>
+              
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(4, 1fr)', 
+                gap: '20px',
+                padding: '0 28px 28px'
+              }}>
+                {[
+                  { 
+                    icon: Users, 
+                    label: 'Students', 
+                    path: '/department/students', 
+                    gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    lightBg: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+                    shadowColor: 'rgba(59, 130, 246, 0.4)',
+                    desc: 'Manage student records',
+                    emoji: '👨‍🎓'
+                  },
+                  { 
+                    icon: UserCheck, 
+                    label: 'Advisors', 
+                    path: '/department/advisors', 
+                    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                    lightBg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+                    shadowColor: 'rgba(139, 92, 246, 0.4)',
+                    desc: 'View advisor workload',
+                    emoji: '👔'
+                  },
+                  { 
+                    icon: Building2, 
+                    label: 'Companies', 
+                    path: '/department/companies', 
+                    gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+                    lightBg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)',
+                    shadowColor: 'rgba(236, 72, 153, 0.4)',
+                    desc: 'Partner organizations',
+                    emoji: '🏢'
+                  },
+                  { 
+                    icon: FileText, 
+                    label: 'Reports', 
+                    path: '/department/reports', 
+                    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    lightBg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                    shadowColor: 'rgba(245, 158, 11, 0.4)',
+                    desc: 'Review submissions',
+                    emoji: '📊'
+                  },
+                ].map(({ icon: IconComponent, label, path, gradient, lightBg, shadowColor, desc, emoji }) => (
+                  <button 
+                    key={label}
+                    onClick={() => navigate(path)}
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '16px',
+                      padding: '0',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      textAlign: 'left',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = `0 20px 40px -12px ${shadowColor}`;
+                      e.currentTarget.style.borderColor = 'transparent';
+                      e.currentTarget.querySelector('.nav-gradient-bg').style.opacity = '1';
+                      e.currentTarget.querySelector('.nav-gradient-bg').style.transform = 'scale(1.1)';
+                      e.currentTarget.querySelector('.nav-icon-wrapper').style.transform = 'scale(1.1) rotate(-5deg)';
+                      e.currentTarget.querySelector('.nav-emoji').style.transform = 'scale(1.2) rotate(10deg)';
+                      e.currentTarget.querySelector('.nav-arrow').style.opacity = '1';
+                      e.currentTarget.querySelector('.nav-arrow').style.transform = 'translateX(4px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                      e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.querySelector('.nav-gradient-bg').style.opacity = '0';
+                      e.currentTarget.querySelector('.nav-gradient-bg').style.transform = 'scale(1)';
+                      e.currentTarget.querySelector('.nav-icon-wrapper').style.transform = 'scale(1) rotate(0deg)';
+                      e.currentTarget.querySelector('.nav-emoji').style.transform = 'scale(1) rotate(0deg)';
+                      e.currentTarget.querySelector('.nav-arrow').style.opacity = '0';
+                      e.currentTarget.querySelector('.nav-arrow').style.transform = 'translateX(-4px)';
+                    }}
+                  >
+                    {/* Gradient Background (appears on hover) */}
+                    <div 
+                      className="nav-gradient-bg"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: gradient,
+                        opacity: 0,
+                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transform: 'scale(1)',
+                        zIndex: 0
+                      }}
+                    />
+                    
+                    {/* Top Section with Icon */}
+                    <div style={{
+                      background: lightBg,
+                      padding: '24px',
+                      position: 'relative',
+                      zIndex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div 
+                        className="nav-icon-wrapper"
+                        style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '14px',
+                          background: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: `0 4px 12px ${shadowColor}`,
+                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'scale(1) rotate(0deg)',
+                          position: 'relative'
+                        }}
+                      >
+                        <IconComponent size={28} strokeWidth={2} style={{ color: gradient.match(/#[0-9a-f]{6}/i)[0] }} />
+                      </div>
+                      
+                      <div 
+                        className="nav-emoji"
+                        style={{
+                          fontSize: '32px',
+                          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                          transform: 'scale(1) rotate(0deg)',
+                          filter: 'grayscale(0.2)'
+                        }}
+                      >
+                        {emoji}
+                      </div>
+                    </div>
+                    
+                    {/* Bottom Section with Text */}
+                    <div style={{ 
+                      padding: '20px 24px',
+                      position: 'relative',
+                      zIndex: 1,
+                      background: 'transparent'
+                    }}>
+                      <div style={{
+                        fontSize: '17px',
+                        fontWeight: 700,
+                        color: '#0f172a',
+                        marginBottom: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}>
+                        {label}
+                        <ArrowRight 
+                          className="nav-arrow"
+                          size={18} 
+                          strokeWidth={2.5}
+                          style={{
+                            color: '#0f172a',
+                            opacity: 0,
+                            transform: 'translateX(-4px)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                          }}
+                        />
+                      </div>
+                      <div style={{
+                        fontSize: '13px',
+                        color: '#64748b',
+                        fontWeight: 500,
+                        lineHeight: '1.5'
+                      }}>
+                        {desc}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Placement Trends - Collapsible */}
             <div className="dd-card dd-trends-card">
               <div className="dd-card-header">
                 <div>
@@ -307,142 +1044,85 @@ const DepartmentDashboard = () => {
                   </h3>
                   <p className="dd-card-subtitle">Last 6 months performance</p>
                 </div>
-                <div className="dd-trends-legend">
-                  <div className="dd-legend-item">
-                    <div className="dd-legend-dot"></div>
-                    <span>Placements</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="dd-chart-container-new">
-                {intel?.placement_trends?.length > 0 ? (
-                  <div className="dd-trend-chart-new">
-                    {intel.placement_trends.map((trend, i) => {
-                      const percentage = (trend.count / maxTrend) * 100;
-                      const isHighest = trend.count === maxTrend;
-                      
-                      return (
-                        <div key={i} className="dd-trend-column">
-                          <div className="dd-trend-bar-wrapper">
-                            <div 
-                              className={`dd-trend-bar-new ${isHighest ? 'highest' : ''}`}
-                              style={{ 
-                                height: `${percentage}%`,
-                                animationDelay: `${i * 0.1}s`
-                              }}
-                            >
-                              <div className="dd-trend-tooltip">
-                                <span className="dd-tooltip-count">{trend.count}</span>
-                                <span className="dd-tooltip-label">placements</span>
-                              </div>
-                            </div>
-                            <div className="dd-trend-value-badge">
-                              {trend.count}
-                            </div>
-                          </div>
-                          <div className="dd-trend-label-new">
-                            <span className="dd-trend-month">{trend.month.split(' ')[0]}</span>
-                            <span className="dd-trend-year">{trend.month.split(' ')[1]}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="dd-chart-empty-new">
-                    <div className="dd-empty-icon">
-                      <BarChart3 size={48} />
-                    </div>
-                    <h4>No Trend Data Yet</h4>
-                    <p>Placement trends will appear here once students are assigned to internships</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Advisor Performance */}
-            <div className="dd-card">
-              <div className="dd-card-header">
-                <h3 className="dd-card-title">
-                  <UserCheck size={16} />
-                  Advisor Performance Overview
-                </h3>
                 <button 
-                  className="dd-card-action"
-                  onClick={() => navigate('/department/advisors')}
+                  type="button"
+                  style={{
+                    background: '#14a800',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowPlacementTrends(!showPlacementTrends);
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#108a00'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#14a800'}
                 >
-                  View All
-                  <ArrowRight size={14} />
+                  {showPlacementTrends ? 'Hide Trends' : 'View Trends'}
+                  <span style={{ 
+                    transform: showPlacementTrends ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s',
+                    display: 'inline-block'
+                  }}>▼</span>
                 </button>
               </div>
               
-              <div className="dd-advisor-table">
-                {intel?.overloaded_advisors?.length > 0 ? (
-                  <div className="dd-table-container">
-                    <table className="dd-table">
-                      <thead>
-                        <tr>
-                          <th>Advisor</th>
-                          <th>Workload</th>
-                          <th>Success Rate</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {intel.overloaded_advisors.slice(0, 5).map((advisor, i) => (
-                          <tr key={i}>
-                            <td>
-                              <div className="dd-advisor-info">
-                                <div className="dd-advisor-avatar">
-                                  {advisor.name?.charAt(0).toUpperCase() || '?'}
-                                </div>
-                                <div>
-                                  <div className="dd-advisor-name">{advisor.name}</div>
-                                  <div className="dd-advisor-email">{advisor.email}</div>
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <div className="dd-workload-bar">
-                                <div 
-                                  className="dd-workload-fill"
-                                  style={{ 
-                                    width: `${(advisor.count / (advisor.max || 15)) * 100}%`,
-                                    backgroundColor: advisor.count > (advisor.max || 15) ? '#DC2626' : '#15803D'
-                                  }}
-                                />
-                                <span className="dd-workload-text">
-                                  {advisor.count}/{advisor.max || 15}
-                                </span>
-                              </div>
-                            </td>
-                            <td>
-                              <span className="dd-success-rate">
-                                {advisor.success_rate || 94}%
-                              </span>
-                            </td>
-                            <td>
-                              <span 
-                                className={`dd-status-badge ${
-                                  advisor.count > (advisor.max || 15) ? 'dd-status-error' : 'dd-status-success'
-                                }`}
+              {showPlacementTrends && (
+                <div className="dd-chart-container-new">
+                  {intel?.placement_trends?.length > 0 ? (
+                    <div className="dd-trend-chart-new">
+                      {intel.placement_trends.map((trend, i) => {
+                        const percentage = (trend.count / maxTrend) * 100;
+                        const isHighest = trend.count === maxTrend;
+                        
+                        return (
+                          <div key={i} className="dd-trend-column">
+                            <div className="dd-trend-bar-wrapper">
+                              <div 
+                                className={`dd-trend-bar-new ${isHighest ? 'highest' : ''}`}
+                                style={{ 
+                                  height: `${percentage}%`,
+                                  animationDelay: `${i * 0.1}s`
+                                }}
                               >
-                                {advisor.count > (advisor.max || 15) ? 'Overloaded' : 'Normal'}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="dd-table-empty">
-                    <CheckCircle size={36} />
-                    <p>All advisors are within capacity limits</p>
-                  </div>
-                )}
-              </div>
+                                <div className="dd-trend-tooltip">
+                                  <span className="dd-tooltip-count">{trend.count}</span>
+                                  <span className="dd-tooltip-label">placements</span>
+                                </div>
+                              </div>
+                              <div className="dd-trend-value-badge">
+                                {trend.count}
+                              </div>
+                            </div>
+                            <div className="dd-trend-label-new">
+                              <span className="dd-trend-month">{trend.month.split(' ')[0]}</span>
+                              <span className="dd-trend-year">{trend.month.split(' ')[1]}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="dd-chart-empty-new">
+                      <div className="dd-empty-icon">
+                        <BarChart3 size={48} />
+                      </div>
+                      <h4>No Trend Data Yet</h4>
+                      <p>Placement trends will appear here once students are assigned to internships</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}
@@ -455,41 +1135,6 @@ const DepartmentDashboard = () => {
               </div>
               
               <div className="dd-actions-grid">
-                <button 
-                  className="dd-action-card dd-action-primary"
-                  onClick={() => navigate('/department/validate-students')}
-                >
-                  <Shield size={18} />
-                  <div className="dd-action-content">
-                    <span className="dd-action-title">Validate Eligibility</span>
-                    <span className="dd-action-subtitle">Confirm student status</span>
-                  </div>
-                </button>
-                
-                <button 
-                  className={`dd-action-card ${hasEscalations ? 'dd-action-warning' : ''}`}
-                  onClick={() => navigate('/department/escalations')}
-                >
-                  <AlertTriangle size={18} />
-                  <div className="dd-action-content">
-                    <span className="dd-action-title">Escalation Inbox</span>
-                    <span className="dd-action-subtitle">
-                      {intel?.critical_escalations?.length || 0} active cases
-                    </span>
-                  </div>
-                </button>
-                
-                <button 
-                  className="dd-action-card"
-                  onClick={() => navigate('/department/cycles')}
-                >
-                  <Calendar size={18} />
-                  <div className="dd-action-content">
-                    <span className="dd-action-title">Cycle Management</span>
-                    <span className="dd-action-subtitle">Manage deadlines</span>
-                  </div>
-                </button>
-                
                 <button 
                   className="dd-action-card"
                   onClick={() => navigate('/department/reports')}
@@ -637,39 +1282,6 @@ const DepartmentDashboard = () => {
                     </div>
                   ))
                 )}
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div className="dd-card">
-              <div className="dd-card-header">
-                <h3 className="dd-card-title">
-                  <Plus size={16} />
-                  Quick Navigation
-                </h3>
-              </div>
-              
-              <div className="dd-quick-links">
-                {[
-                  { icon: Users, label: 'Students', path: '/department/students' },
-                  { icon: UserCheck, label: 'Advisors', path: '/department/advisors' },
-                  { icon: Building2, label: 'Companies', path: '/department/companies' },
-                  { icon: Target, label: 'Assign Company', path: '/department/assign-company' },
-                  { icon: UserCheck, label: 'Add Advisor', path: '/department/add-advisor' },
-                  { icon: FileText, label: 'Reports', path: '/department/reports' },
-                  { icon: Award, label: 'Certificates', path: '/department/students-completion' },
-                  { icon: Settings, label: 'Settings', path: '/settings' },
-                ].map(({ icon: IconComponent, label, path }) => (
-                  <button 
-                    key={label}
-                    className="dd-quick-link"
-                    onClick={() => navigate(path)}
-                  >
-                    <IconComponent size={14} />
-                    <span>{label}</span>
-                    <ArrowRight size={12} />
-                  </button>
-                ))}
               </div>
             </div>
           </div>

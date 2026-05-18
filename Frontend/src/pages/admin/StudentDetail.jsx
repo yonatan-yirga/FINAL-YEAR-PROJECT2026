@@ -52,8 +52,8 @@ const StudentDetail = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      NOT_APPLIED: { label: 'Not Applied', icon: Clock, className: 'status-pending' },
-      APPLIED: { label: 'Applied', icon: FileText, className: 'status-applied' },
+      NOT_APPLIED: { label: 'Not Assigned', icon: Clock, className: 'status-pending' },
+      APPLIED: { label: 'Assigned', icon: FileText, className: 'status-applied' },
       ACTIVE: { label: 'Active', icon: CheckCircle, className: 'status-active' },
       COMPLETED: { label: 'Completed', icon: Award, className: 'status-completed' },
     };

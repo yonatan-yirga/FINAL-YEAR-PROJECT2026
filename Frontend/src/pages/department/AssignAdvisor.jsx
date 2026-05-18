@@ -3,13 +3,18 @@
  * Interface for assigning advisors to students
  */
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import departmentService from '../../services/departmentService';
 
 const AssignAdvisor = () => {
+  const [searchParams] = useSearchParams();
+  const preSelectedStudentId = searchParams.get('studentId');
+  
   const [unassignedStudents, setUnassignedStudents] = useState([]);
   const [advisors, setAdvisors] = useState([]);
+  const [filteredAdvisors, setFilteredAdvisors] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedAdvisor, setSelectedAdvisor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,6 +22,9 @@ const AssignAdvisor = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [availableLocations, setAvailableLocations] = useState([]); // New: list of advisor locations
 
   useEffect(() => {
     fetchData();
@@ -32,6 +40,16 @@ const AssignAdvisor = () => {
 
       if (studentsResponse.success) {
         setUnassignedStudents(studentsResponse.data);
+        
+        // Auto-select student if studentId is provided in URL
+        if (preSelectedStudentId && studentsResponse.data.length > 0) {
+          const studentToSelect = studentsResponse.data.find(
+            s => s.student_id === parseInt(preSelectedStudentId)
+          );
+          if (studentToSelect) {
+            setSelectedStudent(studentToSelect);
+          }
+        }
       }
 
       if (advisorsResponse.success) {
@@ -40,6 +58,11 @@ const AssignAdvisor = () => {
           (a, b) => a.active_students - b.active_students
         );
         setAdvisors(sortedAdvisors);
+        setFilteredAdvisors(sortedAdvisors);
+        
+        // Extract unique locations from advisors
+        const locations = [...new Set(sortedAdvisors.map(a => a.advising_location).filter(Boolean))].sort();
+        setAvailableLocations(locations);
       }
 
       setError(null);
@@ -49,6 +72,26 @@ const AssignAdvisor = () => {
       setLoading(false);
     }
   };
+
+  // Filter advisors based on search term and location
+  useEffect(() => {
+    let filtered = advisors;
+
+    if (searchTerm) {
+      filtered = filtered.filter(advisor =>
+        advisor.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (locationFilter) {
+      // Exact match for dropdown selection
+      filtered = filtered.filter(advisor =>
+        advisor.advising_location === locationFilter
+      );
+    }
+
+    setFilteredAdvisors(filtered);
+  }, [searchTerm, locationFilter, advisors]);
 
   const handleAssignClick = () => {
     if (!selectedStudent || !selectedAdvisor) {
@@ -135,7 +178,11 @@ const AssignAdvisor = () => {
                       <line x1="20" y1="8" x2="20" y2="14" />
                       <line x1="23" y1="11" x2="17" y2="11" />
                     </svg>
-                    <p>No students awaiting assignment</p>
+                    <p style={{ fontWeight: 600, color: '#4a5568', marginTop: '12px' }}>No students awaiting assignment</p>
+                    <p style={{ fontSize: '13px', textAlign: 'center', maxWidth: '250px' }}>
+                      Ensure companies have accepted students and students have 
+                      <strong> accepted their internship offers</strong>.
+                    </p>
                   </div>
                 ) : (
                   <div style={styles.list}>
@@ -174,16 +221,63 @@ const AssignAdvisor = () => {
             <div style={styles.panel}>
               <div style={styles.panelHeader}>
                 <h3 style={styles.panelTitle}>Available Advisors</h3>
-                <span style={styles.badge}>{advisors.length}</span>
+                <span style={styles.badge}>{filteredAdvisors.length}</span>
               </div>
+              
+              {/* Search Filters */}
+              <div style={styles.searchContainer}>
+                <div style={styles.searchBox}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2" style={{ marginRight: '8px' }}>
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search by name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={styles.searchInput}
+                  />
+                </div>
+                <div style={styles.searchBox}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2" style={{ marginRight: '8px' }}>
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <select
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                    style={{
+                      ...styles.searchInput,
+                      cursor: 'pointer',
+                      paddingRight: '30px',
+                      backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%23718096\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 10px center',
+                      appearance: 'none'
+                    }}
+                  >
+                    <option value="">All Locations ({advisors.length} advisors)</option>
+                    {availableLocations.map(location => {
+                      const count = advisors.filter(a => a.advising_location === location).length;
+                      return (
+                        <option key={location} value={location}>
+                          📍 {location} ({count} {count === 1 ? 'advisor' : 'advisors'})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              </div>
+              
               <div style={styles.panelContent}>
-                {advisors.length === 0 ? (
+                {filteredAdvisors.length === 0 ? (
                   <div style={styles.emptyState}>
-                    <p>No advisors available</p>
+                    <p>{searchTerm || locationFilter ? 'No advisors match your search' : 'No advisors available'}</p>
                   </div>
                 ) : (
                   <div style={styles.list}>
-                    {advisors.map((advisor) => (
+                    {filteredAdvisors.map((advisor) => (
                       <div
                         key={advisor.id}
                         style={{
@@ -205,6 +299,11 @@ const AssignAdvisor = () => {
                         <p style={styles.itemText}>
                           <strong>Staff ID:</strong> {advisor.staff_id}
                         </p>
+                        {advisor.advising_location && (
+                          <p style={styles.itemText}>
+                            <strong>📍 Location:</strong> {advisor.advising_location}
+                          </p>
+                        )}
                         <p style={styles.itemText}>
                           <strong>Workload:</strong> {advisor.active_students} active students
                         </p>
@@ -281,28 +380,22 @@ const AssignAdvisor = () => {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#f7fafc',
+    backgroundColor: 'var(--bg-root)',
+    transition: 'var(--transition)',
   },
   content: {
-    padding: '40px',
+    padding: '24px 32px 60px',
     maxWidth: '1400px',
     margin: '0 auto',
   },
-  successAlert: {
-    backgroundColor: '#c6f6d5',
-    color: '#22543d',
-    padding: '12px 16px',
+  alert: {
+    padding: '16px 20px',
     borderRadius: '8px',
     marginBottom: '24px',
-    border: '1px solid #9ae6b4',
-  },
-  errorAlert: {
-    backgroundColor: '#fed7d7',
-    color: '#c53030',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    marginBottom: '24px',
-    border: '1px solid #fc8181',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    fontSize: '14px',
+    fontWeight: '500',
   },
   loadingContainer: {
     display: 'flex',
@@ -314,14 +407,14 @@ const styles = {
   spinner: {
     width: '48px',
     height: '48px',
-    border: '4px solid #e2e8f0',
+    border: '4px solid var(--border-subtle)',
     borderTopColor: '#667eea',
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
   },
   loadingText: {
     marginTop: '16px',
-    color: '#718096',
+    color: 'var(--text-muted)',
     fontSize: '14px',
   },
   gridContainer: {
@@ -331,14 +424,15 @@ const styles = {
     marginBottom: '24px',
   },
   panel: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-surface)',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--shadow-sm)',
     overflow: 'hidden',
+    border: '1px solid var(--border-subtle)',
   },
   panelHeader: {
     padding: '20px',
-    borderBottom: '2px solid #e2e8f0',
+    borderBottom: '2px solid var(--border-subtle)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -346,12 +440,12 @@ const styles = {
   panelTitle: {
     fontSize: '18px',
     fontWeight: '600',
-    color: '#2d3748',
+    color: 'var(--text-bright)',
     margin: 0,
   },
   badge: {
     padding: '4px 12px',
-    backgroundColor: '#e9d8fd',
+    backgroundColor: 'rgba(102, 126, 234, 0.15)',
     color: '#667eea',
     borderRadius: '12px',
     fontSize: '12px',
@@ -361,13 +455,37 @@ const styles = {
     maxHeight: '500px',
     overflowY: 'auto',
   },
+  searchContainer: {
+    padding: '16px',
+    borderBottom: '1px solid var(--border-subtle)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  searchBox: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px 12px',
+    border: '1px solid var(--border-subtle)',
+    borderRadius: '8px',
+    backgroundColor: 'var(--bg-root)',
+    transition: 'all 0.2s',
+  },
+  searchInput: {
+    flex: 1,
+    border: 'none',
+    outline: 'none',
+    backgroundColor: 'transparent',
+    fontSize: '14px',
+    color: 'var(--text-main)',
+  },
   emptyState: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '60px 20px',
-    color: '#cbd5e0',
+    color: 'var(--text-muted)',
   },
   list: {
     padding: '12px',
@@ -375,14 +493,16 @@ const styles = {
   listItem: {
     padding: '16px',
     marginBottom: '12px',
-    border: '2px solid #e2e8f0',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: 'var(--border-subtle)',
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s',
   },
   selectedItem: {
     borderColor: '#667eea',
-    backgroundColor: '#edf2f7',
+    backgroundColor: 'rgba(102, 126, 234, 0.05)',
   },
   itemHeader: {
     display: 'flex',
@@ -393,26 +513,26 @@ const styles = {
   itemTitle: {
     fontSize: '16px',
     fontWeight: '600',
-    color: '#2d3748',
+    color: 'var(--text-bright)',
     margin: 0,
   },
   itemBadge: {
     padding: '2px 8px',
-    backgroundColor: '#edf2f7',
-    color: '#4a5568',
+    backgroundColor: 'var(--bg-root)',
+    color: 'var(--text-main)',
     borderRadius: '8px',
     fontSize: '11px',
     fontWeight: '600',
   },
   itemText: {
     fontSize: '13px',
-    color: '#4a5568',
+    color: 'var(--text-main)',
     margin: '4px 0',
   },
   workloadBar: {
     width: '100%',
     height: '8px',
-    backgroundColor: '#e2e8f0',
+    backgroundColor: 'var(--border-subtle)',
     borderRadius: '4px',
     overflow: 'hidden',
     marginTop: '8px',
@@ -423,25 +543,26 @@ const styles = {
     transition: 'width 0.3s',
   },
   assignmentSection: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-surface)',
     padding: '24px',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--shadow-sm)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    border: '1px solid var(--border-subtle)',
   },
   selectionSummary: {
     flex: 1,
   },
   summaryText: {
     fontSize: '14px',
-    color: '#2d3748',
+    color: 'var(--text-bright)',
     margin: 0,
   },
   instructionText: {
     fontSize: '14px',
-    color: '#718096',
+    color: 'var(--text-muted)',
     margin: 0,
   },
   assignButton: {

@@ -117,7 +117,7 @@ const MyInternships = () => {
         <div className="mi-stats">
           <div className="mi-stat-card">
             <div className="mi-stat-icon mi-icon-green">
-              <Briefcase size={20} strokeWidth={2} />
+              <Briefcase size={24} strokeWidth={2.5} />
             </div>
             <div className="mi-stat-body">
               <span className="mi-stat-label">Total Internships</span>
@@ -126,7 +126,7 @@ const MyInternships = () => {
           </div>
           <div className="mi-stat-card">
             <div className="mi-stat-icon mi-icon-green">
-              <CheckCircle size={20} strokeWidth={2} />
+              <CheckCircle size={24} strokeWidth={2.5} />
             </div>
             <div className="mi-stat-body">
               <span className="mi-stat-label">Active / Open</span>
@@ -135,7 +135,7 @@ const MyInternships = () => {
           </div>
           <div className="mi-stat-card">
             <div className="mi-stat-icon mi-icon-blue">
-              <Users size={20} strokeWidth={2} />
+              <Users size={24} strokeWidth={2.5} />
             </div>
             <div className="mi-stat-body">
               <span className="mi-stat-label">Total Applications</span>
@@ -144,7 +144,7 @@ const MyInternships = () => {
           </div>
           <div className="mi-stat-card">
             <div className="mi-stat-icon mi-icon-gray">
-              <FileCheck size={20} strokeWidth={2} />
+              <FileCheck size={24} strokeWidth={2.5} />
             </div>
             <div className="mi-stat-body">
               <span className="mi-stat-label">Filled Positions</span>
@@ -156,7 +156,7 @@ const MyInternships = () => {
         {/* Toolbar */}
         <div className="mi-toolbar">
           <div className="mi-search">
-            <Search size={18} strokeWidth={2} />
+            <Search size={20} strokeWidth={2.5} />
             <input
               type="text"
               placeholder="Search internships..."
@@ -176,7 +176,7 @@ const MyInternships = () => {
             ))}
           </div>
           <button className="mi-cta-btn" onClick={() => navigate('/company/post-internship')}>
-            <Plus size={18} strokeWidth={2} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            <Plus size={20} strokeWidth={2.5} style={{ marginRight: 8, verticalAlign: 'middle' }} />
             Post New
           </button>
         </div>
@@ -189,37 +189,106 @@ const MyInternships = () => {
           </div>
         )}
 
-        {/* Grid */}
+        {/* Table */}
         {!loading && filtered.length > 0 && (
-          <div className="mi-grid">
-            {filtered.map((internship) => (
-              <div key={internship.id} className="mi-card-wrap">
-                <InternshipCard
-                  internship={internship}
-                  userRole="COMPANY"
-                  onEdit={handleEdit}
-                  onDelete={(i) => setDeleteModal({ show: true, internship: i })}
-                />
-                <div className="mi-quick-actions">
-                  <button
-                    className={`mi-qa-btn ${internship.status === 'OPEN' ? 'qa-close' : 'qa-reopen'}`}
-                    onClick={() => handleToggleStatus(internship)}
-                  >
-                    {internship.status === 'OPEN' ? (
-                      <>
-                        <Lock size={14} strokeWidth={2} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-                        Close Listing
-                      </>
-                    ) : (
-                      <>
-                        <Unlock size={14} strokeWidth={2} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-                        Reopen Listing
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="mi-table-card">
+            <div className="mi-table-wrapper">
+              <table className="mi-table">
+                <thead>
+                  <tr>
+                    <th>Internship Title</th>
+                    <th>Location</th>
+                    <th>Duration</th>
+                    <th>Applications</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((internship) => (
+                    <tr key={internship.id} className="mi-table-row">
+                      <td>
+                        <div className="mi-title-cell">
+                          <div className="mi-title-icon">
+                            <Briefcase size={20} strokeWidth={2.5} />
+                          </div>
+                          <div>
+                            <div className="mi-title-name">{internship.title}</div>
+                            <div className="mi-title-type">{internship.type || 'Full-time'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="mi-location-cell">
+                          <span>{internship.location || 'Not specified'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="mi-duration-cell">
+                          <span>{internship.duration || 'N/A'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="mi-apps-cell">
+                          <Users size={16} strokeWidth={2.5} />
+                          <span>{internship.application_count || 0}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`mi-status-badge mi-status-${internship.status?.toLowerCase()}`}>
+                          {internship.status === 'OPEN' && <CheckCircle size={14} strokeWidth={2.5} />}
+                          {internship.status === 'CLOSED' && <Lock size={14} strokeWidth={2.5} />}
+                          {internship.status === 'FILLED' && <FileCheck size={14} strokeWidth={2.5} />}
+                          {internship.status || 'Unknown'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="mi-actions-cell">
+                          <button
+                            className="mi-action-btn mi-action-view"
+                            onClick={() => navigate(`/company/internship/${internship.id}`)}
+                            title="View Details"
+                          >
+                            <Eye size={18} strokeWidth={2.5} />
+                          </button>
+                          <button
+                            className="mi-action-btn mi-action-edit"
+                            onClick={() => handleEdit(internship)}
+                            title="Edit Internship"
+                          >
+                            <Edit size={18} strokeWidth={2.5} />
+                          </button>
+                          {internship.status === 'OPEN' ? (
+                            <button
+                              className="mi-action-btn mi-action-close"
+                              onClick={() => handleToggleStatus(internship)}
+                              title="Close Listing"
+                            >
+                              <Lock size={18} strokeWidth={2.5} />
+                            </button>
+                          ) : (
+                            <button
+                              className="mi-action-btn mi-action-reopen"
+                              onClick={() => handleToggleStatus(internship)}
+                              title="Reopen Listing"
+                            >
+                              <Unlock size={18} strokeWidth={2.5} />
+                            </button>
+                          )}
+                          <button
+                            className="mi-action-btn mi-action-delete"
+                            onClick={() => setDeleteModal({ show: true, internship })}
+                            title="Delete Internship"
+                          >
+                            <Trash2 size={18} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -227,7 +296,7 @@ const MyInternships = () => {
         {!loading && filtered.length === 0 && (
           <div className="mi-empty">
             <div className="mi-empty-icon-circle">
-              <Briefcase size={40} strokeWidth={1.5} color="#6b7177" />
+              <Briefcase size={48} strokeWidth={1.5} />
             </div>
             <h2>No internships found</h2>
             <p>
@@ -237,7 +306,7 @@ const MyInternships = () => {
             </p>
             {!searchQuery && filterStatus === 'ALL' && (
               <button className="mi-cta-btn" onClick={() => navigate('/company/post-internship')}>
-                <Plus size={18} strokeWidth={2} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                <Plus size={20} strokeWidth={2.5} style={{ marginRight: 8, verticalAlign: 'middle' }} />
                 Post Your First Internship
               </button>
             )}

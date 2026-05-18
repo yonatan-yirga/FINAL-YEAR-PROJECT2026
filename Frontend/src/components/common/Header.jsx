@@ -9,6 +9,7 @@ import NotificationBell from './NotificationBell';
 import useAuth from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
 import { API_URL } from '../../services/api';
+import brandLogo from '../../assets/Debre_Markos_University.png';
 import './Header.css';
 
 const Header = ({ title, subtitle }) => {
@@ -35,8 +36,8 @@ const Header = ({ title, subtitle }) => {
         <div className="university-logo">
           <div className="logo-image-wrapper">
             <img 
-              src="/dmu-logo.png" 
-              alt="Debre Markos University" 
+              src={brandLogo} 
+              alt="Internship Management" 
               className="logo-image"
               onError={(e) => {
                 // Fallback if image doesn't load
@@ -45,12 +46,8 @@ const Header = ({ title, subtitle }) => {
               }}
             />
             <div className="logo-fallback" style={{ display: 'none' }}>
-              <div className="fallback-circle">DMU</div>
+              <div className="fallback-circle"></div>
             </div>
-          </div>
-          <div className="logo-text">
-            <div className="logo-title">Debre Markos University</div>
-            <div className="logo-subtitle">Internship Management System</div>
           </div>
         </div>
 

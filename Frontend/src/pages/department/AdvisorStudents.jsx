@@ -47,7 +47,7 @@ const AdvisorStudents = () => {
   };
 
   // Filter students based on search term
-  const filteredStudents = students.filter(student =>
+  const filteredStudents = (Array.isArray(students) ? students : []).filter(student =>
     student.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.student_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -162,11 +162,13 @@ const AdvisorStudents = () => {
   ];
 
   const getStats = () => {
+    // Ensure filteredStudents is an array before filtering
+    const studentsArray = Array.isArray(filteredStudents) ? filteredStudents : [];
     return {
-      total: filteredStudents.length,
-      active: filteredStudents.filter(s => s.internship_status === 'ACTIVE').length,
-      completed: filteredStudents.filter(s => s.internship_status === 'COMPLETED').length,
-      pending: filteredStudents.filter(s => s.internship_status === 'PENDING').length,
+      total: studentsArray.length,
+      active: studentsArray.filter(s => s.internship_status === 'ACTIVE').length,
+      completed: studentsArray.filter(s => s.internship_status === 'COMPLETED').length,
+      pending: studentsArray.filter(s => s.internship_status === 'PENDING').length,
     };
   };
 

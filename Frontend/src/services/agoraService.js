@@ -130,20 +130,59 @@ class AgoraService {
     console.log('🎥 Creating local tracks...', { video, audio });
     
     try {
+      // First, try to close any existing tracks to release devices
+      if (this.localAudioTrack) {
+        this.localAudioTrack.close();
+        this.localAudioTrack = null;
+      }
+      if (this.localVideoTrack) {
+        this.localVideoTrack.close();
+        this.localVideoTrack = null;
+      }
+      
+      // Wait a bit for devices to be released
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // Create audio track
       if (audio) {
-        this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: 'music_standard',
-        });
-        console.log('✅ Audio track created');
+        try {
+          this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack({
+            encoderConfig: 'music_standard',
+          });
+          console.log('✅ Audio track created');
+        } catch (audioError) {
+          console.error('❌ Failed to create audio track:', audioError);
+          
+          // Handle specific error codes
+          if (audioError.code === 'NOT_READABLE' || audioError.message.includes('Device in use')) {
+            throw new Error('DEVICE_IN_USE: Your microphone is being used by another application. Please close other apps using your microphone and try again.');
+          } else if (audioError.code === 'PERMISSION_DENIED') {
+            throw new Error('PERMISSION_DENIED: Microphone access denied. Please allow microphone access in your browser settings.');
+          } else {
+            throw new Error(`AUDIO_ERROR: ${audioError.message || 'Failed to access microphone'}`);
+          }
+        }
       }
       
       // Create video track
       if (video) {
-        this.localVideoTrack = await AgoraRTC.createCameraVideoTrack({
-          encoderConfig: '720p_2',
-        });
-        console.log('✅ Video track created');
+        try {
+          this.localVideoTrack = await AgoraRTC.createCameraVideoTrack({
+            encoderConfig: '720p_2',
+          });
+          console.log('✅ Video track created');
+        } catch (videoError) {
+          console.error('❌ Failed to create video track:', videoError);
+          
+          // Handle specific error codes
+          if (videoError.code === 'NOT_READABLE' || videoError.message.includes('Device in use')) {
+            throw new Error('DEVICE_IN_USE: Your camera is being used by another application. Please close other apps using your camera and try again.');
+          } else if (videoError.code === 'PERMISSION_DENIED') {
+            throw new Error('PERMISSION_DENIED: Camera access denied. Please allow camera access in your browser settings.');
+          } else {
+            throw new Error(`VIDEO_ERROR: ${videoError.message || 'Failed to access camera'}`);
+          }
+        }
       }
       
       // Publish tracks
@@ -162,6 +201,17 @@ class AgoraService {
       };
     } catch (error) {
       console.error('❌ Failed to create/publish tracks:', error);
+      
+      // Clean up any partially created tracks
+      if (this.localAudioTrack) {
+        this.localAudioTrack.close();
+        this.localAudioTrack = null;
+      }
+      if (this.localVideoTrack) {
+        this.localVideoTrack.close();
+        this.localVideoTrack = null;
+      }
+      
       throw error;
     }
   }

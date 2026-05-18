@@ -287,6 +287,9 @@ class Application(models.Model):
         # If internship is now filled, auto-reject pending applications
         if self.internship.status == 'FILLED':
             self._reject_other_pending_applications()
+            
+        # Withdraw any other applications this student has pending/offered
+        self._withdraw_other_applications_for_student()
         
         return True
     
@@ -357,6 +360,30 @@ class Application(models.Model):
             
             # Notify each student
             NotificationService.notify_application_rejected(
+                student=app.student,
+                internship=app.internship
+            )
+            
+    def _withdraw_other_applications_for_student(self):
+        """
+        Auto-reject all other pending or offered applications for this student
+        Called when student accepts a placement.
+        """
+        from apps.notifications.services import NotificationService
+        
+        other_applications = Application.objects.filter(
+            student=self.student,
+            status__in=['PENDING', 'OFFERED']
+        ).exclude(id=self.id)
+        
+        for app in other_applications:
+            app.status = 'REJECTED'
+            app.rejection_reason = 'Student has accepted another internship placement and is no longer available.'
+            app.save()
+            
+            # Notify the company
+            NotificationService.notify_application_auto_withdrawn(
+                company=app.internship.company,
                 student=app.student,
                 internship=app.internship
             )

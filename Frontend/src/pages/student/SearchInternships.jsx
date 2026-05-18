@@ -1,6 +1,6 @@
 /**
  * SearchInternships Page 
- * Student: search and browse internship opportunities
+ * Student: search and browse internship opportunities — Ultra-Premium Redesign
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import InternshipFilters from '../../components/filters/InternshipFilters';
 import internshipService from '../../services/internshipService';
 import recommendationService from '../../services/recommendationService';
 import useAuth from '../../hooks/useAuth';
+import { Search, Sparkles, Clock, TrendingUp, X, AlertCircle, Info } from 'lucide-react';
 import './SearchInternships.css';
 
 const SearchInternships = () => {
@@ -39,12 +40,11 @@ const SearchInternships = () => {
       setError('');
       let result;
       if (sortBy === 'recommended') {
-        // Only show internships with a minimum match percentage
-        result = await recommendationService.getRecommendations({ 
-          limit: 50, 
-          min_match: 30,  // Changed from 0 to 30 - only show 30%+ matches
-          ...filters,  // Apply filters to recommendations too
-          search: searchQuery  // Apply search query to recommendations
+        result = await recommendationService.getRecommendations({
+          limit: 50,
+          min_match: 0,
+          ...filters,
+          search: searchQuery
         });
       } else {
         result = await internshipService.search({ ...filters, search: searchQuery, ordering: sortBy });
@@ -64,6 +64,12 @@ const SearchInternships = () => {
 
   const handleFilterChange = useCallback((newFilters) => setFilters(newFilters), []);
 
+  const sortOptions = [
+    { key: 'recommended', label: 'Recommended', icon: <Sparkles size={13} /> },
+    { key: '-created_at',  label: 'Newest',      icon: <Clock size={13} /> },
+    { key: 'start_date',  label: 'Start Date',   icon: <TrendingUp size={13} /> },
+  ];
+
   return (
     <div className="si-page">
       <Header
@@ -72,6 +78,36 @@ const SearchInternships = () => {
       />
 
       <div className="si-content">
+
+        {/* ── Premium Hero Bar ───────────────────────────── */}
+        <div className="si-hero-bar">
+          <div className="si-hero-text">
+            <span className="si-hero-label">🎯 Opportunities</span>
+            <h2 className="si-hero-title">Find Your Perfect Internship</h2>
+            <p className="si-hero-sub">
+              {user?.full_name
+                ? `Welcome back, ${user.full_name.split(' ')[0]}! Let's find your next opportunity.`
+                : 'Discover internships matched to your skills and career goals.'}
+            </p>
+          </div>
+          <div className="si-hero-stats">
+            <div className="si-hero-stat">
+              <span className="si-hero-stat-value">{loading ? '…' : internships.length}</span>
+              <span className="si-hero-stat-label">Matches Found</span>
+            </div>
+            <div className="si-hero-stat-divider" />
+            <div className="si-hero-stat">
+              <span className="si-hero-stat-value">0%+</span>
+              <span className="si-hero-stat-label">Min Match</span>
+            </div>
+            <div className="si-hero-stat-divider" />
+            <div className="si-hero-stat">
+              <span className="si-hero-stat-value">AI</span>
+              <span className="si-hero-stat-label">Powered</span>
+            </div>
+          </div>
+        </div>
+
         <div className="si-layout">
 
           {/* Filters Sidebar */}
@@ -85,12 +121,10 @@ const SearchInternships = () => {
           {/* Main */}
           <main className="si-main">
 
-            {/* Search Header */}
+            {/* Search & Sort Card */}
             <div className="si-search-card">
               <div className="si-search-box">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+                <Search size={18} />
                 <input
                   type="text"
                   placeholder="Search by title, company, or skills..."
@@ -98,31 +132,25 @@ const SearchInternships = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 {searchQuery && (
-                  <button className="si-clear-btn" onClick={() => setSearchQuery('')}>×</button>
+                  <button className="si-clear-btn" onClick={() => setSearchQuery('')}>
+                    <X size={14} />
+                  </button>
                 )}
               </div>
 
               <div className="si-sort-row">
-                <span className="si-sort-label">Sort by:</span>
+                <span className="si-sort-label">Sort by</span>
                 <div className="si-sort-group">
-                  <button
-                    className={`si-sort-btn ${sortBy === 'recommended' ? 'active' : ''}`}
-                    onClick={() => setSortBy('recommended')}
-                  >
-                    ✨ Recommended
-                  </button>
-                  <button
-                    className={`si-sort-btn ${sortBy === '-created_at' ? 'active' : ''}`}
-                    onClick={() => setSortBy('-created_at')}
-                  >
-                    Newest
-                  </button>
-                  <button
-                    className={`si-sort-btn ${sortBy === 'start_date' ? 'active' : ''}`}
-                    onClick={() => setSortBy('start_date')}
-                  >
-                    Start Date
-                  </button>
+                  {sortOptions.map(({ key, label, icon }) => (
+                    <button
+                      key={key}
+                      className={`si-sort-btn ${sortBy === key ? 'active' : ''}`}
+                      onClick={() => setSortBy(key)}
+                    >
+                      {icon}
+                      <span>{label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -134,7 +162,7 @@ const SearchInternships = () => {
                   {internships.length} {internships.length === 1 ? 'internship' : 'internships'} found
                 </span>
                 {sortBy === 'recommended' && user?.skills && (
-                  <span className="si-results-hint">✨ Showing internships with 30%+ skill match</span>
+                  <span className="si-results-hint">✦ Showing ranked skill matches</span>
                 )}
               </div>
             )}
@@ -142,9 +170,7 @@ const SearchInternships = () => {
             {/* No-skills tip */}
             {!loading && sortBy === 'recommended' && !user?.skills && (
               <div className="si-info-banner">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <Info size={18} />
                 <div>
                   <strong>Add skills to get personalized recommendations!</strong>
                   <p>Update your profile with your skills to see which internships match best.</p>
@@ -152,25 +178,26 @@ const SearchInternships = () => {
               </div>
             )}
 
-            {/* Low matches info */}
+            {/* Low matches */}
             {!loading && sortBy === 'recommended' && user?.skills && internships.length === 0 && !error && (
               <div className="si-info-banner">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <Info size={18} />
                 <div>
-                  <strong>No strong matches found</strong>
-                  <p>We couldn't find internships that match your skills well (30%+ match). Try viewing "Newest" or "Start Date" to see all available internships, or update your skills in your profile.</p>
+                  <strong>No recommendations found</strong>
+                  <p>We couldn't find any internships for your department. Try adjusting your search query or check back later.</p>
                 </div>
               </div>
             )}
 
             {/* Error */}
             {error && (
-              <div className="si-error-banner">{error}</div>
+              <div className="si-error-banner">
+                <AlertCircle size={16} />
+                {error}
+              </div>
             )}
 
-            {/* Loading */}
+            {/* Loading Skeleton */}
             {loading && (
               <div className="si-loading">
                 <div className="si-spinner" />
@@ -178,7 +205,7 @@ const SearchInternships = () => {
               </div>
             )}
 
-            {/* Grid */}
+            {/* Results Grid */}
             {!loading && internships.length > 0 && (
               <div className="si-grid">
                 {internships.map((internship) => (
@@ -193,15 +220,15 @@ const SearchInternships = () => {
               </div>
             )}
 
-            {/* Empty */}
+            {/* Empty State */}
             {!loading && internships.length === 0 && (
               <div className="si-empty">
                 <div className="si-empty-icon">🔍</div>
                 <h2>No internships found</h2>
                 <p>
                   {searchQuery || Object.keys(filters).some(k => filters[k])
-                    ? 'Try adjusting your search or filters.'
-                    : 'Check back later for new opportunities.'}
+                    ? 'Try adjusting your search or filters to find more opportunities.'
+                    : 'Check back later — new opportunities are added regularly.'}
                 </p>
                 {(searchQuery || Object.keys(filters).some(k => filters[k])) && (
                   <button

@@ -25,6 +25,12 @@ const StudentDetail = () => {
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackError, setFeedbackError] = useState(null);
   
+  // Tab state: 'student' or 'company'
+  const [activeTab, setActiveTab] = useState('student');
+  
+  // Feedback history visibility state
+  const [showFeedbackHistory, setShowFeedbackHistory] = useState(false);
+  
 
   useEffect(() => {
     fetchStudentDetail();
@@ -142,157 +148,186 @@ const StudentDetail = () => {
           )}
         </div>
 
+        {/* Tab Buttons */}
+        <div className="sd-tab-container">
+          <button 
+            className={`sd-tab-btn ${activeTab === 'student' ? 'sd-tab-active' : ''}`}
+            onClick={() => setActiveTab('student')}
+          >
+            <User size={18} />
+            <span>Student Information</span>
+          </button>
+          <button 
+            className={`sd-tab-btn ${activeTab === 'company' ? 'sd-tab-active' : ''}`}
+            onClick={() => setActiveTab('company')}
+          >
+            <Building2 size={18} />
+            <span>Company Information</span>
+          </button>
+        </div>
+
         {/* Main Grid */}
         <div className="sd-grid">
           {/* Left Column */}
           <div className="sd-left">
-            {/* Student Information */}
-            <div className="sd-card">
-              <h3 className="sd-card-title">
-                <User size={18} />
-                Student Information
-              </h3>
-              <table className="sd-table">
-                <tbody>
-                  <tr>
-                    <td className="sd-table-label">
-                      <User size={14} />
-                      Full Name
-                    </td>
-                    <td className="sd-table-value">{student.full_name}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Mail size={14} />
-                      Email
-                    </td>
-                    <td className="sd-table-value">{student.email}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <FileText size={14} />
-                      University ID
-                    </td>
-                    <td className="sd-table-value">{student.university_id}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Phone size={14} />
-                      Phone
-                    </td>
-                    <td className="sd-table-value">{student.phone_number || 'N/A'}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Building2 size={14} />
-                      Department
-                    </td>
-                    <td className="sd-table-value">{student.department_name}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <FileText size={14} />
-                      Skills
-                    </td>
-                    <td className="sd-table-value">{student.skills || 'N/A'}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            
+            {/* Student Information Tab */}
+            {activeTab === 'student' && (
+              <>
+                {/* Student Information */}
+                <div className="sd-card">
+                  <h3 className="sd-card-title">
+                    <User size={18} />
+                    Student Information
+                  </h3>
+                  <table className="sd-table">
+                    <tbody>
+                      <tr>
+                        <td className="sd-table-label">
+                          <User size={14} />
+                          Full Name
+                        </td>
+                        <td className="sd-table-value">{student.full_name}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Mail size={14} />
+                          Email
+                        </td>
+                        <td className="sd-table-value">{student.email}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <FileText size={14} />
+                          University ID
+                        </td>
+                        <td className="sd-table-value">{student.university_id}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Phone size={14} />
+                          Phone
+                        </td>
+                        <td className="sd-table-value">{student.phone_number || 'N/A'}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Building2 size={14} />
+                          Department
+                        </td>
+                        <td className="sd-table-value">{student.department_name}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <FileText size={14} />
+                          Skills
+                        </td>
+                        <td className="sd-table-value">{student.skills || 'N/A'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
 
-            {/* Internship Information */}
-            <div className="sd-card">
-              <h3 className="sd-card-title">
-                <Building2 size={18} />
-                Internship Details
-              </h3>
-              <table className="sd-table">
-                <tbody>
-                  <tr>
-                    <td className="sd-table-label">
-                      <FileText size={14} />
-                      Position
-                    </td>
-                    <td className="sd-table-value">{internship.title}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Building2 size={14} />
-                      Company
-                    </td>
-                    <td className="sd-table-value">{internship.company_name}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <MapPin size={14} />
-                      Location
-                    </td>
-                    <td className="sd-table-value">{internship.location}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Clock size={14} />
-                      Duration
-                    </td>
-                    <td className="sd-table-value">{internship.duration_months} months</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Calendar size={14} />
-                      Start Date
-                    </td>
-                    <td className="sd-table-value">{new Date(internship.start_date).toLocaleDateString()}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Calendar size={14} />
-                      End Date
-                    </td>
-                    <td className="sd-table-value">{internship.end_date ? new Date(internship.end_date).toLocaleDateString() : 'N/A'}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <FileText size={14} />
-                      Description
-                    </td>
-                    <td className="sd-table-value">{internship.description}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <FileText size={14} />
-                      Required Skills
-                    </td>
-                    <td className="sd-table-value">{internship.required_skills}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            {/* Company Information Tab */}
+            {activeTab === 'company' && (
+              <>
+                {/* Internship Information */}
+                <div className="sd-card">
+                  <h3 className="sd-card-title">
+                    <Building2 size={18} />
+                    Internship Details
+                  </h3>
+                  <table className="sd-table">
+                    <tbody>
+                      <tr>
+                        <td className="sd-table-label">
+                          <FileText size={14} />
+                          Position
+                        </td>
+                        <td className="sd-table-value">{internship.title}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Building2 size={14} />
+                          Company
+                        </td>
+                        <td className="sd-table-value">{internship.company_name}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <MapPin size={14} />
+                          Location
+                        </td>
+                        <td className="sd-table-value">{internship.location}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Clock size={14} />
+                          Duration
+                        </td>
+                        <td className="sd-table-value">{internship.duration_months} months</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Calendar size={14} />
+                          Start Date
+                        </td>
+                        <td className="sd-table-value">{new Date(internship.start_date).toLocaleDateString()}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Calendar size={14} />
+                          End Date
+                        </td>
+                        <td className="sd-table-value">{internship.end_date ? new Date(internship.end_date).toLocaleDateString() : 'N/A'}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <FileText size={14} />
+                          Description
+                        </td>
+                        <td className="sd-table-value">{internship.description}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <FileText size={14} />
+                          Required Skills
+                        </td>
+                        <td className="sd-table-value">{internship.required_skills}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
 
-            {/* Company Contact */}
-            <div className="sd-card">
-              <h3 className="sd-card-title">
-                <Building2 size={18} />
-                Company Contact
-              </h3>
-              <table className="sd-table">
-                <tbody>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Mail size={14} />
-                      Email
-                    </td>
-                    <td className="sd-table-value">{internship.company_email}</td>
-                  </tr>
-                  <tr>
-                    <td className="sd-table-label">
-                      <Phone size={14} />
-                      Phone
-                    </td>
-                    <td className="sd-table-value">{internship.company_phone || 'N/A'}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                {/* Company Contact */}
+                <div className="sd-card">
+                  <h3 className="sd-card-title">
+                    <Building2 size={18} />
+                    Company Contact
+                  </h3>
+                  <table className="sd-table">
+                    <tbody>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Mail size={14} />
+                          Email
+                        </td>
+                        <td className="sd-table-value">{internship.company_email}</td>
+                      </tr>
+                      <tr>
+                        <td className="sd-table-label">
+                          <Phone size={14} />
+                          Phone
+                        </td>
+                        <td className="sd-table-value">{internship.company_phone || 'N/A'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Right Column */}
@@ -312,9 +347,56 @@ const StudentDetail = () => {
                     <Send size={18} />
                     Send Feedback
                   </button>
+                  <button
+                    onClick={() => setShowFeedbackHistory(!showFeedbackHistory)}
+                    className="sd-action-btn sd-action-btn-secondary"
+                  >
+                    <MessageSquare size={18} />
+                    {showFeedbackHistory ? 'Hide' : 'View'} Feedback History
+                  </button>
                 </div>
               </div>
             )}
+
+            {/* Feedback History */}
+            <div className="sd-card">
+              <div className="sd-card-title-row">
+                <h3 className="sd-card-title">
+                  <MessageSquare size={18} />
+                  Feedback History
+                </h3>
+                <span className="sd-count-badge">{feedbacks?.length || 0}</span>
+              </div>
+
+              {showFeedbackHistory && (
+                <>
+                  {feedbacks && feedbacks.length > 0 ? (
+                    <div className="sd-feedback-list">
+                      {feedbacks.map((feedback) => (
+                        <div key={feedback.id} className="sd-feedback-item">
+                          <div className="sd-feedback-meta">
+                            <span className="sd-feedback-date">
+                              <Calendar size={12} />
+                              {new Date(feedback.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                          <p className="sd-feedback-text">{feedback.feedback_text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="sd-no-feedback">
+                      <MessageSquare size={32} />
+                      <p>No feedback given yet</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
 
             {/* Statistics */}
             <div className="sd-card">
@@ -332,42 +414,6 @@ const StudentDetail = () => {
                   isStatus
                 />
               </div>
-            </div>
-
-            {/* Feedback History */}
-            <div className="sd-card">
-              <div className="sd-card-title-row">
-                <h3 className="sd-card-title">
-                  <MessageSquare size={18} />
-                  Feedback History
-                </h3>
-                <span className="sd-count-badge">{feedbacks?.length || 0}</span>
-              </div>
-
-              {feedbacks && feedbacks.length > 0 ? (
-                <div className="sd-feedback-list">
-                  {feedbacks.map((feedback) => (
-                    <div key={feedback.id} className="sd-feedback-item">
-                      <div className="sd-feedback-meta">
-                        <span className="sd-feedback-date">
-                          <Calendar size={12} />
-                          {new Date(feedback.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                      <p className="sd-feedback-text">{feedback.feedback_text}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="sd-no-feedback">
-                  <MessageSquare size={32} />
-                  <p>No feedback given yet</p>
-                </div>
-              )}
             </div>
           </div>
         </div>

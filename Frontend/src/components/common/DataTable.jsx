@@ -15,6 +15,8 @@ const DataTable = ({
   searchPlaceholder = 'Search...',
   onSearch,
   externalSearchValue = '',
+  selectedRowId = null,
+  rowIdKey = 'id',
 }) => {
   const [internalSearchTerm, setInternalSearchTerm] = useState('');
   const searchTerm = onSearch ? externalSearchValue : internalSearchTerm;
@@ -145,6 +147,7 @@ const DataTable = ({
                 <tr
                   key={row.id || index}
                   onClick={() => handleRowClick(row)}
+                  className={selectedRowId && row[rowIdKey] === selectedRowId ? 'selected-row' : ''}
                   style={{
                     ...styles.tr,
                     cursor: onRowClick ? 'pointer' : 'default',
@@ -180,23 +183,28 @@ const DataTable = ({
 // Styles
 const styles = {
   container: {
-    backgroundColor: 'white',
+    backgroundColor: 'var(--bg-surface)',
     borderRadius: '8px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--shadow-sm)',
     overflow: 'hidden',
+    border: '1px solid var(--border-subtle)',
+    transition: 'var(--transition)',
   },
   searchContainer: {
     position: 'relative',
     padding: '16px',
-    borderBottom: '1px solid #e2e8f0',
+    borderBottom: '1px solid var(--border-subtle)',
   },
   searchInput: {
     width: '100%',
     padding: '10px 40px 10px 12px',
     fontSize: '14px',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-subtle)',
     borderRadius: '6px',
     outline: 'none',
+    backgroundColor: 'var(--bg-root)',
+    color: 'var(--text-main)',
+    transition: 'var(--transition)',
   },
   searchIcon: {
     position: 'absolute',
@@ -217,11 +225,11 @@ const styles = {
     textAlign: 'left',
     fontSize: '12px',
     fontWeight: '600',
-    color: '#4a5568',
+    color: 'var(--text-bright)',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    backgroundColor: '#f7fafc',
-    borderBottom: '2px solid #e2e8f0',
+    backgroundColor: 'var(--bg-root)',
+    borderBottom: '2px solid var(--border-subtle)',
   },
   thContent: {
     display: 'flex',
@@ -233,13 +241,13 @@ const styles = {
     color: '#667eea',
   },
   tr: {
-    borderBottom: '1px solid #f7fafc',
+    borderBottom: '1px solid var(--border-subtle)',
     transition: 'background-color 0.2s',
   },
   td: {
     padding: '16px',
     fontSize: '14px',
-    color: '#2d3748',
+    color: 'var(--text-main)',
   },
   loadingContainer: {
     display: 'flex',
@@ -251,14 +259,14 @@ const styles = {
   spinner: {
     width: '40px',
     height: '40px',
-    border: '4px solid #e2e8f0',
+    border: '4px solid var(--border-subtle)',
     borderTopColor: '#667eea',
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
   },
   loadingText: {
     marginTop: '16px',
-    color: '#718096',
+    color: 'var(--text-muted)',
     fontSize: '14px',
   },
   emptyContainer: {
@@ -270,17 +278,17 @@ const styles = {
   },
   emptyText: {
     marginTop: '16px',
-    color: '#718096',
+    color: 'var(--text-muted)',
     fontSize: '14px',
   },
   footer: {
     padding: '12px 16px',
-    borderTop: '1px solid #e2e8f0',
-    backgroundColor: '#f7fafc',
+    borderTop: '1px solid var(--border-subtle)',
+    backgroundColor: 'var(--bg-root)',
   },
   footerText: {
     fontSize: '13px',
-    color: '#718096',
+    color: 'var(--text-muted)',
     margin: 0,
   },
 };
@@ -310,6 +318,8 @@ DataTable.propTypes = {
   emptyMessage: PropTypes.string,
   searchable: PropTypes.bool,
   searchPlaceholder: PropTypes.string,
+  selectedRowId: PropTypes.any,
+  rowIdKey: PropTypes.string,
 };
 
 export default DataTable;

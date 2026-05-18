@@ -419,3 +419,42 @@ def public_internships_list(request):
             {'error': f'Failed to fetch internships: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_internship_detail(request, pk):
+    """
+    GET /api/internships/public/<id>/
+
+    Get detailed information about a specific internship for public viewing
+    No authentication required
+
+    Returns: Detailed internship information
+    """
+    try:
+        # Get the internship (must be active and open for public viewing)
+        internship = Internship.objects.filter(
+            id=pk,
+            is_active=True
+        ).select_related(
+            'company',
+            'company__company_profile',
+            'department'
+        ).prefetch_related('applications').first()
+
+        if not internship:
+            return Response(
+                {'error': 'Internship not found or not available'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Serialize and return
+        serializer = InternshipDetailSerializer(internship)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {'error': f'Failed to fetch internship: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
